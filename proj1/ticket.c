@@ -29,11 +29,22 @@ int main(int argc, char **argv)
 
   printf("nthreads: %d, ncpath: %d\n", nthreads, ncpath);
   if(nthreads < 0 || ncpath < 0)
+  {
+    fprintf(stderr, "Neplatny typ alebo hodnota parametrov\n");
     return EXIT_FAILURE;
+  }
+
+  for(int i=0; i<=nthreads; ++i)
+    printf("ticket: %d\n", getticket());
 
   return EXIT_SUCCESS;
 }
 
+/**
+ * @brief Prevedie retazec na integer.
+ * @param str vstupny retazec
+ * @return prevedene cislo alebo -1 v pripade chyby
+ */
 int strtoi(char *str)
 {
   char *ptr;
