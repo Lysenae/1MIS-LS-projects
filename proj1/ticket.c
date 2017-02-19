@@ -17,6 +17,13 @@ void await(int aenter);
 void advance();
 void *print_id(void *t);
 
+struct thread_data{
+  int  thread_id;
+  int  ticket;
+};
+
+int ticket = 0;
+
 int main(int argc, char **argv)
 {
   if(argc != 3)
@@ -35,21 +42,21 @@ int main(int argc, char **argv)
   }
 
   pthread_t threads[nthreads];
-  long tids[nthreads];
-
   int res;
-  for(long id=0; id<=nthreads; ++id)
+  struct thread_data td[nthreads];
+
+  for(int id=0; id<=nthreads; ++id)
   {
-    tids[id] = id;
-    res = pthread_create(&threads[id], NULL, print_id, (void *)id);
+    td[id].thread_id = id;
+    td[id].ticket = 0;
+    res = pthread_create(&threads[id], NULL, print_id, (void *)&td[id]);
     if(res)
     {
-      fprintf(stderr, "Nepodarilo sa vytvorit vlakno %ld\n", id);
+      fprintf(stderr, "Nepodarilo sa vytvorit vlakno %d\n", id);
       return EXIT_FAILURE;
     }
   }
 
-  printf("tids[0] = %ld\n", tids[0]);
   pthread_exit(NULL);
   return EXIT_SUCCESS;
 }
@@ -71,8 +78,6 @@ int strtoi(char *str)
 
 int getticket()
 {
-  static int ticket = -1;
-  ticket += 1;
   return ticket;
 }
 
@@ -83,10 +88,13 @@ void await(int aenter)
 
 void advance()
 {
+  ticket += 1;
 }
 
 void *print_id(void *t)
 {
-  printf("Thread: %ld\n", (long)t);
+  struct thread_data *td;
+  td = (struct thread_data *) t;
+  printf("Thread: %d\n", td->thread_id);
   pthread_exit(NULL);
 }
