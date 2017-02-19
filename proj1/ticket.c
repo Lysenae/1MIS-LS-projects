@@ -46,14 +46,14 @@ int main(int argc, char **argv)
   int res;
   struct thread_data td[nthreads];
 
-  for(int id=0; id<=nthreads; ++id)
+  for(int i=0; i<nthreads; ++i)
   {
-    td[id].thread_id = id;
-    td[id].ticket = -1;
-    res = pthread_create(&threads[id], NULL, print_thread, (void *)&td[id]);
+    td[i].thread_id = i+1;
+    td[i].ticket = -1;
+    res = pthread_create(&threads[i], NULL, print_thread, (void *)&td[i]);
     if(res)
     {
-      fprintf(stderr, "Nepodarilo sa vytvorit vlakno %d\n", id);
+      fprintf(stderr, "Nepodarilo sa vytvorit vlakno %d\n", i+1);
       return EXIT_FAILURE;
     }
   }
