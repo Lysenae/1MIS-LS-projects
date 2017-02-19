@@ -23,4 +23,4 @@ clean:
 	rm -f *.o
 	rm -f $(PROG)
 	rm -f $(PROG).out
-	tm -f .fuse*
+	rm -f .fuse*
