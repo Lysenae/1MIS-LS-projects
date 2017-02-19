@@ -15,6 +15,7 @@
 int  strtoi(char *str);
 long rnd();
 void do_sleep();
+void destroy_resources();
 
 int  getticket();
 void await(int aenter);
@@ -68,14 +69,13 @@ int main(int argc, char **argv)
     if(res)
     {
       fprintf(stderr, "Nepodarilo sa vytvorit vlakno %d\n", i+1);
+      destroy_resources();
       return EXIT_FAILURE;
     }
   }
 
   pthread_exit(NULL);
-  pthread_mutex_destroy(&process_mtx);
-  pthread_mutex_destroy(&ticket_mtx);
-  pthread_cond_destroy(&served_cond);
+  destroy_resources();
 
   return EXIT_SUCCESS;
 }
@@ -113,6 +113,20 @@ void do_sleep(long duration)
   nanosleep((const struct timespec[]){{0, duration}}, NULL);
 }
 
+/**
+ * @brief Upratovanie.
+ */
+void destroy_resources()
+{
+  pthread_mutex_destroy(&process_mtx);
+  pthread_mutex_destroy(&ticket_mtx);
+  pthread_cond_destroy(&served_cond);
+}
+
+/**
+ * @brief Vyda nasledujuci listok
+ * @return listok
+ */
 int getticket()
 {
   pthread_mutex_lock(&ticket_mtx);
@@ -121,6 +135,10 @@ int getticket()
   return next_ticket;
 }
 
+/**
+ * @brief Vstup do kritickej sekcie, vlakno, ktoreho listok nie je na rade caka.
+ * @param aenter cislo litku vlakna
+ */
 void await(int aenter)
 {
   pthread_mutex_lock(&process_mtx);
@@ -130,6 +148,10 @@ void await(int aenter)
   }
 }
 
+/**
+ * @brief Vystup z kritickej sekcie, inkrementuje poradovnik listkov a informuje
+ * cakajuce vlakna o zmene.
+ */
 void advance()
 {
   pthread_mutex_lock(&ticket_mtx);
@@ -139,22 +161,22 @@ void advance()
   pthread_mutex_unlock(&ticket_mtx);
 }
 
+/**
+ * Praca vlakna, ak vstupi do kritickej sekcie vypise cislo listku, ktory mu
+ * vstup umoznil a svoje id.
+ * @param t data vlakna
+ */
 void *process_thread(void *t)
 {
-  struct thread_data *td;
+  struct thread_data *td = (struct thread_data *) t;
   int ticket;
-
-  td = (struct thread_data *) t;
-
   while((ticket = getticket()) <= td->ncpath)
   {
-    //do_sleep(rnd(td->id));
     do_sleep(rnd(td->id));
     await(ticket);
-    printf("Thread[%d]:\t(%d)\n", td->id, ticket);
+    printf("%d\t(%d)\n", ticket, td->id);
     advance();
     do_sleep(rnd(td->id));
   }
-
   pthread_exit(NULL);
 }
