@@ -23,3 +23,8 @@ clean:
 	rm -f *.o
 	rm -f $(PROG)
 	rm -f $(PROG).out
+
+git: clean
+	git add --all
+	git commit
+	git push -u origin master
