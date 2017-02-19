@@ -26,5 +26,5 @@ clean:
 
 git: clean
 	git add --all
-	git commit -m $(m)
+	git commit
 	git push -u origin master
