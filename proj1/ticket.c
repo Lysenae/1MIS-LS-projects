@@ -12,21 +12,28 @@
 #include <time.h>
 #include <pthread.h>
 
-int strtoi(char *str);
+int  strtoi(char *str);
 long rnd();
 void do_sleep();
-int getticket();
+
+int  getticket();
 void await(int aenter);
 void advance();
-void *print_thread(void *t);
 
-struct thread_data{
-  int  thread_id;
-  int  ticket;
+void *process_thread(void *t);
+
+struct thread_data
+{
+  unsigned int id;
+  int ncpath;
 };
 
 int current_ticket = 0;
-int next_ticket    = 0;
+int next_ticket    = -1;
+
+pthread_mutex_t process_mtx;
+pthread_mutex_t ticket_mtx;
+pthread_cond_t  served_cond;
 
 int main(int argc, char **argv)
 {
@@ -45,15 +52,19 @@ int main(int argc, char **argv)
     return EXIT_FAILURE;
   }
 
+  pthread_mutex_init(&process_mtx, NULL);
+  pthread_mutex_init(&ticket_mtx, NULL);
+  pthread_cond_init(&served_cond, NULL);
+
   pthread_t threads[nthreads];
   int res;
   struct thread_data td[nthreads];
 
-  for(int i=0; i<nthreads; ++i)
+  for(unsigned int i=0; i<(unsigned int)nthreads; ++i)
   {
-    td[i].thread_id = i+1;
-    td[i].ticket = -1;
-    res = pthread_create(&threads[i], NULL, print_thread, (void *)&td[i]);
+    td[i].id = i+1;
+    td[i].ncpath = ncpath;
+    res = pthread_create(&threads[i], NULL, process_thread, (void *)&td[i]);
     if(res)
     {
       fprintf(stderr, "Nepodarilo sa vytvorit vlakno %d\n", i+1);
@@ -61,18 +72,11 @@ int main(int argc, char **argv)
     }
   }
 
-  int ticket;
-  while((ticket = getticket()) < ncpath)
-  {
-    /* Přidělení lístku */
-    do_sleep(rnd());
-    await(ticket);              /* Vstup do KS */
-    printf("%d\t(%d)\n", ticket, 0); // id
-    advance();              /* Výstup z KS */
-    do_sleep(rnd());
-  }
-
   pthread_exit(NULL);
+  pthread_mutex_destroy(&process_mtx);
+  pthread_mutex_destroy(&ticket_mtx);
+  pthread_cond_destroy(&served_cond);
+
   return EXIT_SUCCESS;
 }
 
@@ -95,10 +99,10 @@ int strtoi(char *str)
  * @brief PRNG cisel v rozsahu <0;500000000> (0-0.5 sekund).
  * @return nahodne cislo
  */
-long rnd()
+long rnd(unsigned int thread_id)
 {
-  unsigned int seed = time(NULL);
-  return rand_r(&seed) % 500000000L;
+  double numd = (rand_r(&thread_id) % 1000) / 2000.0;
+  return (long)(numd * 1000000000);
 }
 
 /**
@@ -111,24 +115,46 @@ void do_sleep(long duration)
 
 int getticket()
 {
+  pthread_mutex_lock(&ticket_mtx);
   next_ticket += 1;
+  pthread_mutex_unlock(&ticket_mtx);
   return next_ticket;
 }
 
 void await(int aenter)
 {
-  printf("%d\n", aenter);
+  pthread_mutex_lock(&process_mtx);
+  while(aenter > current_ticket)
+  {
+    pthread_cond_wait(&served_cond, &process_mtx);
+  }
 }
 
 void advance()
 {
+  pthread_mutex_lock(&ticket_mtx);
   current_ticket += 1;
+  pthread_cond_broadcast(&served_cond);
+  pthread_mutex_unlock(&process_mtx);
+  pthread_mutex_unlock(&ticket_mtx);
 }
 
-void *print_thread(void *t)
+void *process_thread(void *t)
 {
   struct thread_data *td;
+  int ticket;
+
   td = (struct thread_data *) t;
-  printf("Created thread: id: %d, ticket: %d\n", td->thread_id, td->ticket);
+
+  while((ticket = getticket()) <= td->ncpath)
+  {
+    //do_sleep(rnd(td->id));
+    do_sleep(rnd(td->id));
+    await(ticket);
+    printf("Thread[%d]:\t(%d)\n", td->id, ticket);
+    advance();
+    do_sleep(rnd(td->id));
+  }
+
   pthread_exit(NULL);
 }
