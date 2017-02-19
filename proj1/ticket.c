@@ -9,9 +9,12 @@
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <time.h>
 #include <pthread.h>
 
 int strtoi(char *str);
+long rnd();
+void do_sleep();
 int getticket();
 void await(int aenter);
 void advance();
@@ -58,6 +61,17 @@ int main(int argc, char **argv)
     }
   }
 
+  int ticket;
+  while((ticket = getticket()) < ncpath)
+  {
+    /* Přidělení lístku */
+    do_sleep(rnd());
+    await(ticket);              /* Vstup do KS */
+    printf("%d\t(%d)\n", ticket, 0); // id
+    advance();              /* Výstup z KS */
+    do_sleep(rnd());
+  }
+
   pthread_exit(NULL);
   return EXIT_SUCCESS;
 }
@@ -75,6 +89,21 @@ int strtoi(char *str)
     return (int) num;
   else
     return -1;
+}
+
+/**
+ * @brief PRNG cisel v rozsahu < 0.0;0.5 >
+ * @return nahodne cislo
+ */
+long rnd()
+{
+  unsigned int seed = time(NULL);
+  return rand_r(&seed) % 500000000L;
+}
+
+void do_sleep(long duration)
+{
+  nanosleep((const struct timespec[]){{0, duration}}, NULL);
 }
 
 int getticket()
