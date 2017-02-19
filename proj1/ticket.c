@@ -22,7 +22,8 @@ struct thread_data{
   int  ticket;
 };
 
-int ticket = 0;
+int current_ticket = 0;
+int next_ticket    = 0;
 
 int main(int argc, char **argv)
 {
@@ -48,7 +49,7 @@ int main(int argc, char **argv)
   for(int id=0; id<=nthreads; ++id)
   {
     td[id].thread_id = id;
-    td[id].ticket = 0;
+    td[id].ticket = -1;
     res = pthread_create(&threads[id], NULL, print_thread, (void *)&td[id]);
     if(res)
     {
@@ -78,7 +79,8 @@ int strtoi(char *str)
 
 int getticket()
 {
-  return ticket;
+  next_ticket += 1;
+  return next_ticket;
 }
 
 void await(int aenter)
@@ -88,13 +90,13 @@ void await(int aenter)
 
 void advance()
 {
-  ticket += 1;
+  current_ticket += 1;
 }
 
 void *print_thread(void *t)
 {
   struct thread_data *td;
   td = (struct thread_data *) t;
-  printf("Thread: id: %d, ticket: %d\n", td->thread_id, td->ticket);
+  printf("Created thread: id: %d, ticket: %d\n", td->thread_id, td->ticket);
   pthread_exit(NULL);
 }
