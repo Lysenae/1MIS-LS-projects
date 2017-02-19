@@ -8,24 +8,47 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <limits.h>
 
+int strtoi(char *str);
 int getticket();
 void await(int aenter);
 void advance();
 
+
 int main(int argc, char **argv)
 {
-  for(int i=0; i<argc; ++i)
+  if(argc != 3)
   {
-    printf("%s\n", argv[i]);
+    printf("./ticket nthreads ncpath\n");
+    return EXIT_FAILURE;
   }
 
-  return 0;
+  int nthreads = strtoi(argv[1]);
+  int ncpath   = strtoi(argv[2]);
+
+  printf("nthreads: %d, ncpath: %d\n", nthreads, ncpath);
+  if(nthreads < 0 || ncpath < 0)
+    return EXIT_FAILURE;
+
+  return EXIT_SUCCESS;
+}
+
+int strtoi(char *str)
+{
+  char *ptr;
+  long num = strtol(str, &ptr, 10);
+  if(strcmp("", ptr) == 0 && num <= INT_MAX && num >= 0)
+    return (int) num;
+  else
+    return -1;
 }
 
 int getticket()
 {
-  return 0;
+  static int ticket = -1;
+  ticket += 1;
+  return ticket;
 }
 
 void await(int aenter)
