@@ -12,6 +12,9 @@
 #include <time.h>
 #include <pthread.h>
 
+#define _XOPEN_SOURCE
+#define _XOPEN_SOURCE_EXTENDED 1
+
 int  strtoi(char *str);
 long rnd();
 void do_sleep();
