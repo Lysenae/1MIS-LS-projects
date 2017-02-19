@@ -92,7 +92,7 @@ int strtoi(char *str)
 }
 
 /**
- * @brief PRNG cisel v rozsahu < 0.0;0.5 >
+ * @brief PRNG cisel v rozsahu <0;500000000> (0-0.5 sekund).
  * @return nahodne cislo
  */
 long rnd()
@@ -101,6 +101,9 @@ long rnd()
   return rand_r(&seed) % 500000000L;
 }
 
+/**
+ * @brief Vid. man nanosleep
+ */
 void do_sleep(long duration)
 {
   nanosleep((const struct timespec[]){{0, duration}}, NULL);
