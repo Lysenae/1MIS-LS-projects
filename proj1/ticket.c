@@ -15,7 +15,7 @@ int strtoi(char *str);
 int getticket();
 void await(int aenter);
 void advance();
-void *print_id(void *t);
+void *print_thread(void *t);
 
 struct thread_data{
   int  thread_id;
@@ -49,7 +49,7 @@ int main(int argc, char **argv)
   {
     td[id].thread_id = id;
     td[id].ticket = 0;
-    res = pthread_create(&threads[id], NULL, print_id, (void *)&td[id]);
+    res = pthread_create(&threads[id], NULL, print_thread, (void *)&td[id]);
     if(res)
     {
       fprintf(stderr, "Nepodarilo sa vytvorit vlakno %d\n", id);
@@ -91,10 +91,10 @@ void advance()
   ticket += 1;
 }
 
-void *print_id(void *t)
+void *print_thread(void *t)
 {
   struct thread_data *td;
   td = (struct thread_data *) t;
-  printf("Thread: %d\n", td->thread_id);
+  printf("Thread: id: %d, ticket: %d\n", td->thread_id, td->ticket);
   pthread_exit(NULL);
 }
