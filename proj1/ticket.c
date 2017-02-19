@@ -9,12 +9,13 @@
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <pthread.h>
 
 int strtoi(char *str);
 int getticket();
 void await(int aenter);
 void advance();
-
+void *print_id(void *t);
 
 int main(int argc, char **argv)
 {
@@ -27,23 +28,36 @@ int main(int argc, char **argv)
   int nthreads = strtoi(argv[1]);
   int ncpath   = strtoi(argv[2]);
 
-  printf("nthreads: %d, ncpath: %d\n", nthreads, ncpath);
   if(nthreads < 0 || ncpath < 0)
   {
     fprintf(stderr, "Neplatny typ alebo hodnota parametrov\n");
     return EXIT_FAILURE;
   }
 
-  for(int i=0; i<=nthreads; ++i)
-    printf("ticket: %d\n", getticket());
+  pthread_t threads[nthreads];
+  long tids[nthreads];
 
+  int res;
+  for(long id=0; id<=nthreads; ++id)
+  {
+    tids[id] = id;
+    res = pthread_create(&threads[id], NULL, print_id, (void *)id);
+    if(res)
+    {
+      fprintf(stderr, "Nepodarilo sa vytvorit vlakno %ld\n", id);
+      return EXIT_FAILURE;
+    }
+  }
+
+  printf("tids[0] = %ld\n", tids[0]);
+  pthread_exit(NULL);
   return EXIT_SUCCESS;
 }
 
 /**
- * @brief Prevedie retazec na integer.
+ * @brief Prevedie retazec na kladne cele cislo.
  * @param str vstupny retazec
- * @return prevedene cislo alebo -1 v pripade chyby
+ * @return prevedene kladne cislo alebo -1 v pripade chyby
  */
 int strtoi(char *str)
 {
@@ -69,4 +83,10 @@ void await(int aenter)
 
 void advance()
 {
+}
+
+void *print_id(void *t)
+{
+  printf("Thread: %ld\n", (long)t);
+  pthread_exit(NULL);
 }
