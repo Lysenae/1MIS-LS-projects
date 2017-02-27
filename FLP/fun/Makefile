@@ -12,3 +12,8 @@ clean:
 	rm -f $(FILE)
 	rm -f $(FILE).o
 	rm -f $(FILE).hi
+
+git:
+	git add --all
+	git commit
+	git push -u origin master
