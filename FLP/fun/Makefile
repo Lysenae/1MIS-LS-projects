@@ -3,13 +3,12 @@
 # Datum:   2017-02-27
 # Soubor:  Makefile
 
-all:
-	ghc --make plg2nka
+FILE = plg-2-nka
 
-run:
-	@./plg2nka
+all:
+	ghc --make $(FILE)
 
 clean:
-	rm -f plg2nka
-	rm -f plg2nka.o
-	rm -f plg2nka.hi
+	rm -f $(FILE)
+	rm -f $(FILE).o
+	rm -f $(FILE).hi
