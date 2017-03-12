@@ -1,13 +1,21 @@
-import System.Environment
-import System.Exit
+module Main
+    (main)
+  where
 
-main = getArgs >>= parseCmdArg
+import Options.Applicative
+import Data.Semigroup ((<>))
+import Control.Monad
 
-parseCmdArg ["-h"] = usage >> Main.exitSuccess
-parseCmdArg a      = badArg a >> Main.exitFailure
+import Lib.Config.CmdArgs
 
-exitSuccess = exitWith ExitSuccess
-exitFailure = exitWith (ExitFailure 1)
+main :: IO ()
+main = greet =<< execParser opts
+  where
+    opts = info (config <**> helper)
+      ( fullDesc
+     <> progDesc "Print a greeting for TARGET"
+     <> header "hello - a test for optparse-applicative" )
 
-usage = putStrLn "Usage:\n\tplg-2-nka [options] [input]"
-badArg [a] = putStrLn ("Wrong argument found: '" ++ a ++ "'")
+greet :: CmdArgs -> IO ()
+greet (CmdArgs h False n) = replicateM_ n . putStrLn $ "Hello, " ++ h
+greet _ = return ()

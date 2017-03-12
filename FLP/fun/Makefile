@@ -10,8 +10,8 @@ all:
 
 clean:
 	rm -f $(FILE)
-	rm -f $(FILE).o
-	rm -f $(FILE).hi
+	find . -name "*.o" -type f -delete
+	find . -name "*.hi" -type f -delete
 
 git:
 	git add --all
