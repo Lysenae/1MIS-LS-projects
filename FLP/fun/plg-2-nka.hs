@@ -17,6 +17,7 @@ main = do
   c <- parseArguments <$> getArgs
   either print handleCmdArgs c
 
+handleCmdArgs :: CmdArgs -> IO ()
 handleCmdArgs (CmdArgs pi p1 p2 inrlg) = do
   input <- getInput inrlg
   print input
