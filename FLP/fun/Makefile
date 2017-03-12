@@ -13,7 +13,7 @@ clean:
 	find . -name "*.o" -type f -delete
 	find . -name "*.hi" -type f -delete
 
-git:
+git: clean
 	git add --all
 	git commit
 	git push -u origin master

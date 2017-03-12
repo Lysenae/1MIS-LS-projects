@@ -2,20 +2,15 @@ module Main
     (main)
   where
 
-import Options.Applicative
-import Data.Semigroup ((<>))
-import Control.Monad
+import System.Environment
+import System.IO
 
-import Lib.Config.CmdArgs
+import Lib.CmdArgs.Parser
+import Lib.CmdArgs.Data
 
 main :: IO ()
-main = greet =<< execParser opts
-  where
-    opts = info (config <**> helper)
-      ( fullDesc
-     <> progDesc "Print a greeting for TARGET"
-     <> header "hello - a test for optparse-applicative" )
+main = do
+    c <- parseArguments <$> getArgs
+    input <- hGetContents stdin
+    print c
 
-greet :: CmdArgs -> IO ()
-greet (CmdArgs h False n) = replicateM_ n . putStrLn $ "Hello, " ++ h
-greet _ = return ()
