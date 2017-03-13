@@ -1,6 +1,6 @@
-module Lib.CmdArgs.Data where
+module Lib.CmdArgs.Config where
 
-data CmdArgs = CmdArgs
+data Config = Config
     { srlg  :: Bool      -- Show inner represenration of RLG
     , prlg  :: Bool      -- Show transformed RLG
     , pnka  :: Bool      -- Show equivalent NFSM

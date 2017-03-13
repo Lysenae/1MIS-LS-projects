@@ -1,3 +1,5 @@
+{-# LANGUAGE RecordWildCards #-}
+
 module Main
     (main)
   where
@@ -9,17 +11,19 @@ import System.IO
 import Lib.Utils.Utils
 
 import Lib.CmdArgs.Parser
-import Lib.CmdArgs.Data
-import Lib.CmdArgs.Functions
+import Lib.CmdArgs.Config
+
+import Lib.Rlg.Rlg
 
 main :: IO ()
 main = do
   c <- parseArguments <$> getArgs
   either print handleCmdArgs c
 
-handleCmdArgs :: CmdArgs -> IO ()
-handleCmdArgs (CmdArgs pi p1 p2 inrlg) = do
+handleCmdArgs :: Config -> IO ()
+handleCmdArgs Config{..} = do
   input <- getInput inrlg
+  --parseInput input
   print input
 
 getInput :: FilePath -> IO String
