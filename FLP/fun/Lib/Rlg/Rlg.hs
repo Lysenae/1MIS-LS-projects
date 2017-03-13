@@ -4,7 +4,7 @@ type Symbol = String
 
 data Rule = Rule
     { left  :: Symbol
-    , right :: Symbol
+    , right :: [Symbol]
     }
   deriving (Show)
 

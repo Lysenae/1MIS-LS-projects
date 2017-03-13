@@ -1,10 +1,13 @@
 module Lib.Rlg.Parser where
 
 import Lib.Rlg.Rlg
+import Lib.Utils.Utils
 import Text.ParserCombinators.ReadP
+import Data.Char
 
 newLine = char '\n'
 comma   = char ','
+arrow   = string "->"
 
 parseRlg :: String -> Either String Rlg
 parseRlg s = case readP_to_S rlgParser s of
@@ -17,13 +20,26 @@ rlgParser = do
     newLine
     terminals <- parseTerminals
     newLine
-    rules <- parseRules
+    start <- parseNonterminal
     newLine
-    start <- parseStart
+    rules <- parseRules
     eof
     return $ Rlg nonterminals terminals rules start
 
 
-parseNonterminal = many1 $ satisfy (/= ',') $ satisfy (/= )
+parseNonterminal  = many1 $ satisfy (isUpper)
+parseNonterminals = sepBy1 parseNonterminal comma
+parseTerminal     = many1 $ satisfy (isLower)
+parseTerminals    = sepBy parseTerminal comma
+parseSymbols      = many1 $ satisfy (isValid)
 
-parseNonterminals = sepBy1 parseState comma
+parseRules = many1 $ do
+    t <- parseRule
+    newLine
+    return t
+  where
+    parseRule = do
+        left <- parseNonterminal
+        arrow
+        right <- parseSymbols
+        return $ Rule left (splitStr right)
