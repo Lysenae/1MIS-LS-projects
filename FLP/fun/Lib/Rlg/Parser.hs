@@ -26,7 +26,6 @@ rlgParser = do
     eof
     return $ Rlg nonterminals terminals rules start
 
-
 parseNonterminal  = many1 $ satisfy (isUpper)
 parseNonterminals = sepBy1 parseNonterminal comma
 parseTerminal     = many1 $ satisfy (isLower)

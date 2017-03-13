@@ -14,3 +14,7 @@ isValid :: Char -> Bool
 isValid c
   | (isAlpha c) == True || c == '#' = True
   | otherwise                       = False
+
+str2Char :: String -> Char
+str2Char []     = ' '
+str2Char (s:rs) = s

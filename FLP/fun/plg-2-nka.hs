@@ -15,6 +15,7 @@ import Lib.CmdArgs.Config
 
 import Lib.Rlg.Rlg
 import Lib.Rlg.Parser
+import Lib.Rlg.Validator
 
 main :: IO ()
 main = do
@@ -24,7 +25,7 @@ main = do
 handleCmdArgs :: Config -> IO ()
 handleCmdArgs Config{..} = do
   input <- getInput inrlg
-  print (parseRlg input)
+  print (validateRlg (parseRlg input))
 
 getInput :: FilePath -> IO String
 getInput inpath
