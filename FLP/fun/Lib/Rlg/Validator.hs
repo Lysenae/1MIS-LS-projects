@@ -41,9 +41,8 @@ chkRRuleSideFormat (r:rs) ntmFound
   | ntmFound  = False -- Nonterminal must be the last symbol
   | otherwise = chkRRuleSideFormat rs (isNterm (s2ch r))
 
-validateRlg :: Either String Rlg -> Either String Rlg
-validateRlg (Left msg) = Left msg
-validateRlg (Right (Rlg nterm term rules start))
+validateRlg :: Rlg -> Either String Rlg
+validateRlg (Rlg nterm term rules start)
   | elem start nterm == False =
     Left "Start symbol is not in the nonterminals"
   | chkLRuleSides nterm rules == False =
