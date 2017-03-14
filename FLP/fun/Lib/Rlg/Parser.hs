@@ -1,9 +1,10 @@
+-- Author: Daniel Klimaj; xklima22@stud.fit.vutbr.cz
+
 module Lib.Rlg.Parser where
 
 import Lib.Rlg.Rlg
 import Lib.Utils.Utils
 import Text.ParserCombinators.ReadP
-import Data.Char
 
 newLine = char '\n'
 comma   = char ','
@@ -26,11 +27,11 @@ rlgParser = do
     eof
     return $ Rlg nonterminals terminals rules start
 
-parseNonterminal  = many1 $ satisfy (isUpper)
+parseNonterminal  = many1 $ satisfy (isNterm)
 parseNonterminals = sepBy1 parseNonterminal comma
-parseTerminal     = many1 $ satisfy (isLower)
+parseTerminal     = many1 $ satisfy (isTerm)
 parseTerminals    = sepBy parseTerminal comma
-parseSymbols      = many1 $ satisfy (isValid)
+parseSymbols      = many1 $ satisfy (isSymbol)
 
 parseRules = many1 $ do
     t <- parseRule

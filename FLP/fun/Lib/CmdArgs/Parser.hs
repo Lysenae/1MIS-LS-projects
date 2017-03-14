@@ -1,3 +1,5 @@
+-- Author: Daniel Klimaj; xklima22@stud.fit.vutbr.cz
+
 module Lib.CmdArgs.Parser where
 
 import Lib.CmdArgs.Config

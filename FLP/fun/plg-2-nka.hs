@@ -1,3 +1,5 @@
+-- Author: Daniel Klimaj; xklima22@stud.fit.vutbr.cz
+
 {-# LANGUAGE RecordWildCards #-}
 
 module Main

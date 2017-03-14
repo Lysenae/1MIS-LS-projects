@@ -1,3 +1,5 @@
+-- Author: Daniel Klimaj; xklima22@stud.fit.vutbr.cz
+
 module Lib.Rlg.Rlg where
 
 type Symbol = String
