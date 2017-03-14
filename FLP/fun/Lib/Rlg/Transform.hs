@@ -9,4 +9,7 @@ import Lib.Rlg.Rlg
 transformRlg :: Bool -> Rlg -> Either String Rlg
 transformRlg enabled rlg
   | enabled == False  = Left "Disabled"
-  | otherwise         = Right rlg
+  | otherwise         = performTransformation rlg
+
+performTransformation :: Rlg -> Either String Rlg
+performTransformation rlg = Right rlg

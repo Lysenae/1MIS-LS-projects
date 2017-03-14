@@ -3,6 +3,7 @@
 module Lib.CmdArgs.Parser where
 
 import Lib.CmdArgs.Config
+import Lib.CmdArgs.Help
 
 parseArg :: [String] -> Either String Config -> Either String Config
 parseArg _ (Left msg) = (Left msg)
@@ -15,5 +16,5 @@ parseArg (a:as) (Right (Config pi p1 p2 inf))
   | otherwise     = Left $ "Invalid option " ++ a
 
 parseArguments :: [String] -> Either String Config
-parseArguments []   = Right $ Config False False False ""
+parseArguments []   = Left helpMsg
 parseArguments args = parseArg args (Right $ Config False False False "")
