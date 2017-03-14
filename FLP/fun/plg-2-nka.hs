@@ -25,7 +25,7 @@ main = do
 
 handleCmdArgs :: Config -> IO ()
 handleCmdArgs conf = do
-  input <- getInput (inrlg conf)
+  input <- getInput (infile conf)
   putStrLn (getStr (handleRlg conf input))
 
 getInput :: FilePath -> IO String

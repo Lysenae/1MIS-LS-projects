@@ -3,9 +3,9 @@
 module Lib.CmdArgs.Config where
 
 data Config = Config
-    { srlg  :: Bool      -- Show inner represenration of RLG
-    , trlg  :: Bool      -- Show transformed RLG
-    , pnka  :: Bool      -- Show equivalent NFSM
-    , inrlg :: FilePath  -- File containing input RLG
+    { inner     :: Bool      -- Show inner represenration of RLG
+    , transform :: Bool      -- Show transformed RLG
+    , nfsm      :: Bool      -- Show equivalent NFSM
+    , infile    :: FilePath  -- File containing input RLG
     }
   deriving (Show)
