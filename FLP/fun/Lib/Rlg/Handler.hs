@@ -9,6 +9,11 @@ import Lib.Rlg.Parser
 import Lib.Rlg.Validator
 import Lib.Rlg.Transform
 
+-- Gets readable content of Either String Rlg
+getStr :: Either String Rlg -> String
+getStr (Left msg)  = msg
+getStr (Right rlg) = show rlg
+
 handleRlg :: Config -> String -> Either String Rlg
 handleRlg conf input = do
   inRlg <- parseRlg input

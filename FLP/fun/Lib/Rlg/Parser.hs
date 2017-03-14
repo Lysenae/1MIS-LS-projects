@@ -3,7 +3,7 @@
 module Lib.Rlg.Parser where
 
 import Lib.Rlg.Rlg
-import Lib.Utils.Utils
+import Lib.Misc.Misc
 import Text.ParserCombinators.ReadP
 
 newLine = char '\n'

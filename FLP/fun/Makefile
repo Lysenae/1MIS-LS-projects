@@ -12,6 +12,7 @@ clean:
 	rm -f $(FILE)
 	find . -name "*.o" -type f -delete
 	find . -name "*.hi" -type f -delete
+	find . -name ".fuse_*" -type f -delete
 
 git: clean
 	git add --all

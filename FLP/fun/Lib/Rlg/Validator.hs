@@ -3,7 +3,7 @@
 module Lib.Rlg.Validator where
 
 import Lib.Rlg.Rlg
-import Lib.Utils.Utils
+import Lib.Misc.Misc
 
 chkLRuleSides :: [Symbol] -> [Rule] -> Bool
 chkLRuleSides _ []        = True -- Everything else checked

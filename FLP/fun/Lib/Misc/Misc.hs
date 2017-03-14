@@ -1,6 +1,6 @@
 -- Author: Daniel Klimaj; xklima22@stud.fit.vutbr.cz
 
-module Lib.Utils.Utils where
+module Lib.Misc.Misc where
 
 import Data.Char
 
