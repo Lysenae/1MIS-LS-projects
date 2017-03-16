@@ -8,13 +8,13 @@ import Lib.Rlg.Rlg
 
 transformRlg :: Rlg -> Either String Rlg
 transformRlg rlg =
-  Right $ Rlg (trNterm rlg) (terminals rlg) (trRules rlg) (trStart rlg)
+  Right $ (trStart . trNterm . trRules) $ rlg
 
-trNterm :: Rlg -> [Symbol]
-trNterm rlg = ("666"):(nonterminals rlg)
+trNterm :: Rlg -> Rlg
+trNterm rlg = rlg { nonterminals = ("666"):(nonterminals rlg) }
 
-trStart :: Rlg -> Symbol
-trStart rlg = "SS"
+trStart :: Rlg -> Rlg
+trStart rlg = rlg { start = "SS" }
 
-trRules :: Rlg -> [Rule]
-trRules rlg = [Rule "X" ["Y","Z","W"]]
+trRules :: Rlg -> Rlg
+trRules rlg = rlg { rules = [Rule "X" ["Y","Z","W"]] }
