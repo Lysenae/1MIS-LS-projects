@@ -7,7 +7,14 @@ module Lib.Rlg.Transform where
 import Lib.Rlg.Rlg
 
 transformRlg :: Rlg -> Either String Rlg
-transformRlg rlg = performTransformation rlg
+transformRlg rlg =
+  Right $ Rlg (trNterm rlg) (terminals rlg) (trRules rlg) (trStart rlg)
 
-performTransformation :: Rlg -> Either String Rlg
-performTransformation rlg = Right rlg
+trNterm :: Rlg -> [Symbol]
+trNterm rlg = ("666"):(nonterminals rlg)
+
+trStart :: Rlg -> Symbol
+trStart rlg = "SS"
+
+trRules :: Rlg -> [Rule]
+trRules rlg = [Rule "X" ["Y","Z","W"]]
