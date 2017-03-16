@@ -13,24 +13,25 @@ getStr (Right rlg) = show rlg
 rlg2str :: Either String Rlg -> String
 rlg2str (Left msg)  = msg
 rlg2str (Right rlg) =
-  cvtSymbols (nonterminals rlg) ++ "\n" ++
-  cvtSymbols (terminals rlg)  ++ "\n" ++
+  cvtSymbols (nonterminals rlg) "," ++ "\n" ++
+  cvtSymbols (terminals rlg)  "," ++ "\n" ++
   start rlg ++ "\n" ++
   cvtRules (rules rlg)
 
--- Rlg {
---  nonterminals = ["A","B"],
---  terminals = ["a","b","c"],
---  rules = [
---   Rule {left = "A", right = ["a","a","B"]},
---   Rule {left = "A", right = ["c","c","B"]},
---   Rule {left = "B", right = ["b","B"]},
---   Rule {left = "B", right = ["#"]}],
---  start = "A"
--- }
-
-cvtSymbols :: [Symbol] -> String
-cvtSymbols s = "sym"
+-- cvtSymbols symbolList divider
+cvtSymbols :: [Symbol] -> String -> String
+cvtSymbols [] _ = ""
+cvtSymbols (s:ss) d
+  | ss == []  = s
+  | otherwise = s ++ d ++ (cvtSymbols ss d)
 
 cvtRules :: [Rule] -> String
-cvtRules r = "rules"
+cvtRules []     = ""
+cvtRules (r:rs) = (rule2str r) ++ (cvtRestRules rs)
+
+cvtRestRules :: [Rule] -> String
+cvtRestRules []     = ""
+cvtRestRules (r:rs) = "\n" ++ (rule2str r) ++ (cvtRestRules rs)
+
+rule2str :: Rule -> String
+rule2str r = (left r) ++ "->" ++ cvtSymbols (right r) ""

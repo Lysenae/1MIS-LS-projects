@@ -1,7 +1,5 @@
 -- Author: Daniel Klimaj; xklima22@stud.fit.vutbr.cz
 
-{-# LANGUAGE RecordWildCards #-}
-
 module Main
     (main)
   where
@@ -17,7 +15,6 @@ import Lib.CmdArgs.Config
 
 import Lib.Rlg.Rlg
 import Lib.Rlg.Handler
-import Lib.Rlg.ToString
 
 main :: IO ()
 main = do
