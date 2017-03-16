@@ -17,6 +17,7 @@ import Lib.CmdArgs.Config
 
 import Lib.Rlg.Rlg
 import Lib.Rlg.Handler
+import Lib.Rlg.ToString
 
 main :: IO ()
 main = do
@@ -26,7 +27,7 @@ main = do
 handleCmdArgs :: Config -> IO ()
 handleCmdArgs conf = do
   input <- getInput (infile conf)
-  putStrLn (getStr (handleRlg conf input))
+  putStrLn (handleRlg conf input)
 
 getInput :: FilePath -> IO String
 getInput inpath

@@ -7,10 +7,10 @@ import Lib.CmdArgs.Help
 
 parseArg :: String -> String -> Either String Config
 parseArg a inf
-  | a == "-i"     = (Right $ Config True False False inf)
-  | a == "-1"     = (Right $ Config False True False inf)
-  | a == "-2"     = (Right $ Config False False True inf)
-  | otherwise     = Left $ "Invalid option " ++ a
+  | a == "-i" = (Right $ Config True False False inf)
+  | a == "-1" = (Right $ Config False True False inf)
+  | a == "-2" = (Right $ Config False False True inf)
+  | otherwise = Left $ "Invalid option " ++ a
 
 parseArguments :: [String] -> Either String Config
 parseArguments [x]   = parseArg x ""
