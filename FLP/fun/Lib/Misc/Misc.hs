@@ -50,3 +50,11 @@ isNtermS s
 s2ch :: String -> Char
 s2ch []     = ' '
 s2ch (s:rs) = s
+
+allNum :: String -> Bool
+allNum [] = False
+allNum l  = (allNum' l)
+
+allNum' :: String -> Bool
+allNum' []     = True
+allNum' (s:ss) = (isDigit s) && (allNum' ss)
