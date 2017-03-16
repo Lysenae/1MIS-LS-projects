@@ -1,5 +1,10 @@
 A,B,S
 a,b,c
 S
-A->abS
-B->AA
+S->#
+S->a
+S->ab
+S->aB
+S->aaB
+S->aA
+S->bB

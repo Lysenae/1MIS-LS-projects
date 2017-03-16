@@ -33,6 +33,19 @@ isNterm c
   | isUpper c = True
   | otherwise = False
 
+-- Checks if given char is terminal
+isTermS:: String -> Bool
+isTermS s
+  | s2ch s == '#'    = True
+  | isLower (s2ch s) = True
+  | otherwise        = False
+
+-- Checks if given char is nonterminal
+isNtermS :: String -> Bool
+isNtermS s
+  | isUpper (s2ch s) = True
+  | otherwise        = False
+
 -- Converts first element of the string to char
 s2ch :: String -> Char
 s2ch []     = ' '

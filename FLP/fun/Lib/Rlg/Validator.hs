@@ -48,7 +48,7 @@ validateRlg (Rlg nterm term rules start)
   | chkLRuleSides nterm rules == False =
     Left "Invalid nonterminal on the left side of the rule found"
   | chkRRuleSidesFormat rules == False =
-    Left "Invalid format of the left side of the rule found"
+    Left "Invalid format of the right side of the rule found"
   | chkRRuleSides nterm term rules == False =
     Left "Invalid symbol in the the right side of the rule found"
   | otherwise = Right $ Rlg nterm term rules start
