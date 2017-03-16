@@ -58,3 +58,9 @@ allNum l  = (allNum' l)
 allNum' :: String -> Bool
 allNum' []     = True
 allNum' (s:ss) = (isDigit s) && (allNum' ss)
+
+listMerge :: Eq a => [a] -> [a] -> [a]
+listMerge l1 [] = l1
+listMerge l1 (l:ls)
+  | elem l l1 = listMerge l1 ls
+  | otherwise = listMerge (l1 ++ [l]) ls
