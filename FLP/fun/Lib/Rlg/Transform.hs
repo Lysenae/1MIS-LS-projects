@@ -9,6 +9,10 @@ import Lib.Rlg.Merge
 import Lib.Rlg.Transform.PreservedRules
 import Lib.Rlg.Transform.AlphaNRules
 import Lib.Rlg.Transform.AlphaRules
+import Lib.Rlg.Transform.SimpleRules
 
 transformRlg :: Rlg -> Either String Rlg
-transformRlg rlg = Right $ ((preservedRules' rlg) `mg` (alphaNRules' rlg) `mg` (alphaRules' rlg))
+transformRlg rlg = Right $ ((preservedRules' rlg) `mg` (alphaNRules' rlg) `mg`
+  (alphaRules' rlg))
+
+transformRlg' rlg = Right $ simpleRules' rlg

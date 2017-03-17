@@ -7,19 +7,23 @@ import Lib.Misc.Misc
 
 chkRuleP :: Rule -> Bool
 chkRuleP r
-  | (length (right r) == 2) && (isTermS ((right r)!!0)) &&
-    (isNtermS ((right r)!!1)) = True
-  | (length (right r) == 1) && ((right r)!!0 == "#") = True
+  | lengthR r == 2 && isTermS (firstRSym r) && isNtermS (lastRSym r) = True
+  | lengthR r == 1 && firstRSym r == "#" = True
   | otherwise = False
 
 chkRuleAN :: Rule -> Bool
 chkRuleAN r
-  | length (right r) > 1 && isNtermS ((right r)!!(length (right r)-1)) = True
+  | lengthR r > 1 && isNtermS (lastRSym r) = True
   | otherwise = False
 
 chkRuleA :: Rule -> Bool
 chkRuleA r
-  | length (right r) > 1 && isTermS ((right r)!!(length (right r)-1)) = True
+  | lengthR r > 1 && isTermS (lastRSym r) = True
+  | otherwise = False
+
+chkRuleS :: Rule -> Bool
+chkRuleS r
+  | length (right r) == 1 && isNtermS (firstRSym r) = True
   | otherwise = False
 
 isIndexed :: Symbol -> Bool
@@ -56,3 +60,12 @@ getIndexedNterms [] = []
 getIndexedNterms (r:rs)
   | isIndexed (left r) = [left r] ++ getIndexedNterms rs
   | otherwise          = [] ++ getIndexedNterms rs
+
+lengthR :: Rule -> Int
+lengthR r = length (right r)
+
+lastRSym :: Rule -> Symbol
+lastRSym r = ((right r)!!(length (right r)-1))
+
+firstRSym :: Rule -> Symbol
+firstRSym r = (right r)!!0
