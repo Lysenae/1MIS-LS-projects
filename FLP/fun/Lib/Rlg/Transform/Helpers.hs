@@ -17,6 +17,11 @@ chkRuleAN r
   | length (right r) > 1 && isNtermS ((right r)!!(length (right r)-1)) = True
   | otherwise = False
 
+chkRuleA :: Rule -> Bool
+chkRuleA r
+  | length (right r) > 1 && isTermS ((right r)!!(length (right r)-1)) = True
+  | otherwise = False
+
 isIndexed :: Symbol -> Bool
 isIndexed [x]    = False
 isIndexed (x:xs) = allNum xs

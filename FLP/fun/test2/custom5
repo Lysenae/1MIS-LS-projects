@@ -1,0 +1,6 @@
+A,S,B
+a,b,c,d,x,y,z
+S
+S->abcd
+S->#
+A->xyzB
