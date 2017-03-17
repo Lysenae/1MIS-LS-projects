@@ -1,24 +1,9 @@
 -- Author: Daniel Klimaj; xklima22@stud.fit.vutbr.cz
 
-module Lib.Rlg.Transform.Rules where
+module Lib.Rlg.Transform.AlphaNRules where
 
 import Lib.Rlg.Rlg
-import Lib.Rlg.Merge
 import Lib.Rlg.Transform.Helpers
-import Lib.Misc.Misc
-
-trRules :: Rlg -> Rlg
-trRules rlg = (preservedRules' rlg) `mg` (alphaNRules' rlg)
-
--- 1. Preserve rules of form A->xB and A->#
-preservedRules' :: Rlg -> Rlg
-preservedRules' rlg = rlg { rules = preservedRules (rules rlg) }
-
-preservedRules :: [Rule] -> [Rule]
-preservedRules [] = []
-preservedRules (r:rs)
-  | chkRuleP r = [r] ++ preservedRules rs
-  | otherwise  = [] ++ preservedRules rs
 
 -- 2. Replace rules of form A->alphaB into form A->aA[n]
 alphaNRules' :: Rlg -> Rlg
@@ -50,15 +35,3 @@ trANRuleR (l, (t:ts), n, i, r)
     ((createANterm i), ts, (n-1), i+1, r ++ [Rule l [t, (createANterm i)]])
   | n == 1    = trANRuleR (l, ts, (n-1), i, r ++ [Rule l [t, (ts!!0)]])
   | otherwise = (l, [], 0, i, r)
-
--- Add newly created nonterminals
-addNterms :: Rlg -> Rlg
-addNterms rlg = rlg { nonterminals =
-  listMerge (nonterminals rlg) (getIndexedNterms (rules rlg)) }
-
-getIndexedNterms :: [Rule] -> [Symbol]
-getIndexedNterms [] = []
-getIndexedNterms (r:rs)
-  | isIndexed (left r) = [left r] ++ getIndexedNterms rs
-  | otherwise          = [] ++ getIndexedNterms rs
-

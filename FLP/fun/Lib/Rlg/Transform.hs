@@ -5,7 +5,9 @@ module Lib.Rlg.Transform where
 import Lib.Rlg.Rlg
 import Lib.Misc.Misc
 
-import Lib.Rlg.Transform.Rules
+import Lib.Rlg.Merge
+import Lib.Rlg.Transform.SimpleRules
+import Lib.Rlg.Transform.AlphaNRules
 
 transformRlg :: Rlg -> Either String Rlg
-transformRlg rlg = Right $ trRules rlg
+transformRlg rlg = Right $ ((preservedRules' rlg) `mg` (alphaNRules' rlg))

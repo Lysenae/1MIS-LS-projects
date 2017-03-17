@@ -21,24 +21,6 @@ isIndexed :: Symbol -> Bool
 isIndexed [x]    = False
 isIndexed (x:xs) = allNum xs
 
-getNextIndex :: [String] -> Int
-getNextIndex l
-  | l == []   = 1
-  | otherwise = nextIndex 0 l
-
-nextIndex :: Int -> [String] -> Int
-nextIndex i [] = i + 1
-nextIndex i (l:ls)
-  | idx l > i = nextIndex (idx l) ls
-  | otherwise = nextIndex i ls
-
-idx :: String -> Int
-idx []     = 0
-idx [s]    = 0
-idx (s:ss)
-  | allNum ss = read ss :: Int
-  | otherwise = 0
-
 createANterm :: Int -> Symbol
 createANterm i = "A" ++ show (i)
 
@@ -58,3 +40,14 @@ addT (i1, r1) (i2, r2)
 
 getIdxRuleTuple :: (Symbol, [Symbol], Int, Int, [Rule]) -> (Int, [Rule])
 getIdxRuleTuple (_, _, _, i, r) = (i, r)
+
+-- Add newly created nonterminals
+addNterms :: Rlg -> Rlg
+addNterms rlg = rlg { nonterminals =
+  listMerge (nonterminals rlg) (getIndexedNterms (rules rlg)) }
+
+getIndexedNterms :: [Rule] -> [Symbol]
+getIndexedNterms [] = []
+getIndexedNterms (r:rs)
+  | isIndexed (left r) = [left r] ++ getIndexedNterms rs
+  | otherwise          = [] ++ getIndexedNterms rs
