@@ -7,23 +7,36 @@ import Lib.Misc.Misc
 import Lib.Rlg.Rlg
 import Lib.Rlg.Transform.Helpers
 
-simpleRules' :: Rlg -> Rlg
-simpleRules' rlg = rlg { rules = simpleRules rlg }
+simpleRules' :: Rlg -> Rlg -> Rlg
+simpleRules' orlg trlg = trlg { rules = uniqR (simpleRules orlg trlg) }
 
-simpleRules :: Rlg -> [Rule]
-simpleRules rlg = trSimpleRules (rules rlg) (rules rlg)
+simpleRules :: Rlg -> Rlg -> [Rule]
+simpleRules orlg trlg = trSimpleRules (rules orlg) (rules trlg)
 
 trSimpleRules :: [Rule] -> [Rule] -> [Rule]
-trSimpleRules [] _ = []
+trSimpleRules [] all = all
 trSimpleRules (r:rs) all
   | chkRuleS r  = trSimpleRule r all ++ trSimpleRules rs all
-  | otherwise   = [r] ++ trSimpleRules rs all
+  | otherwise   = [] ++ trSimpleRules rs all
 
 trSimpleRule :: Rule -> [Rule] -> [Rule]
-trSimpleRule r all = [] --getSetNX (left r) all
+trSimpleRule r all = findDerivations (left r) (getSetNX (firstRSym r) all) all
+
+-- findDerivations symX setN[SymX] allRules
+findDerivations :: Symbol -> [Symbol] -> [Rule] -> [Rule]
+findDerivations _ [] _         = []
+findDerivations x (s:ss) rules = findXRules x s rules ++ findDerivations x ss rules
+
+-- find non-simple rules with specified symbol on the left side
+findXRules :: Symbol -> Symbol -> [Rule] -> [Rule]
+findXRules _ _ [] = []
+findXRules x s (r:rs)
+  | (left r) == s && chkRuleS r == False = [r {left = x}] ++ findXRules x s rs
+  | otherwise = [] ++ findXRules x s rs
 
 getSetNX :: Symbol -> [Rule] -> [Symbol]
-getSetNX _ [] = []
+getSetNX s [] = [s]
 getSetNX s (r:rs)
-  | chkRuleS r == False && (left r) == s && isNtermS (lastRSym r) = [lastRSym r] ++ getSetNX s rs
-  | otherwise = [] ++ getSetNX s rs
+  | chkRuleS r == False && (left r) == s && isNtermS (lastRSym r) =
+    lastRSym r `au` getSetNX s rs
+  | otherwise = [] `au` getSetNX s rs

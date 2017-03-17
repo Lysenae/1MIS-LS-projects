@@ -8,7 +8,7 @@ data Rule = Rule
     { left  :: Symbol
     , right :: [Symbol]
     }
-  deriving (Show, Eq)
+  deriving (Show, Eq, Ord)
 
 data Rlg = Rlg
     { nonterminals :: [Symbol]

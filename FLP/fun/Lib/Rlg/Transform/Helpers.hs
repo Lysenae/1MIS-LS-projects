@@ -69,3 +69,14 @@ lastRSym r = ((right r)!!(length (right r)-1))
 
 firstRSym :: Rule -> Symbol
 firstRSym r = (right r)!!0
+
+uniqR :: [Rule] -> [Rule]
+uniqR r
+  | r == []   = []
+  | otherwise = uniqR' r []
+
+uniqR' :: [Rule] -> [Rule] -> [Rule]
+uniqR' [] r = r
+uniqR' (x:xs) r
+  | elem x r  = uniqR' xs r
+  | otherwise = uniqR' xs (r++[x])

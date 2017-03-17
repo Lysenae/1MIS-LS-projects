@@ -51,16 +51,30 @@ s2ch :: String -> Char
 s2ch []     = ' '
 s2ch (s:rs) = s
 
+-- Checks if string consists only from digits
 allNum :: String -> Bool
 allNum [] = False
 allNum l  = (allNum' l)
 
+-- See above, helper function
 allNum' :: String -> Bool
 allNum' []     = True
 allNum' (s:ss) = (isDigit s) && (allNum' ss)
 
+-- Merges 2 lists, appends only unique values
 listMerge :: Eq a => [a] -> [a] -> [a]
 listMerge l1 [] = l1
 listMerge l1 (l:ls)
   | elem l l1 = listMerge l1 ls
   | otherwise = listMerge (l1 ++ [l]) ls
+
+-- Appends string to string list if not already present
+addUnique :: String -> [String] -> [String]
+addUnique s l
+  | s == []   = l
+  | elem s l  = l
+  | otherwise = (s:l)
+
+-- Shortcut of addUnique for infix usage
+au :: String -> [String] -> [String]
+au s l = addUnique s l
