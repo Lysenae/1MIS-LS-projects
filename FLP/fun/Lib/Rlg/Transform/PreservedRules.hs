@@ -1,6 +1,6 @@
 -- Author: Daniel Klimaj; xklima22@stud.fit.vutbr.cz
 
-module Lib.Rlg.Transform.SimpleRules where
+module Lib.Rlg.Transform.PreservedRules where
 
 import Lib.Rlg.Rlg
 import Lib.Rlg.Transform.Helpers
