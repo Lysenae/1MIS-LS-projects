@@ -2,10 +2,11 @@
 
 module Lib.Rlg.Transform where
 
-import Lib.Rlg.Rlg
 import Lib.Misc.Misc
 
+import Lib.Rlg.Rlg
 import Lib.Rlg.Merge
+
 import Lib.Rlg.Transform.PreservedRules
 import Lib.Rlg.Transform.AlphaNRules
 import Lib.Rlg.Transform.AlphaRules
