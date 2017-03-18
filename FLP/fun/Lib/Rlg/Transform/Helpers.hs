@@ -80,3 +80,12 @@ uniqR' [] r = r
 uniqR' (x:xs) r
   | elem x r  = uniqR' xs r
   | otherwise = uniqR' xs (r++[x])
+
+copySimpleRules :: Rlg -> Rlg -> [Rule]
+copySimpleRules sr dr = copySimpleRules' (rules sr) (rules dr)
+
+copySimpleRules' :: [Rule] -> [Rule] -> [Rule]
+copySimpleRules' [] d = d
+copySimpleRules' (s:ss) d
+  | chkRuleS s = [s] ++ copySimpleRules' ss d
+  | otherwise  = copySimpleRules' ss d

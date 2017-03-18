@@ -68,6 +68,10 @@ listMerge l1 (l:ls)
   | elem l l1 = listMerge l1 ls
   | otherwise = listMerge (l1 ++ [l]) ls
 
+-- Shortcut of listMerge for infix usage
+lm :: Eq a => [a] -> [a] -> [a]
+lm l1 l2 = listMerge l1 l2
+
 -- Appends string to string list if not already present
 addUnique :: String -> [String] -> [String]
 addUnique s l
