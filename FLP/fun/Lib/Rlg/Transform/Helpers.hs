@@ -18,7 +18,7 @@ chkRuleAN r
 
 chkRuleA :: Rule -> Bool
 chkRuleA r
-  | lengthR r > 1 && isTermS (lastRSym r) = True
+  | lengthR r >= 1 && isTermS (lastRSym r) = True
   | otherwise = False
 
 chkRuleS :: Rule -> Bool
