@@ -8,6 +8,7 @@ import Lib.Type.Symbol
 import Lib.Misc.Misc
 import Lib.RLG.Transform.Helpers
 
+-- 4. Transform rules of form A->B
 simpleRules' :: RLG -> RLG -> RLG
 simpleRules' orlg trlg =
   trlg { rules = uniqR (simpleRules (copySimpleRules orlg trlg)) }
@@ -26,7 +27,7 @@ trSimpleRule r all
   | left r == firstRSym r = []
   | otherwise = findDerivations (left r) (getSetNX (firstRSym r) all) all
 
--- find non-simple rules with specified symbol on the left side
+-- Find non-simple rules with specified symbol on the left side
 findXRules :: Symbol -> Symbol -> [Rule] -> [Rule]
 findXRules _ _ [] = []
 findXRules x s (r:rs)
@@ -38,6 +39,7 @@ findDerivations _ [] _         = []
 findDerivations x (s:ss) rules =
   findXRules x s rules ++ findDerivations x ss rules
 
+-- Create set N[X]
 getSetNX :: Symbol -> [Rule] -> [Symbol]
 getSetNX s r = getSetNX' s r r
 

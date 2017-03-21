@@ -13,6 +13,8 @@ import Lib.RLG.Transform.AlphaNRules
 import Lib.RLG.Transform.AlphaRules
 import Lib.RLG.Transform.SimpleRules
 
+-- Transform RLG into RLG with rules of form A->xB or A->#, where A and B are
+-- nonterminals and x is single terminal
 transformRlg :: RLG -> Either String RLG
 transformRlg rlg = Right $ simpleRules' rlg ((preservedRules' rlg) `mg`
   (alphaNRules' rlg) `mg` (alphaRules' rlg))

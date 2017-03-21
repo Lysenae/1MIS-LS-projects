@@ -1,6 +1,7 @@
 -- Project: FLP #1 - plg-2-nka
 -- Author:  Daniel Klimaj; xklima22@stud.fit.vutbr.cz
 
+-- Miscellaneous methods not fitting in any module but used in many of them
 module Lib.Misc.Misc where
 
 import Data.Char

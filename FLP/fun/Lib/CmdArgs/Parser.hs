@@ -6,6 +6,7 @@ module Lib.CmdArgs.Parser where
 import Lib.CmdArgs.Config
 import Lib.CmdArgs.Help
 
+-- Parse command line input
 parseArg :: String -> String -> Either String Config
 parseArg a inf
   | a == "-i" = (Right $ Config True False False inf)

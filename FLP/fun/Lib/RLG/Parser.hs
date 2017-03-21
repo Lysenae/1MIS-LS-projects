@@ -13,6 +13,7 @@ newLine = char '\n'
 comma   = char ','
 arrow   = string "->"
 
+-- Parse input grammar
 parseRlg :: String -> Either String RLG
 parseRlg s = case readP_to_S rlgParser s of
    [(rlg, _)] -> Right rlg

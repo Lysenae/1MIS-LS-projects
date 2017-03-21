@@ -1,12 +1,15 @@
 -- Project: FLP #1 - plg-2-nka
 -- Author:  Daniel Klimaj; xklima22@stud.fit.vutbr.cz
 
+-- Validates RLG and returns Left if given grammar is invalid RLG and returns
+-- Right if grammar is valid
 module Lib.RLG.Validator where
 
 import Lib.RLG.RLG
 import Lib.Type.Symbol
 import Lib.Misc.Misc
 
+-- Check left side of the rule, returns False if symbol is not nonterminal
 chkLRuleSides :: [Symbol] -> [Rule] -> Bool
 chkLRuleSides _ []        = True -- Everything else checked
 chkLRuleSides ntms (r:rs) = (chkLRuleSide ntms r) && (chkLRuleSides ntms rs)
@@ -14,6 +17,9 @@ chkLRuleSides ntms (r:rs) = (chkLRuleSide ntms r) && (chkLRuleSides ntms rs)
 chkLRuleSide :: [Symbol] -> Rule -> Bool
 chkLRuleSide ntms rule = elem (left rule) ntms
 
+-- Check right side of the rule, returns False if rule consists of invalid
+-- terminals or nonterminals or when rule is not form of A->alphaB, where
+-- alpha is 0-n terminals and B is nonterminal or A->#
 -- chkRRuleSides nonterminals terminals rules
 chkRRuleSides :: [Symbol] -> [Symbol] -> [Rule] -> Bool
 chkRRuleSides _ _ []     = True

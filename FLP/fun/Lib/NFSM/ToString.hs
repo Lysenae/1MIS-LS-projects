@@ -7,6 +7,7 @@ import Lib.NFSM.NFSM
 import Lib.Type.Symbol
 import Lib.Type.State
 
+-- Converts NFSM structure int readable form
 nfsm2str :: Either String NFSM -> String
 nfsm2str (Left msg)   = msg
 nfsm2str (Right nfsm) =
@@ -16,6 +17,7 @@ nfsm2str (Right nfsm) =
   stateList2str (endSt nfsm) "," ++ "\n" ++
   cvtTransitions (transitions nfsm)
 
+-- Converts transitions into form StateFrom,Symbol,StateTo
 cvtTransitions :: [Transition] -> String
 cvtTransitions []     = ""
 cvtTransitions (t:ts) = (transition2str t) ++ (cvtRestTrsts ts)

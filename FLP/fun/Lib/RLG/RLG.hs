@@ -19,9 +19,12 @@ data RLG = RLG
     }
   deriving (Show)
 
+-- Returns length of right side of the rule
 lengthR :: Rule -> Int
 lengthR r = length (right r)
 
+-- Returns nth symbol of right side of the rule or empty string if
+-- index is invalid
 nthRSym :: Int -> Rule -> Symbol
 nthRSym i r
   | i > (lengthR r) - 1 = ""

@@ -24,5 +24,6 @@ mergeRlg :: RLG -> RLG -> RLG
 mergeRlg r1 r2 = RLG (mergeNterm r1 r2) (mergeTerm r1 r2) (mergeRules r1 r2)
   (mergeStart r1 r2)
 
+-- Merge 2 RLGs into 1
 mg :: RLG -> RLG -> RLG
 mg r1 r2 = mergeRlg r1 r2
