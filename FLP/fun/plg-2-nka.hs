@@ -13,8 +13,8 @@ import Lib.Misc.Misc
 import Lib.CmdArgs.Parser
 import Lib.CmdArgs.Config
 
-import Lib.Rlg.Rlg
-import Lib.Rlg.Handler
+import Lib.RLG.RLG
+import Lib.RLG.Handler
 
 main :: IO ()
 main = do

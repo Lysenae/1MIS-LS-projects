@@ -1,16 +1,16 @@
 -- Author: Daniel Klimaj; xklima22@stud.fit.vutbr.cz
 
-module Lib.Rlg.ToString where
+module Lib.RLG.ToString where
 
-import Lib.Rlg.Rlg
+import Lib.RLG.RLG
 
--- Gets readable content of Either String Rlg
-getStr :: Either String Rlg -> String
+-- Gets readable content of Either String RLG
+getStr :: Either String RLG -> String
 getStr (Left msg)  = msg
 getStr (Right rlg) = show rlg
 
 -- Converts RLG to String
-rlg2str :: Either String Rlg -> String
+rlg2str :: Either String RLG -> String
 rlg2str (Left msg)  = msg
 rlg2str (Right rlg) =
   cvtSymbols (nonterminals rlg) "," ++ "\n" ++

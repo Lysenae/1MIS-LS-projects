@@ -1,8 +1,8 @@
 -- Author: Daniel Klimaj; xklima22@stud.fit.vutbr.cz
 
-module Lib.Rlg.Transform.Helpers where
+module Lib.RLG.Transform.Helpers where
 
-import Lib.Rlg.Rlg
+import Lib.RLG.RLG
 import Lib.Misc.Misc
 
 chkRuleP :: Rule -> Bool
@@ -51,7 +51,7 @@ getIdxRuleTuple :: (Symbol, [Symbol], Int, Int, [Rule]) -> (Int, [Rule])
 getIdxRuleTuple (_, _, _, i, r) = (i, r)
 
 -- Add newly created nonterminals
-addNterms :: Rlg -> Rlg
+addNterms :: RLG -> RLG
 addNterms rlg = rlg { nonterminals =
   listMerge (nonterminals rlg) (getIndexedNterms (rules rlg)) }
 
@@ -81,7 +81,7 @@ uniqR' (x:xs) r
   | elem x r  = uniqR' xs r
   | otherwise = uniqR' xs (r++[x])
 
-copySimpleRules :: Rlg -> Rlg -> [Rule]
+copySimpleRules :: RLG -> RLG -> [Rule]
 copySimpleRules sr dr = copySimpleRules' (rules sr) (rules dr)
 
 copySimpleRules' :: [Rule] -> [Rule] -> [Rule]

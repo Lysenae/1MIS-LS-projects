@@ -1,6 +1,6 @@
 -- Author: Daniel Klimaj; xklima22@stud.fit.vutbr.cz
 
-module Lib.Rlg.Rlg where
+module Lib.RLG.RLG where
 
 type Symbol = String
 
@@ -10,7 +10,7 @@ data Rule = Rule
     }
   deriving (Show, Eq, Ord)
 
-data Rlg = Rlg
+data RLG = RLG
     { nonterminals :: [Symbol]
     , terminals    :: [Symbol]
     , rules        :: [Rule]

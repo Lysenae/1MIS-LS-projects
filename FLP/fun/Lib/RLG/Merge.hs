@@ -1,26 +1,26 @@
 -- Author: Daniel Klimaj; xklima22@stud.fit.vutbr.cz
 
-module Lib.Rlg.Merge where
+module Lib.RLG.Merge where
 
-import Lib.Rlg.Rlg
+import Lib.RLG.RLG
 import Lib.Misc.Misc
 
-mergeNterm :: Rlg -> Rlg -> [Symbol]
+mergeNterm :: RLG -> RLG -> [Symbol]
 mergeNterm r1 r2 = listMerge (nonterminals r1) (nonterminals r2)
 
-mergeTerm :: Rlg -> Rlg -> [Symbol]
+mergeTerm :: RLG -> RLG -> [Symbol]
 mergeTerm r1 r2 = listMerge (terminals r1) (terminals r2)
 
 -- Latter overwrites start symbol
-mergeStart :: Rlg -> Rlg -> Symbol
+mergeStart :: RLG -> RLG -> Symbol
 mergeStart r1 r2 = start r2
 
-mergeRules :: Rlg -> Rlg -> [Rule]
+mergeRules :: RLG -> RLG -> [Rule]
 mergeRules r1 r2 = listMerge (rules r1) (rules r2)
 
-mergeRlg :: Rlg -> Rlg -> Rlg
-mergeRlg r1 r2 = Rlg (mergeNterm r1 r2) (mergeTerm r1 r2) (mergeRules r1 r2)
+mergeRlg :: RLG -> RLG -> RLG
+mergeRlg r1 r2 = RLG (mergeNterm r1 r2) (mergeTerm r1 r2) (mergeRules r1 r2)
   (mergeStart r1 r2)
 
-mg :: Rlg -> Rlg -> Rlg
+mg :: RLG -> RLG -> RLG
 mg r1 r2 = mergeRlg r1 r2

@@ -1,14 +1,14 @@
 -- Author: Daniel Klimaj; xklima22@stud.fit.vutbr.cz
 
-module Lib.Rlg.Handler where
+module Lib.RLG.Handler where
 
 import Lib.CmdArgs.Config
 
-import Lib.Rlg.Rlg
-import Lib.Rlg.Parser
-import Lib.Rlg.Validator
-import Lib.Rlg.Transform
-import Lib.Rlg.ToString
+import Lib.RLG.RLG
+import Lib.RLG.Parser
+import Lib.RLG.Validator
+import Lib.RLG.Transform
+import Lib.RLG.ToString
 
 handleRlg :: Config -> String -> String
 handleRlg (Config inner transform nfsm _) input
@@ -17,12 +17,12 @@ handleRlg (Config inner transform nfsm _) input
   | nfsm      = "NFSM not implemented yet"
   | otherwise = "Invalid config" -- Should not happen
 
-handleInnerRlg :: String -> Either String Rlg
+handleInnerRlg :: String -> Either String RLG
 handleInnerRlg input = do
   inRlg <- parseRlg input
   validateRlg inRlg
 
-handleTransformRlg :: String -> Either String Rlg
+handleTransformRlg :: String -> Either String RLG
 handleTransformRlg input = do
   inRlg <- parseRlg input
   validRlg <- validateRlg inRlg

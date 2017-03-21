@@ -1,8 +1,8 @@
 -- Author: Daniel Klimaj; xklima22@stud.fit.vutbr.cz
 
-module Lib.Rlg.Parser where
+module Lib.RLG.Parser where
 
-import Lib.Rlg.Rlg
+import Lib.RLG.RLG
 import Lib.Misc.Misc
 import Text.ParserCombinators.ReadP
 
@@ -10,12 +10,12 @@ newLine = char '\n'
 comma   = char ','
 arrow   = string "->"
 
-parseRlg :: String -> Either String Rlg
+parseRlg :: String -> Either String RLG
 parseRlg s = case readP_to_S rlgParser s of
    [(rlg, _)] -> Right rlg
    _ -> Left "Failed to parse RLG"
 
-rlgParser :: ReadP Rlg
+rlgParser :: ReadP RLG
 rlgParser = do
     nonterminals <- parseNonterminals
     newLine
@@ -25,7 +25,7 @@ rlgParser = do
     newLine
     rules <- parseRules
     eof
-    return $ Rlg nonterminals terminals rules start
+    return $ RLG nonterminals terminals rules start
 
 parseNonterminal  = many1 $ satisfy (isNterm)
 parseNonterminals = sepBy1 parseNonterminal comma

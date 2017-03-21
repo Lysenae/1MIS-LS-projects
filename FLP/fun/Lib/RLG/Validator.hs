@@ -1,8 +1,8 @@
 -- Author: Daniel Klimaj; xklima22@stud.fit.vutbr.cz
 
-module Lib.Rlg.Validator where
+module Lib.RLG.Validator where
 
-import Lib.Rlg.Rlg
+import Lib.RLG.RLG
 import Lib.Misc.Misc
 
 chkLRuleSides :: [Symbol] -> [Rule] -> Bool
@@ -41,8 +41,8 @@ chkRRuleSideFormat (r:rs) ntmFound
   | ntmFound  = False -- Nonterminal must be the last symbol
   | otherwise = chkRRuleSideFormat rs (isNterm (s2ch r))
 
-validateRlg :: Rlg -> Either String Rlg
-validateRlg (Rlg nterm term rules start)
+validateRlg :: RLG -> Either String RLG
+validateRlg (RLG nterm term rules start)
   | elem start nterm == False =
     Left "Start symbol is not in the nonterminals"
   | chkLRuleSides nterm rules == False =
@@ -51,4 +51,4 @@ validateRlg (Rlg nterm term rules start)
     Left "Invalid format of the right side of the rule found"
   | chkRRuleSides nterm term rules == False =
     Left "Invalid symbol in the the right side of the rule found"
-  | otherwise = Right $ Rlg nterm term rules start
+  | otherwise = Right $ RLG nterm term rules start

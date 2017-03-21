@@ -1,15 +1,15 @@
 -- Author: Daniel Klimaj; xklima22@stud.fit.vutbr.cz
 
-module Lib.Rlg.Transform.AlphaNRules where
+module Lib.RLG.Transform.AlphaNRules where
 
-import Lib.Rlg.Rlg
-import Lib.Rlg.Transform.Helpers
+import Lib.RLG.RLG
+import Lib.RLG.Transform.Helpers
 
 -- 2. Replace rules of form A->alphaB into form A->aA[n]
-alphaNRules' :: Rlg -> Rlg
+alphaNRules' :: RLG -> RLG
 alphaNRules' rlg = addNterms (alphaNRules rlg)
 
-alphaNRules :: Rlg -> Rlg
+alphaNRules :: RLG -> RLG
 alphaNRules rlg = rlg { rules = trAlphaNRules' (rules rlg) }
 
 trAlphaNRules' :: [Rule] -> [Rule]

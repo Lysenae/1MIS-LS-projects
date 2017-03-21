@@ -1,13 +1,13 @@
 -- Author: Daniel Klimaj; xklima22@stud.fit.vutbr.cz
 
-module Lib.Rlg.Transform.SimpleRules where
+module Lib.RLG.Transform.SimpleRules where
 
 import Lib.Misc.Misc
 
-import Lib.Rlg.Rlg
-import Lib.Rlg.Transform.Helpers
+import Lib.RLG.RLG
+import Lib.RLG.Transform.Helpers
 
-simpleRules' :: Rlg -> Rlg -> Rlg
+simpleRules' :: RLG -> RLG -> RLG
 simpleRules' orlg trlg =
   trlg { rules = uniqR (simpleRules (copySimpleRules orlg trlg)) }
 

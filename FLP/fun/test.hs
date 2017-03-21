@@ -2,9 +2,9 @@
 
 import Lib.Misc.Misc
 
-import Lib.Rlg.Rlg
-import Lib.Rlg.Handler
-import Lib.Rlg.Transform.SimpleRules
+import Lib.RLG.RLG
+import Lib.RLG.Handler
+import Lib.RLG.Transform.SimpleRules
 
 main :: IO ()
 main = print (findXRules "A" "A" trules)

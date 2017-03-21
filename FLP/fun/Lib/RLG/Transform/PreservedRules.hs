@@ -1,12 +1,12 @@
 -- Author: Daniel Klimaj; xklima22@stud.fit.vutbr.cz
 
-module Lib.Rlg.Transform.PreservedRules where
+module Lib.RLG.Transform.PreservedRules where
 
-import Lib.Rlg.Rlg
-import Lib.Rlg.Transform.Helpers
+import Lib.RLG.RLG
+import Lib.RLG.Transform.Helpers
 
 -- 1. Preserve rules of form A->xB and A->#
-preservedRules' :: Rlg -> Rlg
+preservedRules' :: RLG -> RLG
 preservedRules' rlg = rlg { rules = preservedRules (rules rlg) }
 
 preservedRules :: [Rule] -> [Rule]
