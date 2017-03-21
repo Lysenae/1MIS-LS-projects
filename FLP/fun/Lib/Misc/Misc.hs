@@ -36,7 +36,6 @@ isNterm c
 -- Checks if given char is terminal
 isTermS:: String -> Bool
 isTermS s
-  | s2ch s == '#'    = True
   | isLower (s2ch s) = True
   | otherwise        = False
 

@@ -24,10 +24,10 @@ chkRRuleSide (r:rs) n t = (chkSymRRule r n t) && (chkRRuleSide rs n t)
 
 chkSymRRule :: Symbol -> [Symbol] -> [Symbol] -> Bool
 chkSymRRule s n t
-  | (isTerm (s2ch s)) && (elem s t)  = True
-  | (isNterm (s2ch s)) && (elem s n) = True
-  | s == "#"                         = True
-  | otherwise                        = False
+  | isTermS s && elem s t  = True
+  | isNtermS s && elem s n = True
+  | s == "#"               = True
+  | otherwise              = False
 
 chkRRuleSidesFormat :: [Rule] -> Bool
 chkRRuleSidesFormat []     = True
