@@ -21,7 +21,9 @@ trSimpleRules (r:rs) all
   | otherwise  = [r] ++ trSimpleRules rs all
 
 trSimpleRule :: Rule -> [Rule] -> [Rule]
-trSimpleRule r all = findDerivations (left r) (getSetNX (firstRSym r) all) all
+trSimpleRule r all
+  | left r == firstRSym r = []
+  | otherwise = findDerivations (left r) (getSetNX (firstRSym r) all) all
 
 -- find non-simple rules with specified symbol on the left side
 findXRules :: Symbol -> Symbol -> [Rule] -> [Rule]

@@ -81,11 +81,12 @@ uniqR' (x:xs) r
   | elem x r  = uniqR' xs r
   | otherwise = uniqR' xs (r++[x])
 
+-- Copies all simple non-recursive rules (A->A)
 copySimpleRules :: RLG -> RLG -> [Rule]
 copySimpleRules sr dr = copySimpleRules' (rules sr) (rules dr)
 
 copySimpleRules' :: [Rule] -> [Rule] -> [Rule]
 copySimpleRules' [] d = d
 copySimpleRules' (s:ss) d
-  | chkRuleS s = [s] ++ copySimpleRules' ss d
-  | otherwise  = copySimpleRules' ss d
+  | chkRuleS s && (left s) /= (firstRSym s) = [s] ++ copySimpleRules' ss d
+  | otherwise                               = copySimpleRules' ss d
