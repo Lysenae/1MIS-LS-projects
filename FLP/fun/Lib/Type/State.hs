@@ -3,4 +3,4 @@
 
 module Lib.Type.State where
 
-type State = String
+type State = Int
