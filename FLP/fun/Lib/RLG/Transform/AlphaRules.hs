@@ -4,6 +4,7 @@
 module Lib.RLG.Transform.AlphaRules where
 
 import Lib.RLG.RLG
+import Lib.Type.Symbol
 import Lib.RLG.Transform.Helpers
 
 -- 3. Replace rules of form A->alpha into form A->aB[n], ..., B[n]->#

@@ -4,6 +4,7 @@
 module Lib.RLG.Validator where
 
 import Lib.RLG.RLG
+import Lib.Type.Symbol
 import Lib.Misc.Misc
 
 chkLRuleSides :: [Symbol] -> [Rule] -> Bool

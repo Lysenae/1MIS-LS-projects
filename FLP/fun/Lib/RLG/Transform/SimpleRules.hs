@@ -3,9 +3,9 @@
 
 module Lib.RLG.Transform.SimpleRules where
 
-import Lib.Misc.Misc
-
 import Lib.RLG.RLG
+import Lib.Type.Symbol
+import Lib.Misc.Misc
 import Lib.RLG.Transform.Helpers
 
 simpleRules' :: RLG -> RLG -> RLG

@@ -3,9 +3,11 @@
 
 module Lib.RLG.Parser where
 
-import Lib.RLG.RLG
-import Lib.Misc.Misc
 import Text.ParserCombinators.ReadP
+
+import Lib.RLG.RLG
+import Lib.Type.Symbol
+import Lib.Misc.Misc
 
 newLine = char '\n'
 comma   = char ','

@@ -4,6 +4,7 @@
 module Lib.RLG.Transform.Helpers where
 
 import Lib.RLG.RLG
+import Lib.Type.Symbol
 import Lib.Misc.Misc
 
 chkRuleP :: Rule -> Bool

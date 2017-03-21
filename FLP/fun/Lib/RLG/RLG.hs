@@ -3,7 +3,7 @@
 
 module Lib.RLG.RLG where
 
-type Symbol = String
+import Lib.Type.Symbol
 
 data Rule = Rule
     { left  :: Symbol

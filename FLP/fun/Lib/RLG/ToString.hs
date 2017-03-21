@@ -4,6 +4,7 @@
 module Lib.RLG.ToString where
 
 import Lib.RLG.RLG
+import Lib.Type.Symbol
 
 -- Gets readable content of Either String RLG
 getStr :: Either String RLG -> String

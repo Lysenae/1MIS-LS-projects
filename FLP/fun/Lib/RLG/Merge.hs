@@ -4,6 +4,7 @@
 module Lib.RLG.Merge where
 
 import Lib.RLG.RLG
+import Lib.Type.Symbol
 import Lib.Misc.Misc
 
 mergeNterm :: RLG -> RLG -> [Symbol]
