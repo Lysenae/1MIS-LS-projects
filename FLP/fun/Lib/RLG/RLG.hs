@@ -18,3 +18,21 @@ data RLG = RLG
     , start        :: Symbol
     }
   deriving (Show)
+
+lengthR :: Rule -> Int
+lengthR r = length (right r)
+
+nthRSym :: Int -> Rule -> Symbol
+nthRSym i r
+  | i > (lengthR r) - 1 = ""
+  | i < 0               = ""
+  | otherwise           = (right r)!!i
+
+lastRSym :: Rule -> Symbol
+lastRSym r = nthRSym ((lengthR r)-1) r
+
+firstRSym :: Rule -> Symbol
+firstRSym r = nthRSym 0 r
+
+secondRSym :: Rule -> Symbol
+secondRSym r = nthRSym 1 r

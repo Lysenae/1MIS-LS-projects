@@ -63,15 +63,6 @@ getIndexedNterms (r:rs)
   | isIndexed (left r) = [left r] ++ getIndexedNterms rs
   | otherwise          = [] ++ getIndexedNterms rs
 
-lengthR :: Rule -> Int
-lengthR r = length (right r)
-
-lastRSym :: Rule -> Symbol
-lastRSym r = ((right r)!!(length (right r)-1))
-
-firstRSym :: Rule -> Symbol
-firstRSym r = (right r)!!0
-
 uniqR :: [Rule] -> [Rule]
 uniqR r
   | r == []   = []

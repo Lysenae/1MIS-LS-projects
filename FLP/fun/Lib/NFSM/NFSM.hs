@@ -14,10 +14,10 @@ data Transition = Transition
   deriving (Show, Eq, Ord)
 
 data NFSM = NFSM
-    { states     :: [State]
-    , alphabet   :: [Symbol]
-    , transition :: [Transition]
-    , start      :: State
-    , end        :: [State]
+    { states      :: [State]
+    , alphabet    :: [Symbol]
+    , transitions :: [Transition]
+    , startSt     :: State
+    , endSt       :: [State]
     }
   deriving (Show)

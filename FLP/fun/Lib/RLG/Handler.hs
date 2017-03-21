@@ -11,11 +11,15 @@ import Lib.RLG.Validator
 import Lib.RLG.Transform
 import Lib.RLG.ToString
 
+import Lib.NFSM.NFSM
+import Lib.NFSM.FromRlg
+import Lib.NFSM.ToString
+
 handleRlg :: Config -> String -> String
 handleRlg (Config inner transform nfsm _) input
   | inner     = getStr (handleInnerRlg input)
   | transform = rlg2str (handleTransformRlg input)
-  | nfsm      = "NFSM not implemented yet"
+  | nfsm      = nfsm2str (handleNfsm input)
   | otherwise = "Invalid config" -- Should not happen
 
 handleInnerRlg :: String -> Either String RLG
@@ -28,3 +32,10 @@ handleTransformRlg input = do
   inRlg <- parseRlg input
   validRlg <- validateRlg inRlg
   transformRlg validRlg
+
+handleNfsm :: String -> Either String NFSM
+handleNfsm input = do
+  inRlg <- parseRlg input
+  validRlg <- validateRlg inRlg
+  trRlg <- transformRlg validRlg
+  fromRlg trRlg

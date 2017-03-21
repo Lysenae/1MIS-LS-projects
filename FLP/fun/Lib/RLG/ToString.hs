@@ -15,17 +15,10 @@ getStr (Right rlg) = show rlg
 rlg2str :: Either String RLG -> String
 rlg2str (Left msg)  = msg
 rlg2str (Right rlg) =
-  cvtSymbols (nonterminals rlg) "," ++ "\n" ++
-  cvtSymbols (terminals rlg)  "," ++ "\n" ++
+  symList2str (nonterminals rlg) "," ++ "\n" ++
+  symList2str (terminals rlg) "," ++ "\n" ++
   start rlg ++ "\n" ++
   cvtRules (rules rlg)
-
--- cvtSymbols symbolList divider
-cvtSymbols :: [Symbol] -> String -> String
-cvtSymbols [] _ = ""
-cvtSymbols (s:ss) d
-  | ss == []  = s
-  | otherwise = s ++ d ++ (cvtSymbols ss d)
 
 cvtRules :: [Rule] -> String
 cvtRules []     = ""
@@ -36,4 +29,4 @@ cvtRestRules []     = ""
 cvtRestRules (r:rs) = "\n" ++ (rule2str r) ++ (cvtRestRules rs)
 
 rule2str :: Rule -> String
-rule2str r = (left r) ++ "->" ++ cvtSymbols (right r) ""
+rule2str r = (left r) ++ "->" ++ symList2str (right r) ""
