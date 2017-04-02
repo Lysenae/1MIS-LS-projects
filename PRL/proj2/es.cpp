@@ -20,22 +20,41 @@ const int SIZE  = sizeof(int);
 
 struct ProcessorData
 {
+  int p_id;
   int C;
   int X;
   int Y;
   int Z;
-  int rx; // rank X
-  int ry; // rank Y
+  int ix; // rank X
+  int iy; // rank Y
 };
 
-void initProcessorData(ProcessorData &p_data)
+void initProcessorData(int p_id, ProcessorData &p_data)
 {
-  p_data.C  = 1;
-  p_data.X  = -1;
-  p_data.Y  = -1;
-  p_data.Z  = -1;
-  p_data.rx = -1;
-  p_data.ry = -1;
+  p_data.p_id = p_id;
+  p_data.C    = 1;
+  p_data.X    = -1;
+  p_data.Y    = -1;
+  p_data.Z    = -1;
+  p_data.ix   = -1;
+  p_data.iy   = -1;
+}
+
+void printProcessorData(ProcessorData &pd)
+{
+  cout << "Processor " << pd.p_id << ": C: " << pd.C << ", X: " << pd.X
+    << "[" << pd.ix << "],\tY: " << pd.Y << "[" << pd.iy << "],\tZ: " << pd.Z <<
+    endl;
+}
+
+bool hasNeighbor(int rank, int proc_count)
+{
+  return rank < (proc_count-1);
+}
+
+int neighbor(int rank)
+{
+  return rank + 1;
 }
 
 vector<int>parseNumbers(string fname)
@@ -76,10 +95,12 @@ int main(int argc, char **argv)
 {
   int p_count;
   int p_id;
+  int nums;
 
   MPI::Init(argc, argv);
   p_count = MPI::COMM_WORLD.Get_size();
   p_id    = MPI::COMM_WORLD.Get_rank();
+  nums    = p_count - 1;
 
   // First processor
   if(p_id == 0)
@@ -87,7 +108,7 @@ int main(int argc, char **argv)
     vector<int> numbers = parseNumbers("numbers");
     cout << vecJoin(numbers) << endl;
 
-    if(numbers.size()+1 != p_count)
+    if(numbers.size() != nums)
     {
       cerr << "Size of numbers does not corresponds to number of preocessors" <<
         endl;
@@ -96,17 +117,52 @@ int main(int argc, char **argv)
 
     for(int i=1; i<p_count; ++i)
     {
-      cout << "Sending " << i << endl;
-      MPI::COMM_WORLD.Send(&numbers[i-1], SIZE, MPI::INT, i, REG_X);
+      int data = i;
+      MPI::COMM_WORLD.Send(&numbers[i-1], 1, MPI::INT, i, REG_X);
+      MPI::COMM_WORLD.Send(&data, 1, MPI::INT, i, IDX_X);
+      MPI::COMM_WORLD.Send(&numbers[i-1], 1, MPI::INT, 1, REG_Y);
+      MPI::COMM_WORLD.Send(&data, 1, MPI::INT, 1, IDX_Y);
     }
   }
-  else
+  else // Other processors
   {
     ProcessorData p_data;
-    initProcessorData(p_data);
-    int x;
-    MPI::COMM_WORLD.Recv(&x, SIZE, MPI::INT, 0, REG_X);
-    cout << "Processor " << p_id << ": X: " << x << endl;
+    initProcessorData(p_id, p_data);
+
+    // Initialize X register with it's rank
+    int x, ix, y;
+    MPI::COMM_WORLD.Recv(&x, 1, MPI::INT, 0, REG_X);
+    MPI::COMM_WORLD.Recv(&ix, 1, MPI::INT, 0, IDX_X);
+    p_data.X  = x;
+    p_data.ix = ix;
+
+    for(unsigned int i=0; i<nums; i++)
+    {
+      int y, iy;
+      MPI::COMM_WORLD.Recv(&y, 1, MPI::INT, 0, REG_Y);
+      MPI::COMM_WORLD.Recv(&iy, 1, MPI::INT, 0, IDX_Y);
+      p_data.Y  = y;
+      p_data.iy = iy;
+      cout << "Processor " << p_id << ": Receiving Y (" << y << "[" << iy << "])" << endl;
+
+      if(p_data.X > p_data.Y)
+      {
+        p_data.C += 1;
+      }
+      // Increase counter if X rank is greater than Y rank if values are equal
+      else if(p_data.X == p_data.Y && p_data.ix > p_data.iy)
+      {
+        p_data.C += 1;
+      }
+
+      if(hasNeighbor(p_id, p_count))
+      {
+        cout << "Processor " << p_id << ": Sending Y (" << y << "[" << iy << "]) to " << neighbor(p_id) << endl;
+        MPI::COMM_WORLD.Send(&y, 1, MPI::INT, neighbor(p_id), REG_Y);
+        MPI::COMM_WORLD.Send(&iy, 1, MPI::INT, neighbor(p_id), IDX_Y);
+      }
+    }
+    printProcessorData(p_data);
   }
 
   MPI::Finalize();
