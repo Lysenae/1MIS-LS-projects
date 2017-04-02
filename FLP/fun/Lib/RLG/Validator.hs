@@ -52,11 +52,11 @@ chkRRuleSideFormat (r:rs) ntmFound
 validateRlg :: RLG -> Either String RLG
 validateRlg (RLG nterm term rules start)
   | elem start nterm == False =
-    Left "Start symbol is not in the nonterminals"
+    Left "Start symbol is not valid nonterminal"
   | chkLRuleSides nterm rules == False =
-    Left "Invalid nonterminal on the left side of the rule found"
+    Left "Invalid nonterminal on the left side of the rule"
   | chkRRuleSidesFormat rules == False =
-    Left "Invalid format of the right side of the rule found"
+    Left "Invalid format of the right side of the rule"
   | chkRRuleSides nterm term rules == False =
-    Left "Invalid symbol in the the right side of the rule found"
+    Left "Invalid symbol in the the right side of the rule"
   | otherwise = Right $ RLG nterm term rules start
