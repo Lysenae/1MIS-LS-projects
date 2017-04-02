@@ -11,10 +11,10 @@
 
 using namespace std;
 
-vector<unsigned char>parseNumbers(string fname)
+vector<int>parseNumbers(string fname)
 {
-  vector<unsigned char> result;
-  unsigned char current;
+  vector<int> result;
+  int current;
   fstream f;
   f.open(fname.c_str(), ios::in);
   if(!f.good())
@@ -34,12 +34,12 @@ vector<unsigned char>parseNumbers(string fname)
   }
 }
 
-string ucVecJoin(vector<unsigned char> v)
+string vecJoin(vector<int> v)
 {
   string s = "";
-  for(unsigned i=0; i<v.size(); ++i)
+  for(unsigned int i=0; i<v.size(); ++i)
   {
-    s += to_string((int)v[i]);
+    s += to_string(v[i]);
     if(i < v.size()-1) s += " ";
   }
   return s;
@@ -59,8 +59,8 @@ int main(int argc, char **argv)
   // First processor
   if(p_id == 0)
   {
-    vector<unsigned char> numbers = parseNumbers("numbers");
-    cout << ucVecJoin(numbers) << endl;
+    vector<int> numbers = parseNumbers("numbers");
+    cout << vecJoin(numbers) << endl;
   }
   else
   {
