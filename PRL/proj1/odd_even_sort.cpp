@@ -4,16 +4,16 @@
  *
  */
 
- #include <mpi.h>
- #include <iostream>
- #include <fstream>
- 
- using namespace std;
+#include <mpi.h>
+#include <iostream>
+#include <fstream>
 
- #define TAG 0
+using namespace std;
 
- int main(int argc, char *argv[])
- {
+#define TAG 0
+
+int main(int argc, char *argv[])
+{
     int numprocs;               //pocet procesoru
     int myid;                   //muj rank
     int neighnumber;            //hodnota souseda
@@ -21,10 +21,10 @@
     MPI_Status stat;            //struct- obsahuje kod- source, tag, error
 
     //MPI INIT
-    MPI_Init(&argc,&argv);                          // inicializace MPI 
-    MPI_Comm_size(MPI_COMM_WORLD, &numprocs);       // zjistĂ­me, kolik procesĹŻ bÄ›ĹľĂ­ 
-    MPI_Comm_rank(MPI_COMM_WORLD, &myid);           // zjistĂ­me id svĂ©ho procesu 
- 
+    MPI_Init(&argc,&argv);                          // inicializace MPI
+    MPI_Comm_size(MPI_COMM_WORLD, &numprocs);       // zjistĂ­me, kolik procesĹŻ bÄ›ĹľĂ­
+    MPI_Comm_rank(MPI_COMM_WORLD, &myid);           // zjistĂ­me id svĂ©ho procesu
+
     //NACTENI SOUBORU
     /* -proc s rankem 0 nacita vsechny hodnoty
      * -postupne rozesle jednotlive hodnoty vsem i sobe
@@ -34,7 +34,7 @@
         int number;                                     //hodnota pri nacitani souboru
         int invar= 0;                                   //invariant- urcuje cislo proc, kteremu se bude posilat
         fstream fin;                                    //cteni ze souboru
-        fin.open(input, ios::in);                   
+        fin.open(input, ios::in);
 
         while(fin.good()){
             number= fin.get();
@@ -43,7 +43,7 @@
             MPI_Send(&number, 1, MPI_INT, invar, TAG, MPI_COMM_WORLD); //buffer,velikost,typ,rank prijemce,tag,komunikacni skupina
             invar++;
         }//while
-        fin.close();                                
+        fin.close();
     }//nacteni souboru
 
     //PRIJETI HODNOTY CISLA
@@ -127,8 +127,7 @@
     //cout<<"i am:"<<myid<<" my number is:"<<mynumber<<endl;
     //VYSLEDKY------------------------------------------------------------------
 
- 
-    MPI_Finalize(); 
+    MPI_Finalize();
     return 0;
 
- }//main
+}//main
