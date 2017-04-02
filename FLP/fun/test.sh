@@ -63,7 +63,7 @@ echo "Output:"
 echo "######"
 echo
 
-echo "Test 7 -- Valid RLG (TIN p. 29): Inner representation"
+echo "Test 7 -- Valid RLG (TIN ex. 3.8/28): Inner representation"
 echo "Input:"
 cat 'test/test7'
 echo
@@ -72,7 +72,7 @@ echo "Output:"
 echo "######"
 echo
 
-echo "Test 8 -- Valid RLG (TIN p. 29): Transformed"
+echo "Test 8 -- Valid RLG (TIN ex. 3.8/28): Transformed"
 echo "Input:"
 cat 'test/test7'
 echo
@@ -81,7 +81,7 @@ echo "Output:"
 echo "######"
 echo
 
-echo "Test 9 -- Valid RLG (TIN p. 29): Equivalent NKA"
+echo "Test 9 -- Valid RLG (TIN ex. 3.8/28): Equivalent NKA"
 echo "Input:"
 cat 'test/test7'
 echo
