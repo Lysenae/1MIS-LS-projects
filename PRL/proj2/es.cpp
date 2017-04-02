@@ -11,12 +11,12 @@
 
 using namespace std;
 
-const int REG_X = 1;
-const int REG_Y = 2;
-const int REG_Z = 3;
-const int IDX_X = 4;
-const int IDX_Y = 5;
-const int SIZE  = sizeof(int);
+const int MASTER = 0;
+const int REG_X  = 1;
+const int REG_Y  = 2;
+const int REG_Z  = 3;
+const int IDX_X  = 4;
+const int IDX_Y  = 5;
 
 struct ProcessorData
 {
@@ -47,12 +47,17 @@ void printProcessorData(ProcessorData &pd)
     endl;
 }
 
-bool hasNeighbor(int rank, int proc_count)
+bool hasNextNeighbor(int rank, int proc_count)
 {
   return rank < (proc_count-1);
 }
 
-int neighbor(int rank)
+int prevNeighbor(int rank)
+{
+  return rank -1;
+}
+
+int nextNeighbor(int rank)
 {
   return rank + 1;
 }
@@ -131,16 +136,16 @@ int main(int argc, char **argv)
 
     // Initialize X register with it's rank
     int x, ix, y;
-    MPI::COMM_WORLD.Recv(&x, 1, MPI::INT, 0, REG_X);
-    MPI::COMM_WORLD.Recv(&ix, 1, MPI::INT, 0, IDX_X);
+    MPI::COMM_WORLD.Recv(&x, 1, MPI::INT, MASTER, REG_X);
+    MPI::COMM_WORLD.Recv(&ix, 1, MPI::INT, MASTER, IDX_X);
     p_data.X  = x;
     p_data.ix = ix;
 
     for(unsigned int i=0; i<nums; i++)
     {
       int y, iy;
-      MPI::COMM_WORLD.Recv(&y, 1, MPI::INT, 0, REG_Y);
-      MPI::COMM_WORLD.Recv(&iy, 1, MPI::INT, 0, IDX_Y);
+      MPI::COMM_WORLD.Recv(&y, 1, MPI::INT, prevNeighbor(p_id), REG_Y);
+      MPI::COMM_WORLD.Recv(&iy, 1, MPI::INT, prevNeighbor(p_id), IDX_Y);
       p_data.Y  = y;
       p_data.iy = iy;
       cout << "Processor " << p_id << ": Receiving Y (" << y << "[" << iy << "])" << endl;
@@ -155,11 +160,10 @@ int main(int argc, char **argv)
         p_data.C += 1;
       }
 
-      if(hasNeighbor(p_id, p_count))
+      if(hasNextNeighbor(p_id, p_count))
       {
-        cout << "Processor " << p_id << ": Sending Y (" << y << "[" << iy << "]) to " << neighbor(p_id) << endl;
-        MPI::COMM_WORLD.Send(&y, 1, MPI::INT, neighbor(p_id), REG_Y);
-        MPI::COMM_WORLD.Send(&iy, 1, MPI::INT, neighbor(p_id), IDX_Y);
+        MPI::COMM_WORLD.Send(&y, 1, MPI::INT, nextNeighbor(p_id), REG_Y);
+        MPI::COMM_WORLD.Send(&iy, 1, MPI::INT, nextNeighbor(p_id), IDX_Y);
       }
     }
     printProcessorData(p_data);
