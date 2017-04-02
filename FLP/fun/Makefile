@@ -21,8 +21,3 @@ pack: clean
 
 test: all
 	bash test.sh
-
-git: clean
-	git add --all
-	git commit
-	git push -u origin master
