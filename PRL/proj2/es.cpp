@@ -3,7 +3,7 @@
  * Author:      Daniel Klimaj (xklima22@stud.fit.vutbr.cz)
  */
 
-//#include <mpi.h>
+#include <mpi.h>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -34,10 +34,38 @@ vector<unsigned char>parseNumbers(string fname)
   }
 }
 
+string ucVecJoin(vector<unsigned char> v)
+{
+  string s = "";
+  for(unsigned i=0; i<v.size(); ++i)
+  {
+    s += to_string((int)v[i]);
+    if(i < v.size()-1) s += " ";
+  }
+  return s;
+}
+
 int main(int argc, char **argv)
 {
-  vector<unsigned char> numbers = parseNumbers("numbers");
-  for(int i=0; i<numbers.size(); ++i)
-    cout << (int)numbers[i] << endl;
+  int p_count;
+  int p_id;
+
+  MPI::Init(argc, argv);
+  p_count = MPI::COMM_WORLD.Get_size();
+  p_id    = MPI::COMM_WORLD.Get_rank();
+
+  cout << "Processor: " << p_id << endl;
+
+  // First processor
+  if(p_id == 0)
+  {
+    vector<unsigned char> numbers = parseNumbers("numbers");
+    cout << ucVecJoin(numbers) << endl;
+  }
+  else
+  {
+  }
+
+  MPI::Finalize();
   return 0;
 }
