@@ -19,6 +19,9 @@ clean:
 pack: clean
 	zip -r $(PACK) .
 
+test: all
+	bash test.sh
+
 git: clean
 	git add --all
 	git commit
