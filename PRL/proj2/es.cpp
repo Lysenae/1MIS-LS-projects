@@ -4,6 +4,7 @@
  */
 
 #include <mpi.h>
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -15,9 +16,6 @@ const int MASTER = 0;
 const int REG_C  = 1;
 const int REG_X  = 2;
 const int REG_Y  = 3;
-const int REG_Z  = 4;
-const int IDX_X  = 5;
-const int IDX_Y  = 6;
 
 class Processor
 {
@@ -136,6 +134,8 @@ int main(int argc, char **argv)
   int p_count;
   int p_id;
   int nums;
+  int data[2];
+  int rslt[2];
 
   MPI::Init(argc, argv);
   p_count = MPI::COMM_WORLD.Get_size();
@@ -145,9 +145,9 @@ int main(int argc, char **argv)
   // Master processor
   if(p_id == 0)
   {
-    static const int arr[] = {2,2,3,3,2};
-    vector<int> numbers (arr, arr + sizeof(arr) / sizeof(arr[0]) );
-    //vector<int> numbers = parseNumbers("numbers");
+    //static const int arr[] = {2,2,3,3,2};
+    //vector<int> numbers (arr, arr + sizeof(arr) / sizeof(arr[0]) );
+    vector<int> numbers = parseNumbers("numbers");
     cout << vecJoin(numbers) << endl;
 
     if(numbers.size() != nums)
@@ -157,23 +157,21 @@ int main(int argc, char **argv)
       MPI::COMM_WORLD.Abort(-1);
     }
 
-    // Assign numbers to the slaves
+    // Assign numbers to the slaves and send all numbers to the first processor
     for(int i=1; i<p_count; ++i)
     {
-      int data = i;
-      MPI::COMM_WORLD.Send(&numbers[i-1], 1, MPI::INT, i, REG_X);
-      MPI::COMM_WORLD.Send(&data, 1, MPI::INT, i, IDX_X);
-      MPI::COMM_WORLD.Send(&numbers[i-1], 1, MPI::INT, 1, REG_Y);
-      MPI::COMM_WORLD.Send(&data, 1, MPI::INT, 1, IDX_Y);
+      data[0] = numbers[i-1];
+      data[1] = i;
+      MPI::COMM_WORLD.Send(&data, 2, MPI::INT, i, REG_X);
+      MPI::COMM_WORLD.Send(&data, 2, MPI::INT, 1, REG_Y);
     }
 
     // Get results from slave processors
     vector<int> result (nums, -1);
-    int r[2];
     for(unsigned int i=0; i<result.size(); ++i)
     {
-      MPI::COMM_WORLD.Recv(&r, 2, MPI::INT, MPI::ANY_SOURCE, REG_C);
-      result[r[1]] = r[0];
+      MPI::COMM_WORLD.Recv(&rslt, 2, MPI::INT, MPI::ANY_SOURCE, REG_C);
+      result[rslt[1]] = rslt[0];
     }
 
     for(unsigned int i=0; i<result.size(); ++i)
@@ -184,20 +182,17 @@ int main(int argc, char **argv)
   else // Slave processors
   {
     Processor proc(p_id, p_count);
-    int x, ix, y, iy;
-    int r[2];
+    int x[2], y[2], r[2];
 
     // Initialize X register with it's rank
-    MPI::COMM_WORLD.Recv(&x, 1, MPI::INT, MASTER, REG_X);
-    MPI::COMM_WORLD.Recv(&ix, 1, MPI::INT, MASTER, IDX_X);
-    proc.setX(x, ix);
+    MPI::COMM_WORLD.Recv(&x, 2, MPI::INT, MASTER, REG_X);
+    proc.setX(x[0], x[1]);
 
     // Get other values and compare them to the value in register X
     for(unsigned int i=0; i<nums; i++)
     {
-      MPI::COMM_WORLD.Recv(&y, 1, MPI::INT, proc.prevNeighbor(), REG_Y);
-      MPI::COMM_WORLD.Recv(&iy, 1, MPI::INT, proc.prevNeighbor(), IDX_Y);
-      proc.setY(y, iy);
+      MPI::COMM_WORLD.Recv(&y, 2, MPI::INT, proc.prevNeighbor(), REG_Y);
+      proc.setY(y[0], y[1]);
 
       // Increase counter
       if(proc.x() > proc.y())
@@ -213,8 +208,7 @@ int main(int argc, char **argv)
       // Send data to the next processor to the right (if possible)
       if(proc.hasNextNeighbor())
       {
-        MPI::COMM_WORLD.Send(&y, 1, MPI::INT, proc.nextNeighbor(), REG_Y);
-        MPI::COMM_WORLD.Send(&iy, 1, MPI::INT, proc.nextNeighbor(), IDX_Y);
+        MPI::COMM_WORLD.Send(&y, 2, MPI::INT, proc.nextNeighbor(), REG_Y);
       }
     }
 
