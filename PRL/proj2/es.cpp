@@ -12,56 +12,90 @@
 using namespace std;
 
 const int MASTER = 0;
-const int REG_X  = 1;
-const int REG_Y  = 2;
-const int REG_Z  = 3;
-const int IDX_X  = 4;
-const int IDX_Y  = 5;
+const int REG_C  = 1;
+const int REG_X  = 2;
+const int REG_Y  = 3;
+const int REG_Z  = 4;
+const int IDX_X  = 5;
+const int IDX_Y  = 6;
 
-struct ProcessorData
+class Processor
 {
-  int p_id;
-  int C;
-  int X;
-  int Y;
-  int Z;
-  int ix; // rank X
-  int iy; // rank Y
+public:
+  Processor(int p_id, int p_count);
+  void print();
+  bool hasNextNeighbor();
+  int prevNeighbor();
+  int nextNeighbor();
+  void incC();
+  void setX(int x, int ix);
+  void setY(int y, int iy);
+  int c()  { return this->m_c; }
+  int x()  { return this->m_x; }
+  int y()  { return this->m_y; }
+  int ix() { return this->m_ix; }
+  int iy() { return this->m_iy; }
+private:
+  int m_id;
+  int m_c;
+  int m_x;
+  int m_y;
+  int m_ix; // rank X
+  int m_iy; // rank Y
+  int m_pcnt;
 };
 
-void initProcessorData(int p_id, ProcessorData &p_data)
+Processor::Processor(int p_id, int p_count)
 {
-  p_data.p_id = p_id;
-  p_data.C    = 1;
-  p_data.X    = -1;
-  p_data.Y    = -1;
-  p_data.Z    = -1;
-  p_data.ix   = -1;
-  p_data.iy   = -1;
+  this->m_id   = p_id;
+  this->m_c    = 0;
+  this->m_x    = -1;
+  this->m_y    = -1;
+  this->m_ix   = -1;
+  this->m_iy   = -1;
+  this->m_pcnt = p_count;
 }
 
-void printProcessorData(ProcessorData &pd)
+void Processor::print()
 {
-  cout << "Processor " << pd.p_id << ": C: " << pd.C << ", X: " << pd.X
-    << "[" << pd.ix << "],\tY: " << pd.Y << "[" << pd.iy << "],\tZ: " << pd.Z <<
-    endl;
+  cout << "Processor " << this->m_id << ": C: " << this->m_c << ", X: "<<
+    this->m_x << "[" << this->m_ix << "],\tY: " << this->m_y << "[" << m_iy <<
+    "]" << endl;
 }
 
-bool hasNextNeighbor(int rank, int proc_count)
+bool Processor::hasNextNeighbor()
 {
-  return rank < (proc_count-1);
+  return this->m_id < (this->m_pcnt - 1);
 }
 
-int prevNeighbor(int rank)
+int Processor::prevNeighbor()
 {
-  return rank -1;
+  return this->m_id - 1;
 }
 
-int nextNeighbor(int rank)
+int Processor::nextNeighbor()
 {
-  return rank + 1;
+  return this->m_id + 1;
 }
 
+void Processor::incC()
+{
+  this->m_c += 1;
+}
+
+void Processor::setX(int x, int ix)
+{
+  this->m_x  = x;
+  this->m_ix = ix;
+}
+
+void Processor::setY(int y, int iy)
+{
+  this->m_y  = y;
+  this->m_iy = iy;
+}
+
+// Read numbers from specified file and return them as vector
 vector<int>parseNumbers(string fname)
 {
   vector<int> result;
@@ -85,6 +119,7 @@ vector<int>parseNumbers(string fname)
   }
 }
 
+// Create string from vector of numbers
 string vecJoin(vector<int> v)
 {
   string s = "";
@@ -107,19 +142,22 @@ int main(int argc, char **argv)
   p_id    = MPI::COMM_WORLD.Get_rank();
   nums    = p_count - 1;
 
-  // First processor
+  // Master processor
   if(p_id == 0)
   {
-    vector<int> numbers = parseNumbers("numbers");
+    static const int arr[] = {2,2,3,3,2};
+    vector<int> numbers (arr, arr + sizeof(arr) / sizeof(arr[0]) );
+    //vector<int> numbers = parseNumbers("numbers");
     cout << vecJoin(numbers) << endl;
 
     if(numbers.size() != nums)
     {
-      cerr << "Size of numbers does not corresponds to number of preocessors" <<
+      cerr << "Size of numbers does not corresponds to number of processors" <<
         endl;
-      MPI::COMM_WORLD.Abort(1);
+      MPI::COMM_WORLD.Abort(-1);
     }
 
+    // Assign numbers to the slaves
     for(int i=1; i<p_count; ++i)
     {
       int data = i;
@@ -128,45 +166,63 @@ int main(int argc, char **argv)
       MPI::COMM_WORLD.Send(&numbers[i-1], 1, MPI::INT, 1, REG_Y);
       MPI::COMM_WORLD.Send(&data, 1, MPI::INT, 1, IDX_Y);
     }
+
+    // Get results from slave processors
+    vector<int> result (nums, -1);
+    int r[2];
+    for(unsigned int i=0; i<result.size(); ++i)
+    {
+      MPI::COMM_WORLD.Recv(&r, 2, MPI::INT, MPI::ANY_SOURCE, REG_C);
+      result[r[1]] = r[0];
+    }
+
+    for(unsigned int i=0; i<result.size(); ++i)
+    {
+      cout << result[i] << endl;
+    }
   }
-  else // Other processors
+  else // Slave processors
   {
-    ProcessorData p_data;
-    initProcessorData(p_id, p_data);
+    Processor proc(p_id, p_count);
+    int x, ix, y, iy;
+    int r[2];
 
     // Initialize X register with it's rank
-    int x, ix, y;
     MPI::COMM_WORLD.Recv(&x, 1, MPI::INT, MASTER, REG_X);
     MPI::COMM_WORLD.Recv(&ix, 1, MPI::INT, MASTER, IDX_X);
-    p_data.X  = x;
-    p_data.ix = ix;
+    proc.setX(x, ix);
 
+    // Get other values and compare them to the value in register X
     for(unsigned int i=0; i<nums; i++)
     {
-      int y, iy;
-      MPI::COMM_WORLD.Recv(&y, 1, MPI::INT, prevNeighbor(p_id), REG_Y);
-      MPI::COMM_WORLD.Recv(&iy, 1, MPI::INT, prevNeighbor(p_id), IDX_Y);
-      p_data.Y  = y;
-      p_data.iy = iy;
-      cout << "Processor " << p_id << ": Receiving Y (" << y << "[" << iy << "])" << endl;
+      MPI::COMM_WORLD.Recv(&y, 1, MPI::INT, proc.prevNeighbor(), REG_Y);
+      MPI::COMM_WORLD.Recv(&iy, 1, MPI::INT, proc.prevNeighbor(), IDX_Y);
+      proc.setY(y, iy);
 
-      if(p_data.X > p_data.Y)
+      // Increase counter
+      if(proc.x() > proc.y())
       {
-        p_data.C += 1;
+        proc.incC();
       }
       // Increase counter if X rank is greater than Y rank if values are equal
-      else if(p_data.X == p_data.Y && p_data.ix > p_data.iy)
+      else if(proc.x() == proc.y() && proc.ix() > proc.iy())
       {
-        p_data.C += 1;
+        proc.incC();
       }
 
-      if(hasNextNeighbor(p_id, p_count))
+      // Send data to the next processor to the right (if possible)
+      if(proc.hasNextNeighbor())
       {
-        MPI::COMM_WORLD.Send(&y, 1, MPI::INT, nextNeighbor(p_id), REG_Y);
-        MPI::COMM_WORLD.Send(&iy, 1, MPI::INT, nextNeighbor(p_id), IDX_Y);
+        MPI::COMM_WORLD.Send(&y, 1, MPI::INT, proc.nextNeighbor(), REG_Y);
+        MPI::COMM_WORLD.Send(&iy, 1, MPI::INT, proc.nextNeighbor(), IDX_Y);
       }
     }
-    printProcessorData(p_data);
+
+    //proc.print();
+    r[0] = proc.x();
+    r[1] = proc.c();
+    // Send result to master processor
+    MPI::COMM_WORLD.Send(&r, 2, MPI::INT, 0, REG_C);
   }
 
   MPI::Finalize();
