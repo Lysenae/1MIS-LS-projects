@@ -193,7 +193,6 @@ function zpad(str)
 
 function updateRelativeTimes()
 {
-  console.info("update");
   var times = document.getElementsByTagName("time");
   var rel, tm, now, diff, n, txt;
   for(i=0; i<times.length; ++i)
