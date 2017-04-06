@@ -1,5 +1,8 @@
 document.addEventListener("DOMContentLoaded", onLoad);
 
+setInterval(updateTimes, 60000);
+updateTimes();
+
 function onLoad()
 {
   var ctrl = document.getElementsByClassName("controls")
@@ -114,10 +117,35 @@ function setControlTablePadding(table)
 function onApply(e)
 {
   var i = e.srcElement.value
-  console.info("Apply clicked " + i);
   var r = document.getElementById("tmCtrl" + e.srcElement.value);
   var c = r.getElementsByTagName("textarea")[0];
   var t = document.getElementsByTagName("time")[parseInt(i, 10)];
-  console.info(t);
+  var rslt = parseDate(c.value);
+  if(rslt != null)
+  {
+    t.setAttribute("datetime", rslt);
+    t.innerText = c.value;
+  }
+  else
+  {
+    c.value = t.innerText;
+  }
 }
 
+function parseDate(date)
+{
+  var t = new Date(date).getTime();
+  if(isNaN(t))
+  {
+    console.error("Failed to parse date " + date);
+  }
+  else
+  {
+    return t;
+  }
+}
+
+function updateTimes()
+{
+  console.info("Updating times");
+}
