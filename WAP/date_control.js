@@ -50,7 +50,7 @@ function buildTableHeader(table)
   tr.appendChild(th);
 
   th   = document.createElement("th");
-  text = document.createTextNode("Content");
+  text = document.createTextNode("Time");
   th.appendChild(text);
   tr.appendChild(th);
 
