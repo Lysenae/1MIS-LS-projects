@@ -23,6 +23,10 @@ function onLoad()
 function buildControls(ctrl)
 {
   var times = document.getElementsByTagName("time");
+  for(i=0; i<times.length; ++i)
+  {
+    times[i].setAttribute("tm-rel", 0);
+  }
   buildControlsTable(ctrl, times)
 }
 
@@ -55,6 +59,11 @@ function buildTableHeader(table)
   tr.appendChild(th);
 
   th   = document.createElement("th");
+  text = document.createTextNode("Relative?");
+  th.appendChild(text);
+  tr.appendChild(th);
+
+  th   = document.createElement("th");
   text = document.createTextNode("Apply");
   th.appendChild(text);
   tr.appendChild(th);
@@ -83,6 +92,13 @@ function buildTableRows(table, time, idx)
   ct.style.width    = "300px";
   ct.style.maxWidth = "600px";
   ct.value = time.innerText;
+  td.appendChild(ct);
+  tr.appendChild(td);
+
+  // Show relative time
+  td = document.createElement("td");
+  ct = document.createElement("input");
+  ct.setAttribute("type", "checkbox");
   td.appendChild(ct);
   tr.appendChild(td);
 
