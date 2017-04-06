@@ -84,6 +84,7 @@ function buildTableRows(table, time, idx)
   text.setAttribute("cols", 40);
   text.style.resize  = "horizontal";
   text.style.padding = "4px";
+  text.value = time.innerText;
   td.appendChild(text);
   tr.appendChild(td);
 
