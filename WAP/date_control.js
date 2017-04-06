@@ -69,38 +69,44 @@ function buildTableHeader(table)
 
 function buildTableRows(table, time, idx)
 {
-  var td, text, ip;
+  var td, ct;
   var tr = document.createElement("tr");
   tr.className = idx;
 
+  // Time ID
   td   = document.createElement("td");
-  text = document.createTextNode(idx);
-  td.appendChild(text);
+  ct = document.createTextNode(idx);
+  td.appendChild(ct);
   tr.appendChild(td);
 
+  // Time contents
   td   = document.createElement("td");
-  text = document.createElement("textarea");
-  text.setAttribute("rows", 1);
-  text.setAttribute("cols", 40);
-  text.style.resize  = "horizontal";
-  text.style.padding = "4px";
-  text.value = time.innerText;
-  td.appendChild(text);
+  ct = document.createElement("textarea");
+  ct.setAttribute("rows", 1);
+  ct.setAttribute("cols", 40);
+  ct.style.resize  = "horizontal";
+  ct.style.padding = "4px";
+  ct.value = time.innerText;
+  td.appendChild(ct);
   tr.appendChild(td);
 
+  // Show full date checkbox
   td = document.createElement("td");
   td.setAttribute("align", "center");
-  ip = document.createElement("input");
-  ip.setAttribute("type", "checkbox");
-  td.appendChild(ip);
+  ct = document.createElement("input");
+  ct.setAttribute("type", "checkbox");
+  td.appendChild(ct);
   tr.appendChild(td);
 
+  // Apply button
   td = document.createElement("td");
   td.setAttribute("align", "center");
-  ip = document.createElement("input");
-  ip.setAttribute("type", "submit");
-  ip.value = "Apply";
-  td.appendChild(ip);
+  ct = document.createElement("button");
+  ct.setAttribute("type", "button");
+  ct.value     = idx;
+  ct.innerText = "Apply";
+  ct.onclick   = onApply;
+  td.appendChild(ct);
   tr.appendChild(td);
 
   table.appendChild(tr);
@@ -116,8 +122,12 @@ function setControlTablePadding(table)
   }
   for(i=0; i<tds.length; ++i)
   {
-    console.info(i)
     tds[i].style.padding = "0 45px 0 45px";
   }
+}
+
+function onApply(e)
+{
+  console.info("Apply clicked " + e.srcElement.value);
 }
 
