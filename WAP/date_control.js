@@ -45,7 +45,7 @@ function buildTableHeader(table)
   var th, text;
   var tr   = document.createElement("tr");
   th   = document.createElement("th");
-  text = document.createTextNode("Identification");
+  text = document.createTextNode("ID");
   th.appendChild(text);
   tr.appendChild(th);
 
@@ -74,7 +74,7 @@ function buildTableRows(table, time, idx)
   tr.className = idx;
 
   td   = document.createElement("td");
-  text = document.createTextNode("Time " + idx);
+  text = document.createTextNode(idx);
   td.appendChild(text);
   tr.appendChild(td);
 
