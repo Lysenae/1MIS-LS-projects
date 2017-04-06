@@ -59,6 +59,11 @@ function buildTableHeader(table)
   tr.appendChild(th);
 
   th   = document.createElement("th");
+  text = document.createTextNode("Title");
+  th.appendChild(text);
+  tr.appendChild(th);
+
+  th   = document.createElement("th");
   text = document.createTextNode("Relative?");
   th.appendChild(text);
   tr.appendChild(th);
@@ -89,9 +94,20 @@ function buildTableRows(table, time, idx)
   ct.setAttribute("rows", 1);
   ct.style.resize   = "horizontal";
   ct.style.padding  = "4px";
-  ct.style.width    = "300px";
-  ct.style.maxWidth = "600px";
+  ct.style.width    = "200px";
+  ct.style.maxWidth = "400px";
   ct.value = time.innerText;
+  td.appendChild(ct);
+  tr.appendChild(td);
+
+  td = document.createElement("td");
+  ct = document.createElement("textarea");
+  ct.setAttribute("rows", 1);
+  ct.style.resize   = "horizontal";
+  ct.style.padding  = "4px";
+  ct.style.width    = "200px";
+  ct.style.maxWidth = "400px";
+  ct.value = time.title;
   td.appendChild(ct);
   tr.appendChild(td);
 
@@ -132,19 +148,22 @@ function setControlTablePadding(table)
 
 function onApply(e)
 {
-  var i = e.srcElement.value
-  var r = document.getElementById("tmCtrl" + e.srcElement.value);
-  var c = r.getElementsByTagName("textarea")[0];
-  var t = document.getElementsByTagName("time")[parseInt(i, 10)];
-  var rslt = parseDate(c.value);
+  var idx   = e.srcElement.value
+  var elem  = document.getElementById("tmCtrl" + e.srcElement.value);
+  var text  = elem.getElementsByTagName("textarea")[0];
+  var title = elem.getElementsByTagName("textarea")[1];
+  var time  = document.getElementsByTagName("time")[parseInt(idx, 10)];
+  var rslt  = parseDate(text.value);
   if(rslt != null)
   {
-    t.setAttribute("datetime", rslt);
-    t.innerText = c.value;
+    time.setAttribute("datetime", rslt);
+    time.innerText = text.value;
+    time.title     = title.value;
   }
   else
   {
-    c.value = t.innerText;
+    text.value  = time.innerText;
+    title.value = time.title;
   }
 }
 
