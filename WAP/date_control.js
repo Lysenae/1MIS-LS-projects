@@ -55,11 +55,6 @@ function buildTableHeader(table)
   tr.appendChild(th);
 
   th   = document.createElement("th");
-  text = document.createTextNode("Show date?");
-  th.appendChild(text);
-  tr.appendChild(th);
-
-  th   = document.createElement("th");
   text = document.createTextNode("Apply");
   th.appendChild(text);
   tr.appendChild(th);
@@ -71,7 +66,7 @@ function buildTableRows(table, time, idx)
 {
   var td, ct;
   var tr = document.createElement("tr");
-  tr.className = idx;
+  tr.id = "tmCtrl" + idx;
 
   // Time ID
   td   = document.createElement("td");
@@ -87,14 +82,6 @@ function buildTableRows(table, time, idx)
   ct.style.resize  = "horizontal";
   ct.style.padding = "4px";
   ct.value = time.innerText;
-  td.appendChild(ct);
-  tr.appendChild(td);
-
-  // Show full date checkbox
-  td = document.createElement("td");
-  td.setAttribute("align", "center");
-  ct = document.createElement("input");
-  ct.setAttribute("type", "checkbox");
   td.appendChild(ct);
   tr.appendChild(td);
 
@@ -129,5 +116,7 @@ function setControlTablePadding(table)
 function onApply(e)
 {
   console.info("Apply clicked " + e.srcElement.value);
+  var r = document.getElementById("tmCtrl" + e.srcElement.value);
+  console.info(r);
 }
 
