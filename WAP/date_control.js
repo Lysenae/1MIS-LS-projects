@@ -141,8 +141,8 @@ function setControlTablePadding(table)
 {
   var ths = table.getElementsByTagName("th");
   var tds = table.getElementsByTagName("td");
-  for(i=0; i<ths.length; ++i) ths[i].style.padding = "0 30px 0 30px";
-  for(i=0; i<tds.length; ++i) tds[i].style.padding = "0 45px 0 45px";
+  for(i=0; i<ths.length; ++i) ths[i].style.padding = "0 30px";
+  for(i=0; i<tds.length; ++i) tds[i].style.padding = "0 45px";
 }
 
 function onApply(e)
