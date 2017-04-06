@@ -15,12 +15,26 @@ function onLoad()
   else
   {
     console.info("All ok");
-    buildControls();
+    buildControls(ctrl[0]);
   }
 }
 
-function buildControls()
+function buildControls(ctrl)
 {
-  console.info("Building controls");
+  console.info("Building controls for '%s'", ctrl);
+  var timeElems = document.getElementsByTagName("time");
+  console.info("|<time>|: %d", timeElems.length);
+  for(i=0; i<timeElems.length; ++i)
+  {
+    appendControl(ctrl, i)
+  }
+}
+
+function appendControl(ctrl, idx)
+{
+  var element = document.createElement("p");
+  var text    = document.createTextNode("Time " + idx);
+  element.appendChild(text);
+  ctrl.appendChild(element);
 }
 
