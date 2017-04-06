@@ -26,7 +26,7 @@ function buildControls(ctrl)
 function buildControlsTable(ctrl, times)
 {
   var table = document.createElement("table");
-  table.id  = "tmCtrl"
+  table.id  = "tmCtrlTbl"
   buildTableHeader(table);
   for(i=0; i<times.length; ++i)
   {
@@ -39,7 +39,8 @@ function buildControlsTable(ctrl, times)
 function buildTableHeader(table)
 {
   var th, text;
-  var tr   = document.createElement("tr");
+  var tr = document.createElement("tr");
+
   th   = document.createElement("th");
   text = document.createTextNode("ID");
   th.appendChild(text);
@@ -62,7 +63,7 @@ function buildTableRows(table, time, idx)
 {
   var td, ct;
   var tr = document.createElement("tr");
-  tr.id = "tmCtrl" + idx;
+  tr.id  = "tmCtrl" + idx;
 
   // Time ID
   td   = document.createElement("td");
@@ -71,7 +72,7 @@ function buildTableRows(table, time, idx)
   tr.appendChild(td);
 
   // Time contents
-  td   = document.createElement("td");
+  td = document.createElement("td");
   ct = document.createElement("textarea");
   ct.setAttribute("rows", 1);
   ct.style.resize   = "horizontal";
@@ -112,8 +113,11 @@ function setControlTablePadding(table)
 
 function onApply(e)
 {
-  console.info("Apply clicked " + e.srcElement.value);
+  var i = e.srcElement.value
+  console.info("Apply clicked " + i);
   var r = document.getElementById("tmCtrl" + e.srcElement.value);
   var c = r.getElementsByTagName("textarea")[0];
+  var t = document.getElementsByTagName("time")[parseInt(i, 10)];
+  console.info(t);
 }
 
