@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", onLoad);
 function onLoad()
 {
   var ctrl = document.getElementsByClassName("controls")
-  console.info("Controls: %d", ctrl.length)
   if(ctrl.length == 0)
   {
     console.error("Controls not found!");
@@ -14,23 +13,20 @@ function onLoad()
   }
   else
   {
-    console.info("All ok");
     buildControls(ctrl[0]);
   }
 }
 
 function buildControls(ctrl)
 {
-  console.info("Building controls for '%s'", ctrl);
   var times = document.getElementsByTagName("time");
-  console.info("|<time>|: %d", times.length);
   buildControlsTable(ctrl, times)
 }
 
 function buildControlsTable(ctrl, times)
 {
   var table = document.createElement("table");
-  table.id  = "ctrlTable"
+  table.id  = "tmCtrl"
   buildTableHeader(table);
   for(i=0; i<times.length; ++i)
   {
@@ -78,9 +74,10 @@ function buildTableRows(table, time, idx)
   td   = document.createElement("td");
   ct = document.createElement("textarea");
   ct.setAttribute("rows", 1);
-  ct.setAttribute("cols", 40);
-  ct.style.resize  = "horizontal";
-  ct.style.padding = "4px";
+  ct.style.resize   = "horizontal";
+  ct.style.padding  = "4px";
+  ct.style.width    = "300px";
+  ct.style.maxWidth = "600px";
   ct.value = time.innerText;
   td.appendChild(ct);
   tr.appendChild(td);
@@ -117,6 +114,6 @@ function onApply(e)
 {
   console.info("Apply clicked " + e.srcElement.value);
   var r = document.getElementById("tmCtrl" + e.srcElement.value);
-  console.info(r);
+  var c = r.getElementsByTagName("textarea")[0];
 }
 
