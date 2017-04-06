@@ -29,6 +29,7 @@ function buildControls(ctrl)
   for(i=0; i<times.length; ++i)
   {
     times[i].setAttribute("tm-rel", false);
+    times[i].setAttribute("tm-abs", times[i].innerText);
   }
   buildControlsTable(ctrl, times)
 }
@@ -157,6 +158,7 @@ function onApply(e)
   {
     time.setAttribute("datetime", rslt);
     time.setAttribute("tm-rel", rel.checked);
+    time.setAttribute("tm-abs", text.value);
     time.title = title.value;
     if(rel.checked)
       updateRelativeTimes();
@@ -165,7 +167,7 @@ function onApply(e)
   }
   else
   {
-    text.value  = time.innerText;
+    text.value  = time.getAttribute("tm-abs");
     title.value = time.title;
   }
 }
