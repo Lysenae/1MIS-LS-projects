@@ -1,23 +1,26 @@
+// Project: WAP - Časové údaje v dokumentu
+// Author:  Daniel Klimaj (xklima22@stud.fit.vutbr.cz)
+
+// Global constants
+var TM_YEAR   = 31536000000;
+var TM_DAY    = 86400000;
+var TM_HOUR   = 3600000;
+var TM_MINUTE = 60000;
+
 document.addEventListener("DOMContentLoaded", onLoad);
 
-setInterval(updateTimes, 60000);
-updateTimes();
+setInterval(updateRelativeTimes, TM_MINUTE/4);
+updateRelativeTimes();
 
 function onLoad()
 {
   var ctrl = document.getElementsByClassName("controls")
   if(ctrl.length == 0)
-  {
     console.error("Controls not found!");
-  }
   else if(ctrl.length > 1)
-  {
     console.error("Multiple controls found");
-  }
   else
-  {
     buildControls(ctrl[0]);
-  }
 }
 
 function buildControls(ctrl)
@@ -25,7 +28,7 @@ function buildControls(ctrl)
   var times = document.getElementsByTagName("time");
   for(i=0; i<times.length; ++i)
   {
-    times[i].setAttribute("tm-rel", 0);
+    times[i].setAttribute("tm-rel", false);
   }
   buildControlsTable(ctrl, times)
 }
@@ -36,9 +39,7 @@ function buildControlsTable(ctrl, times)
   table.id  = "tmCtrlTbl"
   buildTableHeader(table);
   for(i=0; i<times.length; ++i)
-  {
     buildTableRows(table, times[i], i)
-  }
   setControlTablePadding(table);
   ctrl.appendChild(table);
 }
@@ -49,7 +50,7 @@ function buildTableHeader(table)
   var tr = document.createElement("tr");
 
   th   = document.createElement("th");
-  text = document.createTextNode("ID");
+  text = document.createTextNode("Order");
   th.appendChild(text);
   tr.appendChild(th);
 
@@ -88,25 +89,16 @@ function buildTableRows(table, time, idx)
   td.appendChild(ct);
   tr.appendChild(td);
 
-  // Time contents
+  // Time
   td = document.createElement("td");
-  ct = document.createElement("textarea");
-  ct.setAttribute("rows", 1);
-  ct.style.resize   = "horizontal";
-  ct.style.padding  = "4px";
-  ct.style.width    = "200px";
-  ct.style.maxWidth = "400px";
+  ct = buildTextArea("tmCtrlTime" + idx)
   ct.value = time.innerText;
   td.appendChild(ct);
   tr.appendChild(td);
 
+  // Title
   td = document.createElement("td");
-  ct = document.createElement("textarea");
-  ct.setAttribute("rows", 1);
-  ct.style.resize   = "horizontal";
-  ct.style.padding  = "4px";
-  ct.style.width    = "200px";
-  ct.style.maxWidth = "400px";
+  ct = buildTextArea("tmCtrlTitle" + idx)
   ct.value = time.title;
   td.appendChild(ct);
   tr.appendChild(td);
@@ -115,6 +107,7 @@ function buildTableRows(table, time, idx)
   td = document.createElement("td");
   ct = document.createElement("input");
   ct.setAttribute("type", "checkbox");
+  ct.id = "tmCtrlRel" + idx;
   td.appendChild(ct);
   tr.appendChild(td);
 
@@ -132,33 +125,43 @@ function buildTableRows(table, time, idx)
   table.appendChild(tr);
 }
 
+function buildTextArea(id)
+{
+  ct = document.createElement("textarea");
+  ct.setAttribute("rows", 1);
+  ct.style.resize   = "horizontal";
+  ct.style.padding  = "4px";
+  ct.style.width    = "200px";
+  ct.style.maxWidth = "400px";
+  ct.id             = id;
+  return ct;
+}
+
 function setControlTablePadding(table)
 {
   var ths = table.getElementsByTagName("th");
   var tds = table.getElementsByTagName("td");
-  for(i=0; i<ths.length; ++i)
-  {
-    ths[i].style.padding = "0 30px 0 30px";
-  }
-  for(i=0; i<tds.length; ++i)
-  {
-    tds[i].style.padding = "0 45px 0 45px";
-  }
+  for(i=0; i<ths.length; ++i) ths[i].style.padding = "0 30px 0 30px";
+  for(i=0; i<tds.length; ++i) tds[i].style.padding = "0 45px 0 45px";
 }
 
 function onApply(e)
 {
   var idx   = e.srcElement.value
-  var elem  = document.getElementById("tmCtrl" + e.srcElement.value);
-  var text  = elem.getElementsByTagName("textarea")[0];
-  var title = elem.getElementsByTagName("textarea")[1];
+  var text  = document.getElementById("tmCtrlTime" + idx);
+  var title = document.getElementById("tmCtrlTitle" + idx);
+  var rel   = document.getElementById("tmCtrlRel" + idx);
   var time  = document.getElementsByTagName("time")[parseInt(idx, 10)];
   var rslt  = parseDate(text.value);
   if(rslt != null)
   {
     time.setAttribute("datetime", rslt);
-    time.innerText = text.value;
-    time.title     = title.value;
+    time.setAttribute("tm-rel", rel.checked);
+    time.title = title.value;
+    if(rel.checked)
+      updateRelativeTimes();
+    else
+      time.innerText = text.value;
   }
   else
   {
@@ -169,18 +172,81 @@ function onApply(e)
 
 function parseDate(date)
 {
-  var t = new Date(date).getTime();
-  if(isNaN(t))
-  {
+  var t = new Date(date);
+  if(isNaN(t.getTime()))
     console.error("Failed to parse date " + date);
-  }
   else
+    return createDateTime(t);
+}
+
+function createDateTime(t)
+{
+  return t.getFullYear() + "-" + zpad((t.getMonth()+1)) + "-" +
+    zpad(t.getDate()) + " " + zpad(t.getHours()) + ":" + zpad(t.getMinutes()) +
+    ":" + zpad(t.getSeconds());
+}
+
+function zpad(str)
+{
+  return ("0" + str).slice(-2);
+}
+
+function updateRelativeTimes()
+{
+  console.info("update");
+  var times = document.getElementsByTagName("time");
+  var rel, tm, now, diff, n, txt;
+  for(i=0; i<times.length; ++i)
   {
-    return t;
+    rel = times[i].getAttribute("tm-rel");
+    if(rel == "false") continue;
+    tm   = new Date(times[i].getAttribute("datetime")).getTime();
+    now  = Date.now();
+    diff = (now - tm);
+    if(diff >= 0)
+      txt = getRelativeTime(diff);
+    else
+      txt = getRelativeTime(tm-now, true);
+    times[i].innerText = txt;
   }
 }
 
-function updateTimes()
+function getRelativeTime(diff, future = false)
 {
-  console.info("Updating times");
+  var x, txt;
+  if(diff >= TM_YEAR) // More than a year
+  {
+    x   = Math.floor(diff / TM_YEAR);
+    txt = createRelativeTime(x, "year", future);
+  }
+  else if(diff >= TM_DAY) // More than a day
+  {
+    x   = Math.floor(diff / TM_DAY);
+    txt = createRelativeTime(x, "day", future);
+  }
+  else if(diff >= TM_HOUR) // More than a hour
+  {
+    x   = Math.floor(diff / TM_HOUR);
+    txt = createRelativeTime(x, "hour", future);
+  }
+  else if(diff >= TM_MINUTE) // More than a minute
+  {
+    x   = Math.floor(diff / TM_MINUTE);
+    txt = createRelativeTime(x, "minute", future);
+  }
+  else
+    txt = createRelativeTime(Math.floor(diff/1000), "second", future);
+  return txt;
+}
+
+function createRelativeTime(amount, unit, future = false)
+{
+  if(future)
+  {
+    return "in " + amount + " " + unit + ((amount > 1) ? "s" : "");
+  }
+  else
+  {
+    return amount + " " + unit + ((amount > 1) ? "s" : "") + " ago";
+  }
 }
