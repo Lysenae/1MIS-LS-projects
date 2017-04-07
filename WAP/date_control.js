@@ -1,7 +1,6 @@
 // Project: WAP - Časové údaje v dokumentu
 // Author:  Daniel Klimaj (xklima22@stud.fit.vutbr.cz)
 
-console.info("Console tesst");
 // Global constants
 var TM_YEAR   = 31536000000;
 var TM_DAY    = 86400000;
