@@ -192,11 +192,27 @@ function onApply(e)
 
 function parseDate(date)
 {
+  // JS can't parse Cz/Sk dates properly
+  var rgx = /^(\d{1,2})\.(\d{1,2})\.(\d{4})(\s+\d+:\d+(:\d+)?)?/;
+  if(rgx.test(date))
+    return parseCzSkDate(date, rgx);
+
   var t = new Date(date);
   if(isNaN(t.getTime()))
+  {
     console.error("Failed to parse date " + date);
+    return null;
+  }
   else
     return createDateTime(t);
+}
+
+function parseCzSkDate(date, rgx)
+{
+  var m = date.match(rgx);
+  var d = m[3] + "-" + m[2] + "-" +  m[1] + (m[4] === undefined ? "" : m[4]);
+  var t = new Date(d);
+  return isNaN(t.getTime()) ? null : createDateTime(t);
 }
 
 function createDateTime(t)
