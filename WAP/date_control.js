@@ -6,6 +6,7 @@ var TM_YEAR   = 31536000000;
 var TM_DAY    = 86400000;
 var TM_HOUR   = 3600000;
 var TM_MINUTE = 60000;
+
 var CANVAS_H  = 201;
 var CANVAS_Y  = Math.floor((CANVAS_H - 1) / 2 + 1);
 var CANVAS_B  = 40;
@@ -13,9 +14,13 @@ var CANVAS_W  = 800 + 2 * CANVAS_B;
 
 document.addEventListener("DOMContentLoaded", onLoad);
 
+// Update relative dates
 setInterval(updateRelativeTimes, TM_MINUTE/4);
 updateRelativeTimes();
 
+/**
+ * Checks if document contains exactly 1 controls div ans constructs controls.
+ */
 function onLoad()
 {
   var ctrl = document.getElementsByClassName("controls")
@@ -30,6 +35,10 @@ function onLoad()
   }
 }
 
+/**
+ * Builds controls for each time element in the document.
+ * @param ctrl Controls div
+ */
 function buildControls(ctrl)
 {
   var times = document.getElementsByTagName("time");
@@ -42,15 +51,27 @@ function buildControls(ctrl)
   buildTimeline(ctrl);
 }
 
+/**
+ * Builds canvas for drawing the timeline.
+ * @param ctrl Controls div
+ */
 function buildTimeline(ctrl)
 {
   var canvas    = document.createElement("canvas");
   canvas.id     = "timeline";
   canvas.width  = CANVAS_W;
   canvas.height = CANVAS_H;
+  canvas.style.padding = 0;
+  canvas.style.margin = "auto";
+  canvas.style.display = "block";
+
   ctrl.appendChild(canvas);
 }
 
+/**
+ * Builds controls table.
+ * @param ctrl Controls div
+ */
 function buildControlsTable(ctrl, times)
 {
   var table = document.createElement("table");
@@ -62,6 +83,10 @@ function buildControlsTable(ctrl, times)
   ctrl.appendChild(table);
 }
 
+/**
+ * Builds controls table's header.
+ * @param talbe Controls table
+ */
 function buildTableHeader(table)
 {
   var th, text;
@@ -95,6 +120,12 @@ function buildTableHeader(table)
   table.appendChild(tr);
 }
 
+/**
+ * Builds controls table row for each time element.
+ * @param table Controls table
+ * @param time Time element
+ * @param idx Order of the time element in the document
+ */
 function buildTableRows(table, time, idx)
 {
   var td, ct;
@@ -143,18 +174,27 @@ function buildTableRows(table, time, idx)
   table.appendChild(tr);
 }
 
+/**
+ * Builds text area for time element at given index.
+ * @returns TextArea element
+ * @param id Order of the time element in the document
+ */
 function buildTextArea(id)
 {
-  ct = document.createElement("textarea");
-  ct.setAttribute("rows", 1);
-  ct.style.resize   = "horizontal";
-  ct.style.padding  = "4px";
-  ct.style.width    = "200px";
-  ct.style.maxWidth = "400px";
-  ct.id             = id;
-  return ct;
+  var ta = document.createElement("textarea");
+  ta.setAttribute("rows", 1);
+  ta.style.resize   = "horizontal";
+  ta.style.padding  = "4px";
+  ta.style.width    = "200px";
+  ta.style.maxWidth = "400px";
+  ta.id             = id;
+  return ta;
 }
 
+/**
+ * Sets padding for each td and th in the controls table.
+ * @param table Controls table
+ */
 function setControlTablePadding(table)
 {
   var ths = table.getElementsByTagName("th");
@@ -163,6 +203,10 @@ function setControlTablePadding(table)
   for(i=0; i<tds.length; ++i) tds[i].style.padding = "0 45px";
 }
 
+/**
+ * Apply specified parameters and update timeline.
+ * @param e Event args
+ */
 function onApply(e)
 {
   var idx   = e.srcElement.value
@@ -190,6 +234,11 @@ function onApply(e)
   }
 }
 
+/**
+ * Parse specified date.
+ * @returns Date in format YYYY-MM-DD HH-mm-SS or null on fail
+ * @param date Date to parse
+ */
 function parseDate(date)
 {
   // JS can't parse Cz/Sk dates properly
@@ -207,6 +256,12 @@ function parseDate(date)
     return createDateTime(t);
 }
 
+/**
+ * Parses date in format DD.MM.YYYY [HH:mm[:SS]].
+ * @returns Date in format YYYY-MM-DD HH-mm-SS or null on fail
+ * @param date Date to parse
+ * @param rgx RegExp used to parse date in this format
+ */
 function parseCzSkDate(date, rgx)
 {
   var m = date.match(rgx);
@@ -215,6 +270,11 @@ function parseCzSkDate(date, rgx)
   return isNaN(t.getTime()) ? null : createDateTime(t);
 }
 
+/**
+ * Creates date in format YYYY-MM-DD HH-mm-SS from Date object.
+ * @returns Date in format YYYY-MM-DD HH-mm-SS
+ * @param t Date object
+ */
 function createDateTime(t)
 {
   return t.getFullYear() + "-" + zpad((t.getMonth()+1)) + "-" +
@@ -222,11 +282,19 @@ function createDateTime(t)
     ":" + zpad(t.getSeconds());
 }
 
+/**
+ * Zero-pads string of one digit.
+ * @returns Zero-padded string of digits
+ * @param str Padded string
+ */
 function zpad(str)
 {
   return ("0" + str).slice(-2);
 }
 
+/**
+ * Updates relative times.
+ */
 function updateRelativeTimes()
 {
   var times = document.getElementsByTagName("time");
@@ -246,6 +314,12 @@ function updateRelativeTimes()
   }
 }
 
+/**
+ * Calculates relative time.
+ * @returns Relative time
+ * @param diff Difference in milliseconds between current time and given time
+ * @param future Sets if relative time is in the future or in the past
+ */
 function getRelativeTime(diff, future = false)
 {
   var x, txt;
@@ -274,6 +348,13 @@ function getRelativeTime(diff, future = false)
   return txt;
 }
 
+/**
+ * Creates relative time.
+ * @returns Relative time
+ * @param amount How many units in the future/past
+ * @param unit Time unit - year, day, hour, minute, second
+ * @param future Sets if time is in the future or in the past
+ */
 function createRelativeTime(amount, unit, future = false)
 {
   if(future)
@@ -282,6 +363,9 @@ function createRelativeTime(amount, unit, future = false)
     return amount + " " + unit + ((amount > 1) ? "s" : "") + " ago";
 }
 
+/**
+ * Updates timeline.
+ */
 function updateTimeline()
 {
   var times = document.getElementsByTagName("time");
@@ -292,6 +376,12 @@ function updateTimeline()
   drawTimeline(vals);
 }
 
+/**
+ * Compare datetime part of arrays.
+ * @returns 0 if t1 == t2, 1 if t1 > t2 or -1 if t1 < t2
+ * @param t1 First time
+ * @param t2 second time
+ */
 function cmpTime(t1, t2)
 {
    if (t1[0] < t2[0]) return -1;
@@ -299,6 +389,10 @@ function cmpTime(t1, t2)
    return 0;
 }
 
+/**
+ * Draws timeline.
+ * @param times Array of times with titles
+ */
 function drawTimeline(times)
 {
   var canvas = document.getElementById("timeline");
@@ -331,6 +425,14 @@ function drawTimeline(times)
   }
 }
 
+/**
+ * Draws main line of the timeline.
+ * @param ctx Canvas context
+ * @param title Time title
+ * @param idx Index of the time
+ * @param x X coordinate relative to canvas
+ * @param y Y Coordinate relative to canvas
+ */
 function drawTime(ctx, title, idx, x, y)
 {
   drawDot(ctx, x, y);
@@ -338,6 +440,12 @@ function drawTime(ctx, title, idx, x, y)
   drawTitle(ctx, title, x, y, (idx % 2 == 0));
 }
 
+/**
+ * Draws dot for time event on the timeline.
+ * @param ctx Canvas context
+ * @param x X coordinate relative to canvas
+ * @param y Y Coordinate relative to canvas
+ */
 function drawDot(ctx, x, y)
 {
   ctx.beginPath();
@@ -346,6 +454,13 @@ function drawDot(ctx, x, y)
   ctx.stroke();
 }
 
+/**
+ * Draws pointer from the dot to the title on the timeline.
+ * @param ctx Canvas context
+ * @param x X coordinate relative to canvas
+ * @param y Y Coordinate relative to canvas
+ * @param above Sets whether pointer should be drawn above the timeline or below
+ */
 function drawPointer(ctx, x, y, above)
 {
   ctx.beginPath();
@@ -355,8 +470,16 @@ function drawPointer(ctx, x, y, above)
   ctx.stroke();
 }
 
+/**
+ * Draws title of the time event on the timeline.
+ * @param ctx Canvas context
+ * @param title Time title
+ * @param x X coordinate relative to canvas
+ * @param y Y Coordinate relative to canvas
+ * @param above Sets whether pointer should be drawn above the timeline or below
+ */
 function drawTitle(ctx, title, x, y, above)
 {
   ctx.font = "10px Arial";
-  ctx.fillText(title, x, above ? y+35 : y-25, 40);
+  ctx.fillText(title, x, above ? y+35 : y-25, CANVAS_B);
 }
