@@ -6,6 +6,10 @@ var TM_YEAR   = 31536000000;
 var TM_DAY    = 86400000;
 var TM_HOUR   = 3600000;
 var TM_MINUTE = 60000;
+var CANVAS_H  = 201;
+var CANVAS_Y  = Math.floor((CANVAS_H - 1) / 2 + 1);
+var CANVAS_B  = 40;
+var CANVAS_W  = 800 + 2 * CANVAS_B;
 
 document.addEventListener("DOMContentLoaded", onLoad);
 
@@ -20,7 +24,10 @@ function onLoad()
   else if(ctrl.length > 1)
     console.error("Multiple controls found");
   else
+  {
     buildControls(ctrl[0]);
+    updateTimeline();
+  }
 }
 
 function buildControls(ctrl)
@@ -32,6 +39,16 @@ function buildControls(ctrl)
     times[i].setAttribute("tm-abs", times[i].innerText);
   }
   buildControlsTable(ctrl, times)
+  buildTimeline(ctrl);
+}
+
+function buildTimeline(ctrl)
+{
+  var canvas    = document.createElement("canvas");
+  canvas.id     = "timeline";
+  canvas.width  = CANVAS_W;
+  canvas.height = CANVAS_H;
+  ctrl.appendChild(canvas);
 }
 
 function buildControlsTable(ctrl, times)
@@ -164,6 +181,7 @@ function onApply(e)
       updateRelativeTimes();
     else
       time.innerText = text.value;
+    updateTimeline();
   }
   else
   {
@@ -243,11 +261,86 @@ function getRelativeTime(diff, future = false)
 function createRelativeTime(amount, unit, future = false)
 {
   if(future)
-  {
     return "in " + amount + " " + unit + ((amount > 1) ? "s" : "");
-  }
   else
-  {
     return amount + " " + unit + ((amount > 1) ? "s" : "") + " ago";
+}
+
+function updateTimeline()
+{
+  var times = document.getElementsByTagName("time");
+  var vals = [];
+  for(i=0; i<times.length; ++i)
+    vals.push([times[i].getAttribute("datetime"), times[i].title]);
+  vals = vals.sort(cmpTime);
+  drawTimeline(vals);
+}
+
+function cmpTime(t1, t2)
+{
+   if (t1[0] < t2[0]) return -1;
+   if (t1[0] > t2[0]) return 1;
+   return 0;
+}
+
+function drawTimeline(times)
+{
+  var canvas = document.getElementById("timeline");
+  var ctx    = canvas.getContext("2d");
+  var time, diff, x;
+
+  ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+  ctx.setLineDash([])
+  ctx.beginPath();
+  ctx.moveTo(CANVAS_B, CANVAS_Y);
+  ctx.lineTo(CANVAS_W-CANVAS_B, CANVAS_Y);
+  ctx.stroke();
+
+  var first  = new Date(times[0][0]).getTime();
+  var last   = new Date(times[times.length-1][0]).getTime();
+  var length = last - first;
+  for(i=0; i<times.length; ++i)
+  {
+    if(i == 0) // Left most
+      drawTime(ctx, times[i][1], i, CANVAS_B, CANVAS_Y);
+    else if(i == times.length-1) // Right most
+      drawTime(ctx, times[i][1], i, CANVAS_W-CANVAS_B, CANVAS_Y);
+    else // In between, percentual distance from the most left
+    {
+      time = new Date(times[i][0]).getTime();
+      diff = time - first;
+      x = Math.floor((CANVAS_W-(2*CANVAS_B)) * (diff / length)) + CANVAS_B;
+      drawTime(ctx, times[i][1], i, x, CANVAS_Y);
+    }
   }
+}
+
+function drawTime(ctx, title, idx, x, y)
+{
+  drawDot(ctx, x, y);
+  drawPointer(ctx, x, y, (idx % 2 == 0));
+  drawTitle(ctx, title, x, y, (idx % 2 == 0));
+}
+
+function drawDot(ctx, x, y)
+{
+  ctx.beginPath();
+  ctx.arc(x, y, 3, 0, 2 * Math.PI, false);
+  ctx.fill();
+  ctx.stroke();
+}
+
+function drawPointer(ctx, x, y, above)
+{
+  ctx.beginPath();
+  ctx.setLineDash([4, 1]);
+  ctx.moveTo(x, y);
+  ctx.lineTo(x, above ? y+25 : y-25);
+  ctx.stroke();
+}
+
+function drawTitle(ctx, title, x, y, above)
+{
+  ctx.font = "10px Arial";
+  ctx.fillText(title, x, above ? y+35 : y-25, 40);
 }
