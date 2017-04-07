@@ -154,8 +154,6 @@ int main(int argc, char **argv)
   // Master processor
   if(p_id == 0)
   {
-    //static const int arr[] = {2,2,3,3,2};
-    //vector<int> numbers (arr, arr + sizeof(arr) / sizeof(arr[0]) );
     vector<int> numbers = parseNumbers("numbers");
     cout << vecJoin(numbers) << endl;
 
