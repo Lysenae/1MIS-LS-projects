@@ -9,6 +9,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <ctime>
 
 using namespace std;
 
@@ -16,6 +18,8 @@ const int MASTER = 0;
 const int REG_X  = 1;
 const int REG_Y  = 2;
 const int REG_Z  = 3;
+
+const bool GET_TIME = false;
 
 class Processor
 {
@@ -164,6 +168,7 @@ int main(int argc, char **argv)
       MPI::COMM_WORLD.Abort(-1);
     }
 
+    auto started = chrono::high_resolution_clock::now();
     // Assign numbers to the slaves and send all numbers to the first processor
     for(int i=1; i<p_count; ++i)
     {
@@ -178,6 +183,12 @@ int main(int argc, char **argv)
     {
       MPI::COMM_WORLD.Recv(&rslt, 1, MPI::INT, i+1, REG_Z);
       cout << rslt << endl;
+    }
+    auto done = std::chrono::high_resolution_clock::now();
+    if(GET_TIME)
+    {
+      cout << "Execution time: " <<
+        chrono::duration_cast<chrono::nanoseconds>(done-started).count() << endl;
     }
   }
   else // Slave processors
