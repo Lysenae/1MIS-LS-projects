@@ -13,10 +13,9 @@
 using namespace std;
 
 const int MASTER = 0;
-const int REG_C  = 1;
-const int REG_X  = 2;
-const int REG_Y  = 3;
-const int REG_Z  = 4;
+const int REG_X  = 1;
+const int REG_Y  = 2;
+const int REG_Z  = 3;
 
 class Processor
 {
