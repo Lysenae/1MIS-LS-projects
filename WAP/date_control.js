@@ -139,7 +139,7 @@ function buildTableRows(table, time, idx)
   tr.id  = "tmCtrl" + idx;
 
   // Time ID
-  td   = document.createElement("td");
+  td = document.createElement("td");
   ct = document.createTextNode(idx);
   td.appendChild(ct);
   tr.appendChild(td);
