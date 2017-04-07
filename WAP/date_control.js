@@ -14,10 +14,6 @@ var CANVAS_W  = 800 + 2 * CANVAS_B;
 
 document.addEventListener("DOMContentLoaded", onLoad);
 
-// Update relative dates
-setInterval(updateRelativeTimes, TM_MINUTE/4);
-updateRelativeTimes();
-
 /**
  * Checks if document contains exactly 1 controls div ans constructs controls.
  */
@@ -30,8 +26,17 @@ function onLoad()
     console.error("Multiple controls found");
   else
   {
-    buildControls(ctrl[0]);
-    updateTimeline();
+    if(ctrl[0].innerHTML === "")
+    {
+      buildControls(ctrl[0]);
+      setInterval(updateRelativeTimes, TM_MINUTE/4);
+      updateRelativeTimes();
+      updateTimeline();
+    }
+    else
+    {
+      console.error("Controls not empty");
+    }
   }
 }
 
