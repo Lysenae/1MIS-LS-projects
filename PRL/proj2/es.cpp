@@ -16,6 +16,7 @@ const int MASTER = 0;
 const int REG_C  = 1;
 const int REG_X  = 2;
 const int REG_Y  = 3;
+const int REG_Z  = 4;
 
 class Processor
 {
@@ -28,9 +29,11 @@ public:
   void incC();
   void setX(int x, int ix);
   void setY(int y, int iy);
+  void setZ(int z);
   int c()  { return this->m_c; }
   int x()  { return this->m_x; }
   int y()  { return this->m_y; }
+  int z()  { return this->m_z; }
   int ix() { return this->m_ix; }
   int iy() { return this->m_iy; }
 private:
@@ -38,6 +41,7 @@ private:
   int m_c;
   int m_x;
   int m_y;
+  int m_z;
   int m_ix; // rank X
   int m_iy; // rank Y
   int m_pcnt;
@@ -46,9 +50,10 @@ private:
 Processor::Processor(int p_id, int p_count)
 {
   this->m_id   = p_id;
-  this->m_c    = 0;
+  this->m_c    = 1;
   this->m_x    = -1;
   this->m_y    = -1;
+  this->m_z    = -1;
   this->m_ix   = -1;
   this->m_iy   = -1;
   this->m_pcnt = p_count;
@@ -93,6 +98,11 @@ void Processor::setY(int y, int iy)
   this->m_iy = iy;
 }
 
+void Processor::setZ(int z)
+{
+  this->m_z = z;
+}
+
 // Read numbers from specified file and return them as vector
 vector<int>parseNumbers(string fname)
 {
@@ -135,7 +145,7 @@ int main(int argc, char **argv)
   int p_id;
   int nums;
   int data[2];
-  int rslt[2];
+  int rslt;
 
   MPI::Init(argc, argv);
   p_count = MPI::COMM_WORLD.Get_size();
@@ -167,22 +177,16 @@ int main(int argc, char **argv)
     }
 
     // Get results from slave processors
-    vector<int> result (nums, -1);
-    for(unsigned int i=0; i<result.size(); ++i)
+    for(int i=0; i<nums; ++i)
     {
-      MPI::COMM_WORLD.Recv(&rslt, 2, MPI::INT, MPI::ANY_SOURCE, REG_C);
-      result[rslt[1]] = rslt[0];
-    }
-
-    for(unsigned int i=0; i<result.size(); ++i)
-    {
-      cout << result[i] << endl;
+      MPI::COMM_WORLD.Recv(&rslt, 1, MPI::INT, i+1, REG_Z);
+      cout << rslt << endl;
     }
   }
   else // Slave processors
   {
     Processor proc(p_id, p_count);
-    int x[2], y[2], r[2];
+    int x[2], y[2], r[2], z;
 
     // Initialize X register with it's rank
     MPI::COMM_WORLD.Recv(&x, 2, MPI::INT, MASTER, REG_X);
@@ -212,11 +216,15 @@ int main(int argc, char **argv)
       }
     }
 
-    //proc.print();
-    r[0] = proc.x();
-    r[1] = proc.c();
-    // Send result to master processor
-    MPI::COMM_WORLD.Send(&r, 2, MPI::INT, 0, REG_C);
+    // Set Z register according to C
+    z = proc.x();
+    MPI::COMM_WORLD.Send(&z, 1, MPI::INT, proc.c(), REG_Z);
+    MPI::COMM_WORLD.Recv(&z, 1, MPI::INT, MPI::ANY_SOURCE, REG_Z);
+    proc.setZ(z);
+
+    // Send result to the master
+    z = proc.z();
+    MPI::COMM_WORLD.Send(&z, 1, MPI::INT, MASTER, REG_Z);
   }
 
   MPI::Finalize();
