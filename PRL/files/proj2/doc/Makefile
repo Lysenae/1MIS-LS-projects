@@ -15,8 +15,3 @@ clean:
 	$(RM) $(NAME).out
 	$(RM) $(NAME).bbl
 	$(RM) $(NAME).blg
-
-git: clean
-	git add --all
-	git commit
-	git push -u origin master
