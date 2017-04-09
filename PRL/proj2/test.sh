@@ -3,7 +3,7 @@
 if [ $# -eq 1 ]; then
   n_count=$1;
 else
-  >&2 echo "Invalid number of parameters, expected 1"
+  >&2 echo "Invalid number of parameters, expected 1 got" $#
   exit -1
 fi;
 
