@@ -17,14 +17,15 @@
 #include <stdbool.h>
 #include <pthread.h>
 
-#define CMDLEN 512
+#define MT_CMDLEN 513
 
 typedef struct t_monitor
 {
   bool            running;
-  char            command[CMDLEN+1];
-  bool            cond_ok;
+  char            command[MT_CMDLEN];
+  int             cond_id;
   pthread_mutex_t mtx_th;
+  pthread_mutex_t mtx_data;
   pthread_mutex_t mtx_proc;
   pthread_cond_t  cond;
 } TMonitor;
@@ -32,5 +33,9 @@ typedef struct t_monitor
 bool mt_init(TMonitor *m);
 void mt_shutdown(TMonitor *m);
 bool mt_running(TMonitor *m);
+void mt_wait(TMonitor *m, int id);
+void mt_signal(TMonitor *m, int id);
+void mt_set_cmd(TMonitor *m, const char *cmd);
+char *mt_get_cmd(TMonitor *m);
 
 #endif // MONITOR_H
