@@ -6,13 +6,14 @@
 PRE=-std=gnu99 -Wall -Wextra -Werror -pedantic
 LIBS=-lpthread
 PROG=shell
+FILES=monitor.c
 
 all: $(PROG)
 
 .PHONY: clean
 
 $(PROG): $(PROG).c
-	gcc $(PRE) $(PROG).c -o $(PROG) $(LIBS)
+	gcc $(PRE) $(PROG).c $(FILES) -o $(PROG) $(LIBS)
 
 run:
 	./ticket
