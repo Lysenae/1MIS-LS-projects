@@ -23,6 +23,7 @@ typedef struct t_monitor
 {
   bool            running;
   char            command[CMDLEN+1];
+  bool            cond_ok;
   pthread_mutex_t mtx_th;
   pthread_mutex_t mtx_proc;
   pthread_cond_t  cond;

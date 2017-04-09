@@ -11,6 +11,7 @@ bool mt_init(TMonitor *m)
 {
   int rc = 0;
   m->running = true;
+  m->cond_ok = false;
   memset(&m->command, 0, CMDLEN+1);
   rc += pthread_mutex_init(&m->mtx_th, NULL);
   rc += pthread_mutex_init(&m->mtx_proc, NULL);
@@ -37,4 +38,21 @@ bool mt_running(TMonitor *m)
   rslt = m->running;
   pthread_mutex_unlock(&m->mtx_th);
   return rslt;
+}
+
+void mt_wait(TMonitor *m)
+{
+  pthread_mutex_lock(m->mtx_th)
+  while(!m->cond_ok)
+    pthread_cond_wait(&m->cond, &m->mtx_th);
+  m->cond_ok = false;
+  pthread_mutex_unlock(&m->mtx_th);
+}
+
+void mt_signal(TMonitor *m)
+{
+  pthread_mutex_lock(&m->mtx_th);
+  m->cond_ok = true;
+  pthread_cond_signal(&m->cond);
+  pthread_mutex_unlock(&m->mtx_th);
 }
