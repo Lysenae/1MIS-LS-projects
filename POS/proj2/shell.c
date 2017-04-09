@@ -30,7 +30,7 @@ typedef struct t_monitor
   pthread_cond_t  cond;
 } TMonitor;
 
-void mt_init(TMonitor *m);
+bool mt_init(TMonitor *m);
 void mt_shutdown(TMonitor *m);
 bool mt_running(TMonitor *m);
 
@@ -41,7 +41,8 @@ TMonitor monitor;
 
 int main()
 {
-  mt_init(&monitor);
+  if(!mt_init(&monitor))
+    return -1;
 
   pthread_t th_read, th_run;
 
@@ -54,10 +55,20 @@ int main()
   return 0;
 }
 
-void mt_init(TMonitor *m)
+bool mt_init(TMonitor *m)
 {
+  int rc = 0;
   m->running = true;
   memset(&m->command, 0, CMDLEN+1);
+  rc += pthread_mutex_init(&m->mtx_th, NULL);
+  rc += pthread_mutex_init(&m->mtx_proc, NULL);
+  rc += pthread_cond_init(&m->cond, NULL);
+  if(rc != 0)
+  {
+    fprintf(stderr, "Failed to initilize monitor\n");
+    return false;
+  }
+  return true;
 }
 
 void mt_shutdown(TMonitor *m)
