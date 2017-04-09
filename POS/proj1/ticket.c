@@ -77,6 +77,11 @@ int main(int argc, char **argv)
     }
   }
 
+  for(unsigned int i=0; i<(unsigned int)nthreads; ++i)
+  {
+    (void) pthread_join(threads[i], NULL);
+  }
+
   pthread_exit(NULL);
   destroy_resources();
 
@@ -173,7 +178,7 @@ void *process_thread(void *t)
 {
   struct thread_data *td = (struct thread_data *) t;
   int ticket;
-  while((ticket = getticket()) <= td->ncpath)
+  while((ticket = getticket()) < td->ncpath)
   {
     do_sleep(rnd(td->id));
     await(ticket);
