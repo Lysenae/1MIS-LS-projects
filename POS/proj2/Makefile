@@ -1,11 +1,11 @@
-# Projekt: POS #1 - Ticket algoritmus
+# Projekt: POS #2 - Shell
 # Autor:   Daniel Klimaj, xklima22@stud.fit.vutbr.cz
-# Datum:   2017-02-19
+# Datum:   2017-04-09
 # Soubor:  Makefile
 
 PRE=-std=gnu99 -Wall -Wextra -Werror -pedantic
 LIBS=-lpthread
-PROG=ticket
+PROG=shell
 
 all: $(PROG)
 
@@ -23,3 +23,8 @@ clean:
 	rm -f $(PROG)
 	rm -f $(PROG).out
 	rm -f .fuse*
+
+git: clean
+	git add --all
+	git commit
+	git push -u origin master
