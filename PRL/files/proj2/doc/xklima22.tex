@@ -15,7 +15,7 @@
 \begin{document}
 
 \section{Enumeration Sort}
-Enumeration sort je je radiaci algoritmus, ktorý vzájomným porovnávaním všetkých prvkov nájde ich zoradenú postupnosť. V tomto prípade sa jedná o variantu pracujúcu nad lineárnym poľom N procesorov doplnených o spoločnú zbernicu a schopných preniesť jednu hodnotu v každom kroku. Počet procesorov odpovedá počtu radených prvkov.
+Enumeration sort je je radiaci algoritmus, ktorý vzájomným porovnávaním všetkých prvkov nájde ich zoradenú postupnosť. V tomto prípade sa jedná o variantu pracujúcu nad lineárnym poľom N procesorov doplnených o spoločnú zbernicu a schopných preniesť jednu hodnotu v každom kroku. Počet procesorov odpovedá počtu radených prvkov. Nevýhodou tejto varianty algoritmu je, že nedokáže zoradiť radu obsahujúcu duplicitné prvky.
 
 Ak na vstupe máme radu $X=(x_1, x_2, ..., x_n)$, potom každý procesor $i \in <1,N>$ pozostáva zo 4 registrov, ktoré obsahujú:
 \begin{itemize}
@@ -24,12 +24,6 @@ Ak na vstupe máme radu $X=(x_1, x_2, ..., x_n)$, potom každý procesor $i \in 
 \item $C_i$ koľkokrát platilo $X_i > Y_i$
 \item $Z_i$ zoradený prvok $Y_i$
 \end{itemize}
-
-\begin{figure}[!htb]
-\centering
-\includegraphics[width=\textwidth]{es.png}
-\caption{Architektúra Enumeration Sort (Zdroj: Slidy PRL)}
-\end{figure}
 
 \subsection{Algoritmus}
 \begin{enumerate}
@@ -43,6 +37,27 @@ Ak na vstupe máme radu $X=(x_1, x_2, ..., x_n)$, potom každý procesor $i \in 
 \item V nasledujúcich n cykloch procesory posúvajú obsah svojich registrov Z doprava a procesor $P_n$ produkuje zoradenú postupnosť.
 \end{enumerate}
 
+\subsection{Zložitosť}
+Predpokladajme, že prenos hodnoty zbernicou trvá konštantnú dobu nezávisle od fyzickej vzdialenosti procesorov. Potom krok 1 trvá konštantnú dobu, krok 2 trvá 2n cyklov a 3. krok trvá n cyklov. Dokopy teda:
+\begin{itemize}
+\item $ t(n) = O(n) $
+\item $ p(n) = n $
+\item $ c(n) = t(n) \cdot p(n) = O(n)\cdot n = O(n^2) $
+\end{itemize}
+Cena algoritmu nie je optimálna. Optimálna cena by bola $ c(n) = O(n \cdot \log n) $.
+
+\section{Vlastná implementácia algoritmu}
+Výsledná implementácia sa od uvedeného algoritmu mierne líši. Hlavným dôvodom je potreba zaistiť aj radenie radov s duplicitnými prvkami a využitie prvého procesora (master) ako riadiacej jednotky činnosti ostatných procesorov (slave). K tomuto účelu sú slave procesory doplnené o registre $ix$ a $iy$, v ktorých si ukladajú index hodnoty uloženej v príslušnom registry. Index hodnoty zodpovedá ich poradiu vo vstupnej rade. Algoritmus je nasledovný:
+\begin{enumerate}
+\item Všetky registre C sa nastavia na hodnotu 1
+\item Master procesor i-temu slave procesoru pošle $x_i$ spolu s indexom $i$ a procesor si ich uloží do registrov $X$ a $ix$. V rovnakom cykle postupne zasiela prvému slave procesoru tie isté hodnoty a ten si ich postupne ukladá do registrov $Y$ a $iy$
+\item Slave procesory postupne porovnávajú hodnotu v registry $X$ s hodnotami v registry $Y$, ak platí $X > Y$ alebo $X = Y \wedge ix > iy$, tak inkrementuje obsah C registru
+\item Ak má slave procesor následníka, zašle mu aktuálne hodnoty registrov $Y$ a $iy$.
+\item Každý slave procesor zašle hodnotu registru X slave procesoru s číslom odpovedajúcemu hodnote C registru, cieľový procesor si ju uloží do registru Z
+\item Slave procesory $p_i$ zašlú obsah Z registru Master procesoru, ten ich prijme v poradí $i = 1..n$     
+\end{enumerate}
+
+Komunikácia procesorov je znázornená na nasledovnom sekvenčnom diagrame. Zasielané správy v sekvenčnom diagrame majú formát $data, dest_reg$, kde $data$ sú zasielané hodnoty a $dest_reg$ cieľové registre prijímajúceho procesoru. Zátvorky [ ] značia pole hodnôt, prípadne index hodnoty v rade.
 
 \begin{figure}[!htb]
 \centering
