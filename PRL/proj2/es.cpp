@@ -10,7 +10,6 @@
 #include <string>
 #include <vector>
 #include <chrono>
-#include <ctime>
 
 using namespace std;
 
@@ -25,7 +24,6 @@ class Processor
 {
 public:
   Processor(int p_id, int p_count);
-  void print();
   bool hasNextNeighbor();
   int prevNeighbor();
   int nextNeighbor();
@@ -41,15 +39,16 @@ public:
   int iy() { return this->m_iy; }
 private:
   int m_id;
-  int m_c;
-  int m_x;
-  int m_y;
-  int m_z;
-  int m_ix; // rank X
-  int m_iy; // rank Y
+  int m_c;    // reg C
+  int m_x;    // reg X
+  int m_y;    // reg Y
+  int m_z;    // reg Z
+  int m_ix;   // reg ix
+  int m_iy;   // reg iy
   int m_pcnt;
 };
 
+/// Initialize processor data
 Processor::Processor(int p_id, int p_count)
 {
   this->m_id   = p_id;
@@ -62,51 +61,51 @@ Processor::Processor(int p_id, int p_count)
   this->m_pcnt = p_count;
 }
 
-void Processor::print()
-{
-  cout << "Processor " << this->m_id << ": C: " << this->m_c << ", X: "<<
-    this->m_x << "[" << this->m_ix << "],\tY: " << this->m_y << "[" << m_iy <<
-    "]" << endl;
-}
-
+/// Check if processor has neighbor with bigger id
 bool Processor::hasNextNeighbor()
 {
   return this->m_id < (this->m_pcnt - 1);
 }
 
+/// Get previous processor id
 int Processor::prevNeighbor()
 {
   return this->m_id - 1;
 }
 
+/// Get next processor id
 int Processor::nextNeighbor()
 {
   return this->m_id + 1;
 }
 
+/// Increase register C
 void Processor::incC()
 {
   this->m_c += 1;
 }
 
+/// Set registers X and ix
 void Processor::setX(int x, int ix)
 {
   this->m_x  = x;
   this->m_ix = ix;
 }
 
+/// Set registers Y and iy
 void Processor::setY(int y, int iy)
 {
   this->m_y  = y;
   this->m_iy = iy;
 }
 
+/// Set register Z
 void Processor::setZ(int z)
 {
   this->m_z = z;
 }
 
-// Read numbers from specified file and return them as vector
+/// Read numbers from specified file and return them as vector
 vector<int>parseNumbers(string fname)
 {
   vector<int> result;
@@ -130,7 +129,7 @@ vector<int>parseNumbers(string fname)
   }
 }
 
-// Create string from vector of numbers
+/// Create string from vector of numbers
 string vecJoin(vector<int> v)
 {
   string s = "";
@@ -161,6 +160,7 @@ int main(int argc, char **argv)
     vector<int> numbers = parseNumbers("numbers");
     cout << vecJoin(numbers) << endl;
 
+    // Error - amount of input data is not equal to number of processors-1
     if(numbers.size() != nums)
     {
       cerr << "Size of numbers does not corresponds to number of processors" <<
@@ -168,7 +168,7 @@ int main(int argc, char **argv)
       MPI::COMM_WORLD.Abort(-1);
     }
 
-    auto started = chrono::high_resolution_clock::now();
+    auto started = chrono::high_resolution_clock::now(); // start time
     // Assign numbers to the slaves and send all numbers to the first processor
     for(int i=1; i<p_count; ++i)
     {
@@ -184,7 +184,7 @@ int main(int argc, char **argv)
       MPI::COMM_WORLD.Recv(&rslt, 1, MPI::INT, i+1, REG_Z);
       cout << rslt << endl;
     }
-    auto done = std::chrono::high_resolution_clock::now();
+    auto done = std::chrono::high_resolution_clock::now(); // end time
     if(GET_TIME)
     {
       cout << "Execution time: " <<
@@ -206,12 +206,12 @@ int main(int argc, char **argv)
       MPI::COMM_WORLD.Recv(&y, 2, MPI::INT, proc.prevNeighbor(), REG_Y);
       proc.setY(y[0], y[1]);
 
-      // Increase counter
+      // Increase counter if X > Y
       if(proc.x() > proc.y())
       {
         proc.incC();
       }
-      // Increase counter if X rank is greater than Y rank if values are equal
+      // Increase counter if X = Y and ix > iy
       else if(proc.x() == proc.y() && proc.ix() > proc.iy())
       {
         proc.incC();

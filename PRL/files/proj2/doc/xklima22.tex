@@ -5,10 +5,8 @@
 \usepackage{url}
 \usepackage{graphicx}
 \usepackage{picture}
-
+\usepackage{courier}
 \usepackage{listings}
-\usepackage[toc,page,header]{appendix}
-\RequirePackage{titletoc}
 
 \addto\captionsenglish{\renewcommand{\figurename}{Obr.}}
 
@@ -47,17 +45,17 @@ Predpokladajme, že prenos hodnoty zbernicou trvá konštantnú dobu nezávisle 
 Cena algoritmu nie je optimálna. Optimálna cena by bola $ c(n) = O(n \cdot \log n) $.
 
 \section{Vlastná implementácia algoritmu}
-Výsledná implementácia sa od uvedeného algoritmu mierne líši. Hlavným dôvodom je potreba zaistiť aj radenie radov s duplicitnými prvkami a využitie prvého procesora (master) ako riadiacej jednotky činnosti ostatných procesorov (slave). K tomuto účelu sú slave procesory doplnené o registre $ix$ a $iy$, v ktorých si ukladajú index hodnoty uloženej v príslušnom registry. Index hodnoty zodpovedá ich poradiu vo vstupnej rade. Algoritmus je nasledovný:
+Výsledná implementácia sa od uvedeného algoritmu mierne líši. Hlavným dôvodom je potreba zaistiť aj radenie radov s duplicitnými prvkami a využitie prvého procesora (master) ako riadiacej jednotky činnosti ostatných procesorov (slave). K tomuto účelu sú slave procesory doplnené o registre $ix$ a $iy$, v ktorých si ukladajú index hodnoty uloženej v príslušnom registry ($X$ alebo $Y$). Index hodnoty odpovedá ich poradiu vo vstupnej rade. Algoritmus je nasledovný:
 \begin{enumerate}
 \item Všetky registre C sa nastavia na hodnotu 1
 \item Master procesor i-temu slave procesoru pošle $x_i$ spolu s indexom $i$ a procesor si ich uloží do registrov $X$ a $ix$. V rovnakom cykle postupne zasiela prvému slave procesoru tie isté hodnoty a ten si ich postupne ukladá do registrov $Y$ a $iy$
 \item Slave procesory postupne porovnávajú hodnotu v registry $X$ s hodnotami v registry $Y$, ak platí $X > Y$ alebo $X = Y \wedge ix > iy$, tak inkrementuje obsah C registru
 \item Ak má slave procesor následníka, zašle mu aktuálne hodnoty registrov $Y$ a $iy$.
 \item Každý slave procesor zašle hodnotu registru X slave procesoru s číslom odpovedajúcemu hodnote C registru, cieľový procesor si ju uloží do registru Z
-\item Slave procesory $p_i$ zašlú obsah Z registru Master procesoru, ten ich prijme v poradí $i = 1..n$     
+\item Slave procesory $p_i$ zašlú obsah Z registru master procesoru, ten ich prijme v poradí $i = 1..n$, a tým vyprodukuje výslednú postupnosť
 \end{enumerate}
 
-Komunikácia procesorov je znázornená na nasledovnom sekvenčnom diagrame. Zasielané správy v sekvenčnom diagrame majú formát $data, dest_reg$, kde $data$ sú zasielané hodnoty a $dest_reg$ cieľové registre prijímajúceho procesoru. Zátvorky [ ] značia pole hodnôt, prípadne index hodnoty v rade.
+Komunikácia procesorov je znázornená na nasledovnom sekvenčnom diagrame. Zasielané správy v sekvenčnom diagrame majú formát \texttt{data, dest\_reg}, kde \texttt{data} sú zasielané hodnoty a \texttt{dest\_reg} cieľové registre prijímajúceho procesoru. Zátvorky [ ] značia pole hodnôt, prípadne index hodnoty v rade.
 
 \begin{figure}[!htb]
 \centering
@@ -65,10 +63,17 @@ Komunikácia procesorov je znázornená na nasledovnom sekvenčnom diagrame. Zas
 \caption{Sekvenčný diagram}
 \end{figure}
 
+\subsection{Namerané hodnoty}
+Na meranie času bola použitá funkcia \texttt{std::chrono::high\_resolution\_clock::now()} zo štandardnej knižnice C++ \texttt{chrono}, preto je program nutné prekladať s parametrom \texttt{--std=C++11}. Meranie pre každú veľkosť vstupných dát bolo vykonané 10x. Vzhľadom na to, že sa nepodarilo ani po zvýšení limitov spustiť program s viac ako 32 procesormi, je najväčší vstup 30B. Namerané priemerné hodnoty pre rôzne veľkosti vstupu sú zobrazené na nasledujúcom grafe:
+
 \begin{figure}[!htb]
 \centering
 \includegraphics[width=\textwidth]{stats.pdf}
 \caption{Namerané časy}
 \end{figure}
+
+\section{Záver}
+Z nameraných hodnôt znázornených v grafe možno vyvodiť, že implementovaný algoritmus dodržuje teoretickú zložitosť algoritmu. Krivka s menšími odchýlkami kopíruje trendovú úsečku. Odchýlky sú spôsobené rozdielmi medzi jednotlivými meraniami, kedy niektoré namerané hodnoty sa líšili takmer dvojnásobne. Zvýšením počtu meraní by sa dosiahli presnejšie výsledky.
+Implementovaný algoritmus by bolo možné zjednodušiť odstránením kroku 5 a namiesto toho by slave procesory posielali master procesoru dvojicu hodnôt - X a C. Ten by hodnoty umiestnil na správny index a následne vyprodukoval výslednú postupnosť.
 
 \end{document}
