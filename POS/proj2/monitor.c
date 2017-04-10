@@ -25,9 +25,10 @@ static int s_mt_get_cond_id(struct Monitor *m)
 
 bool mt_init(struct Monitor *m)
 {
-  int rc = 0;
-  m->running = true;
-  m->cond_id = 0;
+  int rc         = 0;
+  m->running     = true;
+  m->cond_id     = 0;
+  m->running_pid = 0;
   memset(&m->command, 0, MT_CMDLEN);
   rc += pthread_mutex_init(&m->mtx_th, NULL);
   rc += pthread_mutex_init(&m->mtx_proc, NULL);
@@ -87,4 +88,20 @@ char *mt_get_cmd(struct Monitor *m)
   strcpy(buff, m->command);
   pthread_mutex_unlock(&m->mtx_data);
   return buff;
+}
+
+pid_t mt_get_running_pid(struct Monitor *m)
+{
+  pid_t p;
+  pthread_mutex_lock(&m->mtx_data);
+  p = m->running_pid;
+  pthread_mutex_unlock(&m->mtx_data);
+  return p;
+}
+
+void mt_set_running_pid(struct Monitor *m, pid_t p)
+{
+  pthread_mutex_lock(&m->mtx_data);
+  m->running_pid = p;
+  pthread_mutex_unlock(&m->mtx_data);
 }

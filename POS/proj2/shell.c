@@ -27,16 +27,23 @@
 #define RUN  100
 #define READ 101
 
+void init_sigaction(struct sigaction *sa, int signum, void (*handler)(int));
+void on_sigint(int signum);
+void on_sigchld(int signum);
 void *th_rt_read(void *t);
 void *th_rt_run(void *t);
 
 int main()
 {
   struct Monitor monitor;
+  pthread_t th_read, th_run;
+  struct sigaction sa_sigint, sa_sigchld;
+
   if(!mt_init(&monitor))
     return -1;
 
-  pthread_t th_read, th_run;
+  init_sigaction(&sa_sigint, SIGINT, on_sigint);
+  init_sigaction(&sa_sigchld, SIGCHLD, on_sigchld);
 
   pthread_create(&th_read, NULL, th_rt_read, (void *) &monitor);
   pthread_create(&th_run, NULL, th_rt_run, (void *) &monitor);
@@ -45,6 +52,24 @@ int main()
   pthread_join(th_run, NULL);
 
   return 0;
+}
+
+void init_sigaction(struct sigaction *sa, int signum, void (*handler)(int))
+{
+  sa->sa_handler = handler;
+  sa->sa_flags = 0;
+  sigemptyset(&sa->sa_mask);
+  sigaction(signum, sa, NULL);
+}
+
+void on_sigint(int signum)
+{
+  printf("SIGINT %d\n", signum);
+}
+
+void on_sigchld(int signum)
+{
+  printf("SIGCHLD %d\n", signum);
 }
 
 void *th_rt_read(void *t)

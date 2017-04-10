@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <pthread.h>
+#include <unistd.h>
 
 #define MT_CMDLEN 513
 
@@ -24,6 +25,7 @@ struct Monitor
   bool            running;
   char            command[MT_CMDLEN];
   int             cond_id;
+  pid_t           running_pid;
   pthread_mutex_t mtx_th;
   pthread_mutex_t mtx_data;
   pthread_mutex_t mtx_proc;
@@ -37,5 +39,7 @@ void mt_wait(struct Monitor *m, int id);
 void mt_signal(struct Monitor *m, int id);
 void mt_set_cmd(struct Monitor *m, const char *cmd);
 char *mt_get_cmd(struct Monitor *m);
+pid_t mt_get_running_pid(struct Monitor *m);
+void mt_set_running_pid(struct Monitor *m, pid_t p);
 
 #endif // MONITOR_H
