@@ -21,7 +21,6 @@
 
 #include "utils.h"
 #include "monitor.h"
-#include "str_vector.h"
 #include "process.h"
 
 #define STDIN  0
@@ -37,6 +36,8 @@ void on_sigint(int signum);
 void on_sigchld(int signum);
 void *th_rt_read(void *t);
 void *th_rt_run(void *t);
+void run_process(struct Process *p);
+int open_file(const char *path, int flags, int nfd);
 
 int main()
 {
@@ -75,7 +76,21 @@ void on_sigint(int signum)
 
 void on_sigchld(int __attribute__((unused)) signum)
 {
-  printf("SIGCHLD\n");
+  int wstatus   = 0;
+  pid_t pid     = waitpid(-1, &wstatus, 0);
+  pid_t running = mt_get_running_pid(&monitor);
+
+  if(pid != running && pid > 0)
+  {
+    if(WIFEXITED(wstatus))
+      printf("[%d] skoncil s kodom %d\n", pid, WEXITSTATUS(wstatus));
+    else if(WIFSIGNALED(wstatus))
+      printf("[%d] bol ukonceny signalom %d\n", pid, WTERMSIG(wstatus));
+    else if(WIFSTOPPED(wstatus))
+      printf("[%d] bol zastaveny signalom %d\n", pid, WSTOPSIG(wstatus));
+    else
+      printf("[%d] bol ukonceny\n", pid);
+  }
 }
 
 void *th_rt_read(void *t)
@@ -131,10 +146,84 @@ void *th_rt_run(void *t)
       break;
 
     p_init(&p, mt_get_cmd(m));
-    p_print(&p);
-    printf("Valid process?: %s\n", str_bool(p_is_valid(&p)));
+    if(p_is_valid(&p))
+    {
+      pid_t pid = fork();
+
+      if(pid > 0) // Parent
+      {
+        if(!p_is_background(&p))
+        {
+          mt_set_running_pid(m, pid);
+          waitpid(pid, NULL, 0);
+          mt_set_running_pid(m, 0);
+        }
+      }
+      else if(pid == 0) // Child
+      {
+        run_process(&p);
+      }
+      else
+      {
+        fprintf(stderr, "Chyba: Zlyhalo volanie fork()\n");
+        mt_shutdown(m);
+        break;
+      }
+    }
+    else
+    {
+      fprintf(stderr, "Chyba: Chybne paramete prikazu %s\n", mt_get_cmd(m));
+    }
     p_destroy(&p);
     mt_signal(m, RUN);
   }
   pthread_exit(NULL);
+}
+
+void run_process(struct Process *p)
+{
+  int ri, ro;
+  ri = open_file(p_in_file(p), O_RDONLY, STDIN);
+  ro = open_file(p_out_file(p), O_WRONLY | O_CREAT | O_TRUNC, STDOUT);
+  if(ri < 0 || ro < 0)
+  {
+    exit(1);
+  }
+
+  char **args = p_get_args(p);
+  if(execvp(*args, args) < 0)
+  {
+    fprintf(stderr, "Chyba: Nepodarilo sa spustit proces\n");
+    exit(1);
+  }
+
+  if(ri > 0) close(ri);
+  if(ro > 0) close(ro);
+}
+
+int open_file(const char *path, int flags, int nfd)
+{
+  int fd;
+  if(path != NULL && strlen(path) > 0)
+  {
+    if(nfd == STDOUT)
+      fd = open(path, flags, 0666);
+    else
+      fd = open(path, flags);
+
+    if(fd < 0)
+    {
+      fprintf(stderr, "Chyba: Nepodarilo sa otvorit subor '%s'\n", path);
+      return -1;
+    }
+
+    if(dup2(fd, nfd) < 0)
+    {
+      fprintf(stderr, "Chyba: Zlyhalo duplikovanie deskriptoru\n");
+      return -1;
+    }
+
+    return fd;
+  }
+  return 0;
 }

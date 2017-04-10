@@ -223,6 +223,46 @@ bool p_is_valid(struct Process *p)
 }
 
 /**
+ * Zisti, ci je proces na pozadi.
+ * @param p Process
+ * @return true ak je proces na pozadi
+**/
+bool p_is_background(struct Process *p)
+{
+  return p->background;
+}
+
+/**
+ * Vrati subor pre citanie.
+ * @param p Process
+ * @return cestu k suboru
+**/
+const char *p_in_file(struct Process *p)
+{
+  return p->in_file == NULL ? NULL : str_dup(p->in_file);
+}
+
+/**
+ * Vrati subor pre zapis.
+ * @param p Process
+ * @return cestu k suboru
+**/
+const char *p_out_file(struct Process *p)
+{
+  return p->out_file == NULL ? NULL : str_dup(p->out_file);
+}
+
+/**
+ * Vrati parametre procesu.
+ * @param p Process
+ * @return parametre procesu
+**/
+char **p_get_args(struct Process *p)
+{
+  return v_to_a(&p->params);
+}
+
+/**
  * Vypis struktury.
  * @param p Process
 **/

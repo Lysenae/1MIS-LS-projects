@@ -38,6 +38,10 @@ void p_set_background(struct Process *p);
 void p_set_file(struct Process *p, char c);
 void p_parse_args(struct Process *p);
 bool p_is_valid(struct Process *p);
+bool p_is_background(struct Process *p);
+const char *p_in_file(struct Process *p);
+const char *p_out_file(struct Process *p);
+char **p_get_args(struct Process *p);
 
 void p_print(struct Process *p);
 
