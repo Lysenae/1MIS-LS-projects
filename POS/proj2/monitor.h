@@ -34,6 +34,7 @@ struct Monitor
 };
 
 bool mt_init(struct Monitor *m);
+void mt_destroy(struct Monitor *m);
 void mt_shutdown(struct Monitor *m);
 bool mt_running(struct Monitor *m);
 void mt_wait(struct Monitor *m, int id);

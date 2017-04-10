@@ -31,14 +31,26 @@ bool mt_init(struct Monitor *m)
   m->running_pid = 0;
   memset(&m->command, 0, MT_CMDLEN);
   rc += pthread_mutex_init(&m->mtx_th, NULL);
+  rc += pthread_mutex_init(&m->mtx_data, NULL);
   rc += pthread_mutex_init(&m->mtx_proc, NULL);
   rc += pthread_cond_init(&m->cond, NULL);
   if(rc != 0)
   {
-    fprintf(stderr, "Failed to initilize monitor\n");
+    fprintf(stderr, "Chyba: Nepodarilo sa vytvorit monitor\n");
     return false;
   }
   return true;
+}
+
+void mt_destroy(struct Monitor *m)
+{
+  pthread_mutex_destroy(&m->mtx_th);
+  pthread_mutex_destroy(&m->mtx_data);
+  pthread_mutex_destroy(&m->mtx_proc);
+  pthread_cond_destroy(&m->cond);
+  m->running = false;
+  m->cond_id     = 0;
+  m->running_pid = 0;
 }
 
 void mt_shutdown(struct Monitor *m)
@@ -77,6 +89,7 @@ void mt_signal(struct Monitor *m, int id)
 void mt_set_cmd(struct Monitor *m, const char *cmd)
 {
   pthread_mutex_lock(&m->mtx_data);
+  printf("Setting command: '%s'\n", cmd);
   strcpy(m->command, cmd);
   pthread_mutex_unlock(&m->mtx_data);
 }
