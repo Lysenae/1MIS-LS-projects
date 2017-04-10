@@ -166,6 +166,7 @@ void p_parse_args(struct Process *p)
 
   if(strlen(buff) > 0)
     v_append(&p->params, buff);
+  str_set(&p->args, "");
 }
 
 void p_print(struct Process *p)
