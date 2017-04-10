@@ -24,11 +24,15 @@ struct Process
   char *in_file;
   char *out_file;
   bool background;
+  char *args;
   struct StrVector params;
 };
 
-void p_init(struct Process *p, char *args);
+void p_init(struct Process *p, const char *args);
 void p_destroy(struct Process *p);
+void p_set_args(struct Process *p, const char *args);
+void p_set_background(struct Process *p);
 
+void p_print(struct Process *p);
 
 #endif // PROCESS_H

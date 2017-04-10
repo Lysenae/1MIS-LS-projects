@@ -7,15 +7,28 @@
 
 #include "utils.h"
 
+/** Vytvori kopiu retazca.
+ * @param s retazec
+ * @return kopiu retazca
+**/
+char *str_dup(const char *s)
+{
+  size_t len = strlen(s);
+  char *ns = (char *)calloc(sizeof(char), len+1);
+  strcpy(ns, s);
+  return ns;
+}
+
 /** Odstrani biele znaky na zaciatku a konci retazca. Prebrane z
  * http://stackoverflow.com/questions/122616/how-do-i-trim-leading-trailing-
  * whitespace-in-a-standard-way.
- * @param s retazec
+ * @param is retazec
  * @return ocisteny retazec
 **/
-char *trim(char *s)
+char *str_trim(const char *is)
 {
-  char * p = s;
+  char *s = str_dup(is);
+  char *p = s;
   int l = strlen(p);
   while(isspace(p[l - 1])) p[--l] = 0;
   while(* p && isspace(* p)) ++p, --l;

@@ -11,9 +11,11 @@
 #define _XOPEN_SOURCE
 #define _XOPEN_SOURCE_EXTENDED 1
 
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
-char *trim(char *s);
+char *str_dup(const char *s);
+char *str_trim(const char *s);
 
 #endif // UTILS_H

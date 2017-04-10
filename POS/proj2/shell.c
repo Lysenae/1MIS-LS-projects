@@ -38,7 +38,6 @@ void on_sigchld(int signum);
 void *th_rt_read(void *t);
 void *th_rt_run(void *t);
 void parse_command(const char *cmd, struct StrVector *v);
-bool parse_background_proc();
 
 int main()
 {
@@ -112,7 +111,7 @@ void *th_rt_read(void *t)
     }
     else
     {
-      mt_set_cmd(m, trim(buff));
+      mt_set_cmd(m, str_trim(buff));
       mt_signal(m, READ);
       mt_wait(m, READ);
     }
@@ -133,7 +132,7 @@ void *th_rt_run(void *t)
       break;
 
     p_init(&p, mt_get_cmd(m));
-
+    p_print(&p);
     p_destroy(&p);
     mt_signal(m, RUN);
   }
@@ -185,33 +184,4 @@ void parse_command(const char *cmd, struct StrVector *v)
     }
   }
   v_print(v);
-}
-
-bool parse_background_proc()
-{
-  char *s = mt_get_cmd(&monitor);
-  bool rslt = false;
-  size_t len = strlen(s);
-  size_t idx = 0;
-  for(size_t i = len-1; i>0; --i)
-  {
-    if(s[i] == ' ')
-      continue;
-    else
-    {
-      if(s[i] == '&')
-      {
-        rslt = true;
-        idx = i;
-      }
-      break;
-    }
-  }
-  if(idx > 0)
-  {
-    for(size_t i=idx; i<len; ++i)
-      s[i] = '\0';
-    mt_set_cmd(&monitor, trim(s));
-  }
-  return rslt;
 }
