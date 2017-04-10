@@ -9,10 +9,22 @@ PROG=shell
 FILES=utils.o monitor.o str_vector.o process.o shell.o
 CC=gcc
 
-%.o : %.c
-	$(CC) $(CFLAGS) -c $<
-
 all: $(PROG)
+
+utils.o: utils.c
+	$(CC) $(CFLAGS) -c utils.c
+
+monitor.o: monitor.c
+	$(CC) $(CFLAGS) -c monitor.c
+
+str_vector.o: str_vector.c
+	$(CC) $(CFLAGS) -c str_vector.c
+
+process.o: process.c
+	$(CC) $(CFLAGS) -c process.c
+
+shell.o: shell.c
+	$(CC) $(CFLAGS) -c shell.c
 
 .PHONY: clean
 
