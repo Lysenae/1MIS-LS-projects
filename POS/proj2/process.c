@@ -34,6 +34,7 @@ void p_init(struct Process *p, const char *args)
   p_set_background(p);
   p_set_file(p, '<');
   p_set_file(p, '>');
+  p_parse_args(p);
   printf("Init process with args: '%s'\n", args);
 }
 
@@ -139,6 +140,34 @@ void p_set_file(struct Process *p, char c)
   }
 }
 
+void p_parse_args(struct Process *p)
+{
+  char *s = str_dup(p->args);
+  char buff[512];
+  memset(buff, 0, 512);
+  size_t len = strlen(s);
+  for(size_t i=0; i<len; ++i)
+  {
+    if(s[i] == ' ')
+    {
+      if(strlen(buff) > 0)
+      {
+        v_append(&p->params, buff);
+        memset(buff, 0, 512);
+      }
+      else
+        continue;
+    }
+    else
+    {
+      buff[strlen(buff)] = s[i];
+    }
+  }
+
+  if(strlen(buff) > 0)
+    v_append(&p->params, buff);
+}
+
 void p_print(struct Process *p)
 {
   printf("Process:\n  In: '%s'\n  Out: '%s'\n  Args: '%s'\n  Bckg: %s\n  Inv: %s\n",
@@ -148,4 +177,6 @@ void p_print(struct Process *p)
     p->background ? "true" : "false",
     p->invalid ? "true" : "false"
   );
+  printf("Params:\n");
+  v_print(&p->params);
 }
