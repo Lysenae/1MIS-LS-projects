@@ -61,6 +61,11 @@ int main()
   return 0;
 }
 
+/**
+ * Nastavenie handleru pre signal.
+ * @param sa sigaction
+ * @param handler riadiaca funkcia
+**/
 void init_sigaction(struct sigaction *sa, int signum, void (*handler)(int))
 {
   sa->sa_handler = handler;
@@ -69,11 +74,19 @@ void init_sigaction(struct sigaction *sa, int signum, void (*handler)(int))
   sigaction(signum, sa, NULL);
 }
 
+/**
+ * Handler SIGINT
+ * @param signum cislo signalu
+**/
 void on_sigint(int signum)
 {
   mt_kill_running_pid(&monitor, signum);
 }
 
+/**
+ * Handler SIGCHLD.
+ * @param signum nevyuziva sa
+**/
 void on_sigchld(int __attribute__((unused)) signum)
 {
   int wstatus   = 0;
@@ -93,6 +106,10 @@ void on_sigchld(int __attribute__((unused)) signum)
   }
 }
 
+/**
+ * Vlakno pre citanie vstupov.
+ * @param t data vlakna
+**/
 void *th_rt_read(void *t)
 {
   struct Monitor *m = (struct Monitor *) t;
@@ -133,6 +150,10 @@ void *th_rt_read(void *t)
   pthread_exit(NULL);
 }
 
+/**
+ * Vlakno pre spustanie procesov.
+ * @param t data vlakna
+**/
 void *th_rt_run(void *t)
 {
   struct Monitor *m = (struct Monitor *) t;
@@ -180,6 +201,10 @@ void *th_rt_run(void *t)
   pthread_exit(NULL);
 }
 
+/**
+ * Spustenie procesu.
+ * @param p Process
+**/
 void run_process(struct Process *p)
 {
   int ri, ro;
@@ -201,6 +226,14 @@ void run_process(struct Process *p)
   if(ro > 0) close(ro);
 }
 
+/**
+ * Otvorenie suboru.
+ * @param path cesta k suboru
+ * @param flags priznaky otvorenia suboru
+ * @param nfd deskriptor pre stdin alebo stdout
+ * @return 0 ak subor nie je zadany, -1 ak sa otvorenie nezdarilo,
+ * inak deskriptor.
+**/
 int open_file(const char *path, int flags, int nfd)
 {
   int fd;

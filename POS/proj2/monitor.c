@@ -7,6 +7,11 @@
 
 #include "monitor.h"
 
+/**
+ * Nastavenie id vlakna, ktore blokuje cond.
+ * @param m Monitor
+ * @param id vlakna
+**/
 static void s_mt_set_cond_id(struct Monitor *m, int id)
 {
   pthread_mutex_lock(&m->mtx_data);
@@ -14,6 +19,11 @@ static void s_mt_set_cond_id(struct Monitor *m, int id)
   pthread_mutex_unlock(&m->mtx_data);
 }
 
+/**
+ * Ziskanie id vlakna, ktore blokuje cond.
+ * @param m Monitor
+ * @return id vlakna
+**/
 static int s_mt_get_cond_id(struct Monitor *m)
 {
   int id;
@@ -23,6 +33,11 @@ static int s_mt_get_cond_id(struct Monitor *m)
   return id;
 }
 
+/**
+ * Nastavenie monitoru.
+ * @param m Monitor
+ * @return true ak sa podarilo
+**/
 bool mt_init(struct Monitor *m)
 {
   int rc         = 0;
@@ -42,6 +57,10 @@ bool mt_init(struct Monitor *m)
   return true;
 }
 
+/**
+ * Zrusenie monitoru.
+ * @param m Monitor
+**/
 void mt_destroy(struct Monitor *m)
 {
   pthread_mutex_destroy(&m->mtx_th);
@@ -53,6 +72,10 @@ void mt_destroy(struct Monitor *m)
   m->running_pid = 0;
 }
 
+/**
+ * Vypnutie riadiaceho cyklu.
+ * @param m Monitor
+**/
 void mt_shutdown(struct Monitor *m)
 {
   pthread_mutex_lock(&m->mtx_data);
@@ -60,6 +83,11 @@ void mt_shutdown(struct Monitor *m)
   pthread_mutex_unlock(&m->mtx_data);
 }
 
+/**
+ * Zisti, ci riadiaci cyklus ma bezat.
+ * @param m Monitor
+ * @return true ak ma bezat
+**/
 bool mt_running(struct Monitor *m)
 {
   bool rslt;
@@ -69,6 +97,11 @@ bool mt_running(struct Monitor *m)
   return rslt;
 }
 
+/**
+ * Vlakno zacina cakat na cond.
+ * @param m Monitor
+ * @param id vlakna
+**/
 void mt_wait(struct Monitor *m, int id)
 {
   s_mt_set_cond_id(m, id);
@@ -78,6 +111,11 @@ void mt_wait(struct Monitor *m, int id)
   pthread_mutex_unlock(&m->mtx_th);
 }
 
+/**
+ * Vlakno signalizuje splnenie cond.
+ * @param m Monitor
+ * @return id vlakna
+**/
 void mt_signal(struct Monitor *m, int id)
 {
   s_mt_set_cond_id(m, id);
@@ -86,6 +124,11 @@ void mt_signal(struct Monitor *m, int id)
   pthread_mutex_unlock(&m->mtx_th);
 }
 
+/**
+ * Nastavenie prikazu.
+ * @param m Monitor
+ * @param cmd retazec
+**/
 void mt_set_cmd(struct Monitor *m, const char *cmd)
 {
   pthread_mutex_lock(&m->mtx_data);
@@ -93,6 +136,11 @@ void mt_set_cmd(struct Monitor *m, const char *cmd)
   pthread_mutex_unlock(&m->mtx_data);
 }
 
+/**
+ * Ziskanie prikazu.
+ * @param m Monitor
+ * @return prikaz
+**/
 char *mt_get_cmd(struct Monitor *m)
 {
   char *buff = malloc(sizeof(m->command));
@@ -102,6 +150,11 @@ char *mt_get_cmd(struct Monitor *m)
   return buff;
 }
 
+/**
+ * Ziskanie pid beziaceho procesu na popredi.
+ * @param m Monitor
+ * @return pid procesu
+**/
 pid_t mt_get_running_pid(struct Monitor *m)
 {
   pid_t p;
@@ -111,6 +164,11 @@ pid_t mt_get_running_pid(struct Monitor *m)
   return p;
 }
 
+/**
+ * Nastavenie pid procesu beziaceho na popredi.
+ * @param m Monitor
+ * @param p pid
+**/
 void mt_set_running_pid(struct Monitor *m, pid_t p)
 {
   pthread_mutex_lock(&m->mtx_data);
@@ -118,6 +176,11 @@ void mt_set_running_pid(struct Monitor *m, pid_t p)
   pthread_mutex_unlock(&m->mtx_data);
 }
 
+/**
+ * Zabitie procesu beziaceho na popredi.
+ * @param m Monitor
+ * @param signum cislo signalu
+**/
 void mt_kill_running_pid(struct Monitor *m, int signum)
 {
   pthread_mutex_lock(&m->mtx_proc);
