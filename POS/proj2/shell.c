@@ -20,6 +20,7 @@
 #include <sys/stat.h>
 
 #include "monitor.h"
+#include "str_vector.h"
 
 #define STDIN  0
 #define STDOUT 1

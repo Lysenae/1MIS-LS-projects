@@ -2,11 +2,11 @@
  * Projekt: POS #2 - Shell
  * Autor:   Daniel Klimaj; xklima22@stud.fit.vutbr.cz
  * Datum:   2017-04-10
- * Subor:   vector.h
+ * Subor:   str_vector.h
  * ************************************************************************** */
 
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef STRVECTOR_H
+#define STRVECTOR_H
 
 #define _XOPEN_SOURCE
 #define _XOPEN_SOURCE_EXTENDED 1
@@ -15,17 +15,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct Vector
+// Dynamicke pole retazcov
+struct StrVector
 {
   char **vals;
   int length;
 };
 
-void v_init(struct Vector *v);
-void v_destroy(struct Vector *v);
-void v_append(struct Vector *v, const char *s);
-int v_size(struct Vector *v);
-char *v_at(struct Vector *v, int idx);
-void v_print(struct Vector *v);
+void v_init(struct StrVector *v);
+void v_destroy(struct StrVector *v);
+void v_append(struct StrVector *v, const char *s);
+int v_size(struct StrVector *v);
+char *v_at(struct StrVector *v, int idx);
+char **v_to_a(struct StrVector *v);
+void v_print(struct StrVector *v);
 
-#endif // VECTOR_H
+#endif // STRVECTOR_H

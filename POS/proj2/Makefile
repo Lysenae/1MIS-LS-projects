@@ -6,7 +6,7 @@
 CFLAGS=-std=gnu99 -Wall -Wextra -Werror -pedantic
 LIBS=-lpthread
 PROG=shell
-FILES=monitor.o shell.o
+FILES=monitor.o str_vector.o shell.o
 CC=gcc
 
 %.o : %.c
