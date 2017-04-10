@@ -19,11 +19,14 @@
 #include "utils.h"
 #include "str_vector.h"
 
+#define MAX_FNAME 256
+
 struct Process
 {
   char *in_file;
   char *out_file;
   bool background;
+  bool invalid;
   char *args;
   struct StrVector params;
 };
@@ -32,6 +35,7 @@ void p_init(struct Process *p, const char *args);
 void p_destroy(struct Process *p);
 void p_set_args(struct Process *p, const char *args);
 void p_set_background(struct Process *p);
+void p_set_file(struct Process *p, char c);
 
 void p_print(struct Process *p);
 

@@ -15,7 +15,13 @@
 #include <string.h>
 #include <ctype.h>
 
+#include <stdio.h>
+
 char *str_dup(const char *s);
 char *str_trim(const char *s);
+int str_chrn(const char *s, char c);
+int str_fstc(const char *, char c);
+void str_set(char **dest, const char *src);
+void str_deln(char *s, int i, int n);
 
 #endif // UTILS_H
