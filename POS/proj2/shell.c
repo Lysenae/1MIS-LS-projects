@@ -62,14 +62,14 @@ void init_sigaction(struct sigaction *sa, int signum, void (*handler)(int))
   sigaction(signum, sa, NULL);
 }
 
-void on_sigint(int signum)
+void on_sigint(int __attribute__((unused)) signum)
 {
-  printf("SIGINT %d\n", signum);
+  printf("SIGINT\n");
 }
 
-void on_sigchld(int signum)
+void on_sigchld(int __attribute__((unused)) signum)
 {
-  printf("SIGCHLD %d\n", signum);
+  printf("SIGCHLD\n");
 }
 
 void *th_rt_read(void *t)
