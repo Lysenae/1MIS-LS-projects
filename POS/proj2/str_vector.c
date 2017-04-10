@@ -87,7 +87,7 @@ char **v_to_a(struct StrVector *v)
   {
     char **a;
     int len;
-    a = (char **)malloc(sizeof(char *)*v_size(v));
+    a = (char **)malloc(sizeof(char *)*(v_size(v)+1));
     for(int i=0; i<v_size(v); ++i)
     {
       len = strlen(v_at(v, i));
@@ -95,6 +95,7 @@ char **v_to_a(struct StrVector *v)
       strcpy(a[i], v_at(v, i));
       a[i][len] = '\0';
     }
+    a[v_size(v)] = NULL;
     return a;
   }
   return NULL;

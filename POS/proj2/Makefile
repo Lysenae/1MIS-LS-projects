@@ -40,8 +40,3 @@ clean:
 	rm -f $(PROG)
 	rm -f $(PROG).out
 	rm -f .fuse*
-
-git: clean
-	git add --all
-	git commit
-	git push -u origin master
