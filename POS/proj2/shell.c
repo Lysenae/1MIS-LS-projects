@@ -27,6 +27,8 @@
 #define RUN  100
 #define READ 101
 
+struct Monitor monitor;
+
 void init_sigaction(struct sigaction *sa, int signum, void (*handler)(int));
 void on_sigint(int signum);
 void on_sigchld(int signum);
@@ -35,7 +37,6 @@ void *th_rt_run(void *t);
 
 int main()
 {
-  struct Monitor monitor;
   pthread_t th_read, th_run;
   struct sigaction sa_sigint, sa_sigchld;
 
@@ -62,9 +63,9 @@ void init_sigaction(struct sigaction *sa, int signum, void (*handler)(int))
   sigaction(signum, sa, NULL);
 }
 
-void on_sigint(int __attribute__((unused)) signum)
+void on_sigint(int signum)
 {
-  printf("SIGINT\n");
+  mt_kill_running_pid(&monitor, signum);
 }
 
 void on_sigchld(int __attribute__((unused)) signum)

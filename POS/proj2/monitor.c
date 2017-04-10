@@ -105,3 +105,12 @@ void mt_set_running_pid(struct Monitor *m, pid_t p)
   m->running_pid = p;
   pthread_mutex_unlock(&m->mtx_data);
 }
+
+void mt_kill_running_pid(struct Monitor *m, int signum)
+{
+  pthread_mutex_lock(&m->mtx_proc);
+  pid_t p = mt_get_running_pid(m);
+  if(p > 0)
+    kill(p, signum);
+  pthread_mutex_unlock(&m->mtx_proc);
+}

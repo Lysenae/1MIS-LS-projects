@@ -17,6 +17,7 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <signal.h>
 
 #define MT_CMDLEN 513
 
@@ -41,5 +42,6 @@ void mt_set_cmd(struct Monitor *m, const char *cmd);
 char *mt_get_cmd(struct Monitor *m);
 pid_t mt_get_running_pid(struct Monitor *m);
 void mt_set_running_pid(struct Monitor *m, pid_t p);
+void mt_kill_running_pid(struct Monitor *m, int signum);
 
 #endif // MONITOR_H
