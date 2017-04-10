@@ -6,7 +6,7 @@
 CFLAGS=-std=gnu99 -Wall -Wextra -Werror -pedantic
 LIBS=-lpthread
 PROG=shell
-FILES=monitor.o str_vector.o shell.o
+FILES=utils.o monitor.o str_vector.o process.o shell.o
 CC=gcc
 
 %.o : %.c
@@ -20,7 +20,7 @@ $(PROG): $(FILES)
 	$(CC) $(CFLAGS) $(FILES) -o $(PROG) $(LIBS)
 
 run:
-	./ticket
+	./$(PROG)
 
 clean:
 	rm -f *~

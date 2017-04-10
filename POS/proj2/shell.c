@@ -12,7 +12,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <ctype.h>
 #include <pthread.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -20,8 +19,10 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 
+#include "utils.h"
 #include "monitor.h"
 #include "str_vector.h"
+#include "process.h"
 
 #define STDIN  0
 #define STDOUT 1
@@ -36,7 +37,6 @@ void on_sigint(int signum);
 void on_sigchld(int signum);
 void *th_rt_read(void *t);
 void *th_rt_run(void *t);
-char *trim(char *s);
 void parse_command(const char *cmd, struct StrVector *v);
 bool parse_background_proc();
 
@@ -123,7 +123,7 @@ void *th_rt_read(void *t)
 void *th_rt_run(void *t)
 {
   struct Monitor *m = (struct Monitor *) t;
-  struct StrVector v;
+  struct Process p;
 
   while(mt_running(m))
   {
@@ -132,26 +132,12 @@ void *th_rt_run(void *t)
     if(!mt_running(m))
       break;
 
-    v_init(&v);
+    p_init(&p, mt_get_cmd(m));
 
-    bool is_bckg = parse_background_proc();
-    printf("Background process?: %s\n", is_bckg ? "true" : "false");
-    parse_command(mt_get_cmd(m), &v);
-    v_destroy(&v);
+    p_destroy(&p);
     mt_signal(m, RUN);
   }
   pthread_exit(NULL);
-}
-
-// Prebrane z http://stackoverflow.com/questions/122616/how-do-i-trim-leading-trailing-whitespace-in-a-standard-way
-char *trim(char *s)
-{
-  char * p = s;
-  int l = strlen(p);
-  while(isspace(p[l - 1])) p[--l] = 0;
-  while(* p && isspace(* p)) ++p, --l;
-  memmove(s, p, l + 1);
-  return s;
 }
 
 void parse_command(const char *cmd, struct StrVector *v)
