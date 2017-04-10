@@ -86,10 +86,9 @@ void *th_rt_read(void *t)
     fflush(stdout);
     memset(buff, 0, MT_CMDLEN);
     rc = read(STDIN, buff, MT_CMDLEN);
-    printf("Loaded: %d\n", rc);
     if(rc == MT_CMDLEN && buff[rc-1] != '\n') // Maximum je 512 znakov + Enter
     {
-      fprintf(stderr, "Command too long\n");
+      fprintf(stderr, "Chyba: Prikaz prilis dlhy\n");
       while(getchar() != '\n') {} // precitaj prikaz az do konca
       buff[0] = '\0';
     }
