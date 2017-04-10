@@ -7,6 +7,10 @@
 
 #include "process.h"
 
+/**
+ * Resetuje hodnoty struktury.
+ * @param p Process
+**/
 static void s_p_reset(struct Process *p)
 {
   p->in_file    = NULL;
@@ -16,17 +20,31 @@ static void s_p_reset(struct Process *p)
   p->invalid    = false;
 }
 
+/**
+ * Inicializuje hodnoty struktury.
+ * @param p Process
+**/
 static void s_p_init(struct Process *p)
 {
   s_p_reset(p);
   v_init(&p->params);
 }
 
+/**
+ * Vrati opacny znak.
+ * @param c znak
+ * @return opacny znak
+**/
 static char s_p_rcpl(char r)
 {
   return r == '<' ? '>' : '<';
 }
 
+/**
+ * Inicializuje proces.
+ * @param p Process
+ * @param args retazec
+**/
 void p_init(struct Process *p, const char *args)
 {
   s_p_init(p);
@@ -35,9 +53,12 @@ void p_init(struct Process *p, const char *args)
   p_set_file(p, '<');
   p_set_file(p, '>');
   p_parse_args(p);
-  printf("Init process with args: '%s'\n", args);
 }
 
+/**
+ * Zrusi hodnoty struktury.
+ * @param p Process
+**/
 void p_destroy(struct Process *p)
 {
   if(p->args != NULL)     free(p->args);
@@ -47,6 +68,11 @@ void p_destroy(struct Process *p)
   v_destroy(&p->params);
 }
 
+/**
+ * Nastavi argumenty.
+ * @param p Process
+ * @param args retazec
+**/
 void p_set_args(struct Process *p, const char *args)
 {
   if(p->args != NULL)
@@ -57,6 +83,11 @@ void p_set_args(struct Process *p, const char *args)
   str_set(&p->args, args);
 }
 
+/**
+ * Nastavi priznak, ci sa jedna o proces na pozadi a zmaze prislusnu cast
+ * argumentov.
+ * @param p Process
+**/
 void p_set_background(struct Process *p)
 {
   char *s = str_dup(p->args);
@@ -91,6 +122,11 @@ void p_set_background(struct Process *p)
   }
 }
 
+/**
+ * Nastavi stdin/stdout subor procesu
+ * @param p Process
+ * @param c znak urcujuci premserovanie I/O
+**/
 void p_set_file(struct Process *p, char c)
 {
   if(c != '<' && c != '>')
@@ -140,6 +176,10 @@ void p_set_file(struct Process *p, char c)
   }
 }
 
+/**
+ * Spracovanie parametrov.
+ * @param p Process
+**/
 void p_parse_args(struct Process *p)
 {
   char *s = str_dup(p->args);
@@ -167,8 +207,25 @@ void p_parse_args(struct Process *p)
   if(strlen(buff) > 0)
     v_append(&p->params, buff);
   str_set(&p->args, "");
+
+  if(v_size(&p->params) == 0)
+    p->invalid = true;
 }
 
+/**
+ * Zisti, ci je proces platne inicializovany.
+ * @param p Process
+ * @return true ak je proces dobre inicializovany
+**/
+bool p_is_valid(struct Process *p)
+{
+  return !p->invalid;
+}
+
+/**
+ * Vypis struktury.
+ * @param p Process
+**/
 void p_print(struct Process *p)
 {
   printf("Process:\n  In: '%s'\n  Out: '%s'\n  Args: '%s'\n  Bckg: %s\n  Inv: %s\n",

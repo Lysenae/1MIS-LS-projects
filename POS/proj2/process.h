@@ -37,6 +37,7 @@ void p_set_args(struct Process *p, const char *args);
 void p_set_background(struct Process *p);
 void p_set_file(struct Process *p, char c);
 void p_parse_args(struct Process *p);
+bool p_is_valid(struct Process *p);
 
 void p_print(struct Process *p);
 

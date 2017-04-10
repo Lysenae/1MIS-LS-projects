@@ -8,6 +8,16 @@
 #include "utils.h"
 
 /**
+ * Vypise bool.
+ * @param val bool
+ * @return retazec bool
+**/
+char *str_bool(bool val)
+{
+  return val ? "true" : "false";
+}
+
+/**
  * Vytvori kopiu retazca.
  * @param s retazec
  * @return kopiu retazca

@@ -12,11 +12,13 @@
 #define _XOPEN_SOURCE_EXTENDED 1
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
 
 #include <stdio.h>
 
+char *str_bool(bool val);
 char *str_dup(const char *s);
 char *str_trim(const char *s);
 int str_chrn(const char *s, char c);

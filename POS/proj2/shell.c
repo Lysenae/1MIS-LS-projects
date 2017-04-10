@@ -37,7 +37,6 @@ void on_sigint(int signum);
 void on_sigchld(int signum);
 void *th_rt_read(void *t);
 void *th_rt_run(void *t);
-void parse_command(const char *cmd, struct StrVector *v);
 
 int main()
 {
@@ -133,55 +132,9 @@ void *th_rt_run(void *t)
 
     p_init(&p, mt_get_cmd(m));
     p_print(&p);
+    printf("Valid process?: %s\n", str_bool(p_is_valid(&p)));
     p_destroy(&p);
     mt_signal(m, RUN);
   }
   pthread_exit(NULL);
-}
-
-void parse_command(const char *cmd, struct StrVector *v)
-{
-  size_t len = strlen(cmd);
-  char s[MT_CMDLEN];
-  memset(s, 0, MT_CMDLEN);
-  char c;
-  //bool found_amp = false;
-
-  for(size_t i=0; i<len; ++i)
-  {
-    c = cmd[i];
-    if(c == ' ')
-    {
-      if(strlen(s) > 0)
-      {
-        v_append(v, s);
-        memset(s, 0, MT_CMDLEN);
-      }
-    }
-    else if(c == '<')
-    {
-      if(strlen(s) > 0)
-      {
-        v_append(v, s);
-        memset(s, 0, MT_CMDLEN);
-      }
-    }
-    else if(c == '>')
-    {
-      if(strlen(s) > 0)
-      {
-        v_append(v, s);
-        memset(s, 0, MT_CMDLEN);
-      }
-    }
-    else
-    {
-      s[strlen(s)] = c;
-      if(i == len-1)
-      {
-        v_append(v, s);
-      }
-    }
-  }
-  v_print(v);
 }
