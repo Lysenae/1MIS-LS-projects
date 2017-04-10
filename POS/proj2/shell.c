@@ -30,10 +30,9 @@
 void *th_rt_read(void *t);
 void *th_rt_run(void *t);
 
-TMonitor monitor;
-
 int main()
 {
+  struct Monitor monitor;
   if(!mt_init(&monitor))
     return -1;
 
@@ -50,7 +49,7 @@ int main()
 
 void *th_rt_read(void *t)
 {
-  TMonitor *m = (TMonitor *) t;
+  struct Monitor *m = (struct Monitor *) t;
   int rc;
   char buff[MT_CMDLEN+1];
 
@@ -90,7 +89,7 @@ void *th_rt_read(void *t)
 
 void *th_rt_run(void *t)
 {
-  TMonitor *m = (TMonitor *) t;
+  struct Monitor *m = (struct Monitor *) t;
 
   while(mt_running(m))
   {

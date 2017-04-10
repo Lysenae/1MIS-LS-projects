@@ -19,7 +19,7 @@
 
 #define MT_CMDLEN 513
 
-typedef struct t_monitor
+struct Monitor
 {
   bool            running;
   char            command[MT_CMDLEN];
@@ -28,14 +28,14 @@ typedef struct t_monitor
   pthread_mutex_t mtx_data;
   pthread_mutex_t mtx_proc;
   pthread_cond_t  cond;
-} TMonitor;
+};
 
-bool mt_init(TMonitor *m);
-void mt_shutdown(TMonitor *m);
-bool mt_running(TMonitor *m);
-void mt_wait(TMonitor *m, int id);
-void mt_signal(TMonitor *m, int id);
-void mt_set_cmd(TMonitor *m, const char *cmd);
-char *mt_get_cmd(TMonitor *m);
+bool mt_init(struct Monitor *m);
+void mt_shutdown(struct Monitor *m);
+bool mt_running(struct Monitor *m);
+void mt_wait(struct Monitor *m, int id);
+void mt_signal(struct Monitor *m, int id);
+void mt_set_cmd(struct Monitor *m, const char *cmd);
+char *mt_get_cmd(struct Monitor *m);
 
 #endif // MONITOR_H

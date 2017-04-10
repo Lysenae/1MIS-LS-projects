@@ -7,14 +7,14 @@
 
 #include "monitor.h"
 
-static void s_mt_set_cond_id(TMonitor *m, int id)
+static void s_mt_set_cond_id(struct Monitor *m, int id)
 {
   pthread_mutex_lock(&m->mtx_data);
   m->cond_id = id;
   pthread_mutex_unlock(&m->mtx_data);
 }
 
-static int s_mt_get_cond_id(TMonitor *m)
+static int s_mt_get_cond_id(struct Monitor *m)
 {
   int id;
   pthread_mutex_lock(&m->mtx_data);
@@ -23,7 +23,7 @@ static int s_mt_get_cond_id(TMonitor *m)
   return id;
 }
 
-bool mt_init(TMonitor *m)
+bool mt_init(struct Monitor *m)
 {
   int rc = 0;
   m->running = true;
@@ -40,14 +40,14 @@ bool mt_init(TMonitor *m)
   return true;
 }
 
-void mt_shutdown(TMonitor *m)
+void mt_shutdown(struct Monitor *m)
 {
   pthread_mutex_lock(&m->mtx_data);
   m->running = false;
   pthread_mutex_unlock(&m->mtx_data);
 }
 
-bool mt_running(TMonitor *m)
+bool mt_running(struct Monitor *m)
 {
   bool rslt;
   pthread_mutex_lock(&m->mtx_data);
@@ -56,7 +56,7 @@ bool mt_running(TMonitor *m)
   return rslt;
 }
 
-void mt_wait(TMonitor *m, int id)
+void mt_wait(struct Monitor *m, int id)
 {
   s_mt_set_cond_id(m, id);
   pthread_mutex_lock(&m->mtx_th);
@@ -65,7 +65,7 @@ void mt_wait(TMonitor *m, int id)
   pthread_mutex_unlock(&m->mtx_th);
 }
 
-void mt_signal(TMonitor *m, int id)
+void mt_signal(struct Monitor *m, int id)
 {
   s_mt_set_cond_id(m, id);
   pthread_mutex_lock(&m->mtx_th);
@@ -73,14 +73,14 @@ void mt_signal(TMonitor *m, int id)
   pthread_mutex_unlock(&m->mtx_th);
 }
 
-void mt_set_cmd(TMonitor *m, const char *cmd)
+void mt_set_cmd(struct Monitor *m, const char *cmd)
 {
   pthread_mutex_lock(&m->mtx_data);
   strcpy(m->command, cmd);
   pthread_mutex_unlock(&m->mtx_data);
 }
 
-char *mt_get_cmd(TMonitor *m)
+char *mt_get_cmd(struct Monitor *m)
 {
   char *buff = malloc(sizeof(m->command));
   pthread_mutex_lock(&m->mtx_data);
