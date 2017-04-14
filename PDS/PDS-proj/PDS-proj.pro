@@ -15,8 +15,8 @@ SOURCES += \
 HEADERS += \
     packet.h \
     arppkt.h \
-    utype.h \
     net.h \
     netaddr.h \
     ipv4addr.h \
-    ipv6addr.h
+    ipv6addr.h \
+    types.h

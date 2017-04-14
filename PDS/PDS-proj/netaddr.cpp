@@ -33,9 +33,19 @@ std::string NetAddr::snmask()
     return m_mask;
 }
 
-std::vector<std::string> NetAddr::split_addr(std::string s, char delimiter)
+std::string NetAddr::addr_grp(uint idx)
 {
-    std::vector<std::string> v;
+    return get_group(m_addr, idx);
+}
+
+std::string NetAddr::mask_grp(uint idx)
+{
+    return get_group(m_mask, idx);
+}
+
+StrVect NetAddr::split_addr(std::string s, char delimiter)
+{
+    StrVect v;
     std::string t = "";
     for(uint i=0; i<s.size(); ++i)
     {

@@ -6,7 +6,7 @@
 
 #include <arpa/inet.h>
 
-#include "utype.h"
+#include "types.h"
 
 class Packet
 {

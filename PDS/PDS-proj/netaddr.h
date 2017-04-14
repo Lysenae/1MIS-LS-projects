@@ -11,7 +11,7 @@
 
 #include <iostream>
 
-#include "utype.h"
+#include "types.h"
 
 enum class IPVer
 {
@@ -26,13 +26,16 @@ public:
     std::string interface();
     std::string addr();
     std::string snmask();
+    std::string addr_grp(uint idx);
+    std::string mask_grp(uint idx);
 
 protected:
     std::string m_itf_name;
     std::string m_addr;
     std::string m_mask;
 
-    std::vector<std::string> split_addr(std::string s, char delimiter);
+    StrVect split_addr(std::string s, char delimiter);
+    virtual std::string get_group(std::string ins, uint idx) = 0;
 };
 
 #endif // NETADDR_H

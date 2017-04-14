@@ -41,6 +41,13 @@ int main(int argc, char *argv[])
     if(v4)
         cout << "IPv4 [" << v4->interface() << "] " << v4->addr() << "/" <<
             v4->snmask() << endl;
+        for(uint j=0; j<4; ++j)
+            cout << v4->addr_grp(j) << (j == 3 ? "" : ",");
+        cout << endl;
+        for(uint j=0; j<4; ++j)
+            cout << v4->mask_grp(j) << (j == 3 ? "" : ",");
+        cout << endl;
+
     IPv6Vect v6s = net.ipv6(interface);
     for(uint i=0; i<v6s.size(); ++i)
     {

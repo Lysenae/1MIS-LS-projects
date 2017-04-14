@@ -9,12 +9,10 @@ class IPv6Addr : public NetAddr
 {
 public:
     IPv6Addr(ifaddrs *ifa);
-    std::string addr_grp(uint idx);
-    std::string mask_grp(uint idx);
 
 private:
     static const uint IPV6_BLOCKS = 8;
-    std::string get_group(std::string s, uint idx);
+    virtual std::string get_group(std::string ins, uint idx) override;
 };
 
 typedef std::vector<IPv6Addr *> IPv6Vect;
