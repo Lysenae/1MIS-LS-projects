@@ -3,6 +3,8 @@
 
 #include <unistd.h>
 
+#include "net.h"
+
 using namespace std;
 
 int main(int argc, char *argv[])
@@ -35,5 +37,11 @@ int main(int argc, char *argv[])
     }
 
     std::cout << "Interface: " << interface << ", file: " << fname << std::endl;
+
+    Net net;
+    std::string ipv6 = net.ipv6(interface).size() > 0 ? net.ipv6(interface)[0] : "";
+    cout << "IPv4 [" << interface << "] " << net.ipv4(interface) << std::endl;
+    cout << "IPv6 [" << interface << "] " << ipv6 << std::endl;
+
     return 0;
 }

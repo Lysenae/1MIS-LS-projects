@@ -4,22 +4,34 @@
 # Soubor:  Makefile
 
 CXXFLAGS=-std=c++11 -Wall -Wextra -Werror -pedantic
-PROG1=pds-scanner
-FILES1=utils.o 
 CXX=g++
+
+PROG1=pds-scanner
+FILES1= \
+	utils.o \
+	net.o \
+	packet.o \
+	arppkt.o \
+	pds-scanner.o
 
 all: $(PROG1)
 
-utils.o: utils.c
+utils.o: utils.cpp
 	$(CXX) $(CXXFLAGS) -c utils.cpp
 
-packet.o: packet.c
-	$(CXX) $(CXXFLAGS) -c packet.c
+net.o: net.cpp
+	$(CXX) $(CXXFLAGS) -c net.cpp
 
-arppkt.o: arppkt.c
-	$(CXX) $(CXXFLAGS) -c arppkt.c
+packet.o: packet.cpp
+	$(CXX) $(CXXFLAGS) -c packet.cpp
 
-$(PROG): $(FILES1)
+arppkt.o: arppkt.cpp
+	$(CXX) $(CXXFLAGS) -c arppkt.cpp
+
+pds-scanner.o: pds-scanner.cpp
+	$(CXX) $(CXXFLAGS) -c pds-scanner.cpp
+
+$(PROG1): $(FILES1)
 	$(CXX) $(CXXFLAGS) $(FILES1) -o $(PROG1)
 
 clean:

@@ -7,10 +7,12 @@ SOURCES += \
     packet.cpp \
     arppkt.cpp \
     utils.cpp \
-    pds-scanner.cpp
+    pds-scanner.cpp \
+    net.cpp
 
 HEADERS += \
     packet.h \
     arppkt.h \
     utype.h \
-    utils.h
+    utils.h \
+    net.h
