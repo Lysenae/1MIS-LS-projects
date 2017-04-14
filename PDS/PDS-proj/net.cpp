@@ -27,7 +27,7 @@ IPv4Addr *Net::ipv4(std::string interface)
     return ip;
 }
 
-std::vector<IPv6Addr *> Net::ipv6(std::string interface)
+IPv6Vect Net::ipv6(std::string interface)
 {
     IPv6Vect v;
     getifaddrs(&m_ifaddrs);

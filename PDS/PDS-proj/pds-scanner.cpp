@@ -36,17 +36,22 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    std::cout << "Interface: " << interface << ", file: " << fname << std::endl;
-
     Net net;
     IPv4Addr *v4 = net.ipv4(interface);
     if(v4)
         cout << "IPv4 [" << v4->interface() << "] " << v4->addr() << "/" <<
-            v4->snmask() << std::endl;
+            v4->snmask() << endl;
     IPv6Vect v6s = net.ipv6(interface);
     for(uint i=0; i<v6s.size(); ++i)
+    {
         cout << "IPv6 [" << v6s[i]->interface() << "] " << v6s[i]->addr() << "/" <<
-            v6s[i]->snmask() << std::endl;
-
+            v6s[i]->snmask() << endl;
+        for(uint j=0; j<8; ++j)
+            cout << v6s[i]->addr_grp(j) << (j == 7 ? "" : ",");
+        cout << endl;
+        for(uint j=0; j<8; ++j)
+            cout << v6s[i]->mask_grp(j) << (j == 7 ? "" : ",");
+        cout << endl;
+    }
     return 0;
 }
