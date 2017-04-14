@@ -36,7 +36,7 @@ StrVect IPv4Addr::net_host_ips()
         int  max   = 0;
 
         v.push_back(addr_part(octet));
-        max = maxval(bits % BITS);
+        max = maxval(whole ? BITS : bits % BITS);
         if(max < 0)
         {
             std::cerr << "Negative maxval result in net_host_ips\n";
@@ -135,9 +135,11 @@ StrVect IPv4Addr::expand_ips(StrVect ips, int max, int base, int octet)
     for(std::string ip : ips)
     {
         for(int i=0; i<=max; ++i)
+        {
             v.push_back(
                 std::string(ip + std::to_string(base + i) + ((octet == 0) ? "" : "."))
             );
+        }
     }
     return expand_ips(v, UCHAR_MAX, 0, octet-1);
 }

@@ -1,6 +1,7 @@
 #ifndef ARPPKT_H
 #define ARPPKT_H
 
+#include "ipv4addr.h"
 #include "packet.h"
 
 class ArpPkt : public Packet

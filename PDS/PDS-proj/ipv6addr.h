@@ -8,10 +8,11 @@
 class IPv6Addr : public NetAddr
 {
 public:
+    static const uint IPV6_BLOCKS = 8;
+
     IPv6Addr(ifaddrs *ifa);
 
 private:
-    static const uint IPV6_BLOCKS = 8;
     virtual std::string get_group(std::string ins, uint idx) override;
 };
 
