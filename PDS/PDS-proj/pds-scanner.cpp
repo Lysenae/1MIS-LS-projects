@@ -39,9 +39,14 @@ int main(int argc, char *argv[])
     std::cout << "Interface: " << interface << ", file: " << fname << std::endl;
 
     Net net;
-    std::string ipv6 = net.ipv6(interface).size() > 0 ? net.ipv6(interface)[0] : "";
-    cout << "IPv4 [" << interface << "] " << net.ipv4(interface) << std::endl;
-    cout << "IPv6 [" << interface << "] " << ipv6 << std::endl;
+    IPv4Addr *v4 = net.ipv4(interface);
+    if(v4)
+        cout << "IPv4 [" << v4->interface() << "] " << v4->addr() << "/" <<
+            v4->snmask() << std::endl;
+    IPv6Vect v6s = net.ipv6(interface);
+    for(uint i=0; i<v6s.size(); ++i)
+        cout << "IPv6 [" << v6s[i]->interface() << "] " << v6s[i]->addr() << "/" <<
+            v6s[i]->snmask() << std::endl;
 
     return 0;
 }

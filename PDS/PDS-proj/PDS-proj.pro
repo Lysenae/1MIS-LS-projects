@@ -6,13 +6,17 @@ CONFIG -= qt
 SOURCES += \
     packet.cpp \
     arppkt.cpp \
-    utils.cpp \
     pds-scanner.cpp \
-    net.cpp
+    net.cpp \
+    netaddr.cpp \
+    ipv4addr.cpp \
+    ipv6addr.cpp
 
 HEADERS += \
     packet.h \
     arppkt.h \
     utype.h \
-    utils.h \
-    net.h
+    net.h \
+    netaddr.h \
+    ipv4addr.h \
+    ipv6addr.h

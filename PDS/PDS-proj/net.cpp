@@ -7,9 +7,9 @@ Net::Net()
     m_tmp_addr = nullptr;
 }
 
-std::string Net::ipv4(std::string interface)
+IPv4Addr *Net::ipv4(std::string interface)
 {
-    std::string ip = "";
+    IPv4Addr *ip = nullptr;
     getifaddrs(&m_ifaddrs);
 
     for (m_ifa_next = m_ifaddrs; m_ifa_next != nullptr;
@@ -18,24 +18,18 @@ std::string Net::ipv4(std::string interface)
         if(!m_ifa_next->ifa_addr)
             continue;
 
-        if(m_ifa_next->ifa_addr->sa_family == AF_INET)
+        if(m_ifa_next->ifa_addr->sa_family == AF_INET &&
+        interface == std::string(m_ifa_next->ifa_name))
         {
-            m_tmp_addr = &((struct sockaddr_in *)m_ifa_next->ifa_addr)->sin_addr;
-            char addr_buff[INET_ADDRSTRLEN];
-            inet_ntop(AF_INET, m_tmp_addr, addr_buff, INET_ADDRSTRLEN);
-            if(interface == std::string(m_ifa_next->ifa_name))
-            {
-                ip = std::string(addr_buff);
-                break;
-            }
+            ip = new IPv4Addr(m_ifa_next);
         }
     }
     return ip;
 }
 
-std::vector<std::string> Net::ipv6(std::string interface)
+std::vector<IPv6Addr *> Net::ipv6(std::string interface)
 {
-    std::vector<std::string> v;
+    IPv6Vect v;
     getifaddrs(&m_ifaddrs);
 
     for (m_ifa_next = m_ifaddrs; m_ifa_next != nullptr;
@@ -44,14 +38,9 @@ std::vector<std::string> Net::ipv6(std::string interface)
         if(!m_ifa_next->ifa_addr)
             continue;
 
-        if(m_ifa_next->ifa_addr->sa_family == AF_INET6)
-        {
-            m_tmp_addr = &((struct sockaddr_in6 *)m_ifa_next->ifa_addr)->sin6_addr;
-            char addr_buff[INET6_ADDRSTRLEN];
-            inet_ntop(AF_INET6, m_tmp_addr, addr_buff, INET6_ADDRSTRLEN);
-            if(interface == std::string(m_ifa_next->ifa_name))
-                v.push_back(std::string(addr_buff));
-        }
+        if(m_ifa_next->ifa_addr->sa_family == AF_INET6 &&
+        interface == std::string(m_ifa_next->ifa_name))
+            v.push_back(new IPv6Addr(m_ifa_next));
     }
     return v;
 }

@@ -8,19 +8,27 @@ CXX=g++
 
 PROG1=pds-scanner
 FILES1= \
-	utils.o \
 	net.o \
+	netaddr.o \
+	ipv4addr.o \
+	ipv6addr.o \
 	packet.o \
 	arppkt.o \
 	pds-scanner.o
 
 all: $(PROG1)
 
-utils.o: utils.cpp
-	$(CXX) $(CXXFLAGS) -c utils.cpp
-
 net.o: net.cpp
 	$(CXX) $(CXXFLAGS) -c net.cpp
+
+netaddr.o: netaddr.cpp
+	$(CXX) $(CXXFLAGS) -c netaddr.cpp
+
+ipv4addr.o: ipv4addr.cpp
+	$(CXX) $(CXXFLAGS) -c ipv4addr.cpp
+
+ipv6addr.o: ipv6addr.cpp
+	$(CXX) $(CXXFLAGS) -c ipv6addr.cpp
 
 packet.o: packet.cpp
 	$(CXX) $(CXXFLAGS) -c packet.cpp

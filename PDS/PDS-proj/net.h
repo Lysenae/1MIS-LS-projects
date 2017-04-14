@@ -9,12 +9,15 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include "ipv4addr.h"
+#include "ipv6addr.h"
+
 class Net
 {
 public:
     Net();
-    std::string ipv4(std::string interface);
-    std::vector<std::string> ipv6(std::string interface);
+    IPv4Addr *ipv4(std::string interface);
+    IPv6Vect ipv6(std::string interface);
 
 private:
     struct ifaddrs *m_ifaddrs;
