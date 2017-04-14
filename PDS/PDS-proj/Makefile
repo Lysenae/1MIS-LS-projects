@@ -47,6 +47,7 @@ clean:
 	rm -f *.o
 	rm -f $(PROG1)
 	rm -f .fuse*
+	rm -f *.cpp.*
 
 git: clean
 	git add --all

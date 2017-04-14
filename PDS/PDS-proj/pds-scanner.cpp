@@ -39,26 +39,19 @@ int main(int argc, char *argv[])
     Net net;
     IPv4Addr *v4 = net.ipv4(interface);
     if(v4)
+    {
         cout << "IPv4 [" << v4->interface() << "] " << v4->addr() << "/" <<
-            v4->snmask() << endl;
-        for(uint j=0; j<4; ++j)
-            cout << v4->addr_grp(j) << (j == 3 ? "" : ",");
-        cout << endl;
-        for(uint j=0; j<4; ++j)
-            cout << v4->mask_grp(j) << (j == 3 ? "" : ",");
-        cout << endl;
-
+            v4->mask_n() << endl;
+        cout << "MASK: " << v4->snmask() << endl;
+        StrVect ips = v4->net_host_ips();
+        for(uint i=0; i<ips.size(); ++i)
+            cout << ips[i] << endl;
+    }
     IPv6Vect v6s = net.ipv6(interface);
     for(uint i=0; i<v6s.size(); ++i)
     {
         cout << "IPv6 [" << v6s[i]->interface() << "] " << v6s[i]->addr() << "/" <<
             v6s[i]->snmask() << endl;
-        for(uint j=0; j<8; ++j)
-            cout << v6s[i]->addr_grp(j) << (j == 7 ? "" : ",");
-        cout << endl;
-        for(uint j=0; j<8; ++j)
-            cout << v6s[i]->mask_grp(j) << (j == 7 ? "" : ",");
-        cout << endl;
     }
     return 0;
 }
