@@ -3,7 +3,7 @@
 
 #include <unistd.h>
 
-#include "net.h"
+#include "netitf.h"
 
 using namespace std;
 
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    Net net(interface);
+    NetItf net(interface);
     cout << "Interface index: " << net.if_index() << endl;
     IPv4Addr *v4 = net.ipv4();
     if(v4)

@@ -1,5 +1,5 @@
-#ifndef NET_H
-#define NET_H
+#ifndef NETITF_H
+#define NETITF_H
 
 #include <string>
 #include <vector>
@@ -18,20 +18,25 @@
 #include "ipv4addr.h"
 #include "ipv6addr.h"
 #include "socket.h"
+#include "macaddr.h"
 
-class Net
+class NetItf
 {
 public:
-    Net(std::string interface);
+    NetItf(std::string interface);
+    ~NetItf();
     IPv4Addr *ipv4();
     IPv6Vect ipv6();
+    MACAddr *mac();
     int if_index();
 
 private:
     std::string m_interface;
     struct ifaddrs *m_ifaddrs;
     struct ifaddrs *m_ifa_next;
+    struct ifreq m_ifr;
     void *m_tmp_addr;
+    Socket *m_sock;
 };
 
-#endif // NET_H
+#endif // NETITF_H
