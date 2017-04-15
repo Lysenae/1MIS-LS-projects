@@ -17,7 +17,7 @@
 #include <linux/if_arp.h>
 
 #define BUF_SIZE 42
-#define DEVICE "eno1"
+#define DEVICE "wlo1"
 #define ETH_P_NULL 0x0
 #define ETH_MAC_LEN ETH_ALEN
 #define ETH_ARP 0x0806

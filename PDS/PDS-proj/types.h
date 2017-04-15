@@ -11,7 +11,10 @@ typedef unsigned int   uint;
 typedef std::vector<std::string> StrVect;
 
 const uint BITS       = 8;
+const uint UCHAR_MIN  = 0;
 const uint UCHAR_MAX  = 255;
 const int  OP_FAIL    = -1;
+const uint S_UCHAR    = 1;
+const uint S_USHORT   = 2;
 
 #endif // TYPES_H

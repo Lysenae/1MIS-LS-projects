@@ -1,9 +1,11 @@
 #include <iostream>
+#include <cstdio>
 #include <cstdlib>
 
 #include <unistd.h>
 
 #include "netitf.h"
+#include "arppkt.h"
 
 using namespace std;
 
@@ -38,7 +40,8 @@ int main(int argc, char *argv[])
 
     NetItf *netitf = new NetItf(interface);
     cout << "Interface index: " << netitf->index() << endl;
-    cout << "Local MAC: " << netitf->mac()->to_string() << endl;
+    MACAddr *m = netitf->mac();
+    cout << "Local MAC: " << m->to_string() << endl;
     IPv4Addr *v4 = netitf->ipv4();
     if(v4)
     {
@@ -51,6 +54,14 @@ int main(int argc, char *argv[])
     {
         cout << "IPv6 [" << v6s[i]->interface() << "] " << v6s[i]->addr() << "/" <<
             v6s[i]->snmask() << endl;
+    }
+
+    ArpPkt *apkt = new ArpPkt(ArpPktType::REQUEST, v4, m);
+    apkt->print();
+    uchar *s = apkt->serialize();
+    for(uint i=0;i<14;i++)
+    {
+        printf("%02X ",s[i]);
     }
     delete netitf;
     return 0;

@@ -7,7 +7,7 @@ IPv4Addr::IPv4Addr(ifaddrs *ifa) : IPAddr(ifa, IPVer::IPV4)
 int IPv4Addr::mask_n()
 {
     int mask = 0;
-    for(uint i=0; i<IPV4_BLOCKS; ++i)
+    for(uint i=0; i<OCTETS; ++i)
     {
         size_t ptr;
         std::string grp = mask_grp(i);
@@ -29,8 +29,8 @@ StrVect IPv4Addr::net_host_ips()
     int mask = mask_n();
     if(mask > 0)
     {
-        int  octet = IPV4_BLOCKS - (mask / BITS +1);
-        uint bits  = IPV4_BITS - mask;
+        int  octet = OCTETS - (mask / BITS +1);
+        uint bits  = BITS - mask;
         bool whole = mask % BITS == 0;
         int  ov    = 0;
         int  max   = 0;
@@ -65,10 +65,10 @@ StrVect IPv4Addr::net_host_ips()
 std::string IPv4Addr::get_group(std::string ins, uint idx)
 {
     std::string s = "";
-    if(idx < IPV4_BLOCKS)
+    if(idx < OCTETS)
     {
         StrVect grps = split_addr(ins, '.');
-        s = grps[IPV4_BLOCKS - idx - 1];
+        s = grps[OCTETS - idx - 1];
     }
     return s;
 }
@@ -118,7 +118,7 @@ int IPv4Addr::maxval(uint bits)
 std::string IPv4Addr::addr_part(uint until_octet)
 {
     std::string addr = "";
-    for(uint i=IPV4_BLOCKS-1; i>until_octet; --i)
+    for(uint i=OCTETS-1; i>until_octet; --i)
     {
         addr += addr_grp(i);
         addr += ".";

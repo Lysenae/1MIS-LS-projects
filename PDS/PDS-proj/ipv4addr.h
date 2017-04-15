@@ -6,8 +6,8 @@
 class IPv4Addr : public IPAddr
 {
 public:
-    static const uint IPV4_BLOCKS = 4;
-    static const uint IPV4_BITS   = 32;
+    static const uint OCTETS = 4;
+    static const uint BITS   = 32;
 
     IPv4Addr(struct ifaddrs *ifa);
     int mask_n();

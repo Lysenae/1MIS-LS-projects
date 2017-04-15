@@ -4,7 +4,6 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += \
-    packet.cpp \
     arppkt.cpp \
     pds-scanner.cpp \
     ipv4addr.cpp \
@@ -15,7 +14,6 @@ SOURCES += \
     netitf.cpp
 
 HEADERS += \
-    packet.h \
     arppkt.h \
     ipv4addr.h \
     ipv6addr.h \

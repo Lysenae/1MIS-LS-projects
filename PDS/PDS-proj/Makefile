@@ -14,7 +14,6 @@ FILES1= \
 	ipv4addr.o \
 	ipv6addr.o \
 	netitf.o \
-	packet.o \
 	arppkt.o \
 	pds-scanner.o
 
@@ -37,9 +36,6 @@ ipv6addr.o: ipv6addr.cpp
 
 netitf.o: netitf.cpp
 	$(CXX) $(CXXFLAGS) -c netitf.cpp
-
-packet.o: packet.cpp
-	$(CXX) $(CXXFLAGS) -c packet.cpp
 
 arppkt.o: arppkt.cpp
 	$(CXX) $(CXXFLAGS) -c arppkt.cpp

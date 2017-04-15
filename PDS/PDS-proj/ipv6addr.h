@@ -8,7 +8,7 @@
 class IPv6Addr : public IPAddr
 {
 public:
-    static const uint IPV6_BLOCKS = 8;
+    static const uint BLOCKS = 8;
 
     IPv6Addr(ifaddrs *ifa);
 

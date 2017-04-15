@@ -4,6 +4,7 @@
 #include <cstdio>
 
 #include <sys/ioctl.h>
+#include <netinet/in.h>
 #include <net/if.h>
 
 #include "types.h"
@@ -12,13 +13,14 @@
 class MACAddr
 {
 public:
-    static const uint MAC_BLOCKS = 6;
+    static const uint OCTETS = 6;
 
     MACAddr(ifreq *ifr);
     std::string to_string() const;
+    uchar octet(uint idx);
 
 private:
-    uchar m_mac[6];
+    uchar m_mac[OCTETS];
 };
 
 #endif // MACADDR_H
