@@ -8,15 +8,18 @@ SOURCES += \
     arppkt.cpp \
     pds-scanner.cpp \
     net.cpp \
-    netaddr.cpp \
     ipv4addr.cpp \
-    ipv6addr.cpp
+    ipv6addr.cpp \
+    ipaddr.cpp
 
 HEADERS += \
     packet.h \
     arppkt.h \
     net.h \
-    netaddr.h \
     ipv4addr.h \
     ipv6addr.h \
-    types.h
+    types.h \
+    ipaddr.h
+
+DISTFILES += \
+    Makefile

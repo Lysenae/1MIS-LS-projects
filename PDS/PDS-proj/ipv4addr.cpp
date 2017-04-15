@@ -1,6 +1,6 @@
 #include "ipv4addr.h"
 
-IPv4Addr::IPv4Addr(ifaddrs *ifa) : NetAddr(ifa, IPVer::IPV4)
+IPv4Addr::IPv4Addr(ifaddrs *ifa) : IPAddr(ifa, IPVer::IPV4)
 {
 }
 
@@ -131,14 +131,17 @@ StrVect IPv4Addr::expand_ips(StrVect ips, int max, int base, int octet)
     if(octet < 0)
         return ips;
 
+    std::string ipaddr;
+
     StrVect v;
     for(std::string ip : ips)
     {
         for(int i=0; i<=max; ++i)
         {
-            v.push_back(
-                std::string(ip + std::to_string(base + i) + ((octet == 0) ? "" : "."))
-            );
+            ipaddr = std::string(ip + std::to_string(base + i) +
+                ((octet == 0) ? "" : "."));
+            if(ipaddr != m_addr)
+                v.push_back(ipaddr);
         }
     }
     return expand_ips(v, UCHAR_MAX, 0, octet-1);

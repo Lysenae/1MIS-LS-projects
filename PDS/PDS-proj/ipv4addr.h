@@ -1,9 +1,9 @@
 #ifndef IPV4ADDR_H
 #define IPV4ADDR_H
 
-#include "netaddr.h"
+#include "ipaddr.h"
 
-class IPv4Addr : public NetAddr
+class IPv4Addr : public IPAddr
 {
 public:
     static const uint IPV4_BLOCKS = 4;

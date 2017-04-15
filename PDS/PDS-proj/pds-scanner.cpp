@@ -43,9 +43,9 @@ int main(int argc, char *argv[])
         cout << "IPv4 [" << v4->interface() << "] " << v4->addr() << "/" <<
             v4->mask_n() << endl;
         cout << "MASK: " << v4->snmask() << endl;
-        StrVect ips = v4->net_host_ips();
+        /*StrVect ips = v4->net_host_ips();
         for(uint i=0; i<ips.size(); ++i)
-            cout << ips[i] << endl;
+            cout << ips[i] << endl;*/
     }
     IPv6Vect v6s = net.ipv6(interface);
     for(uint i=0; i<v6s.size(); ++i)

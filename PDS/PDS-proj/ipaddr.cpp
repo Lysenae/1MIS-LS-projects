@@ -1,6 +1,6 @@
-#include "netaddr.h"
+#include "ipaddr.h"
 
-NetAddr::NetAddr(ifaddrs *ifa, IPVer v)
+IPAddr::IPAddr(ifaddrs *ifa, IPVer v)
 {
     uint len = v == IPVer::IPV4 ? INET_ADDRSTRLEN : INET6_ADDRSTRLEN;
     int ver  = v == IPVer::IPV4 ? AF_INET         : AF_INET6;
@@ -18,32 +18,32 @@ NetAddr::NetAddr(ifaddrs *ifa, IPVer v)
     m_mask = std::string(buff);
 }
 
-std::string NetAddr::interface()
+std::string IPAddr::interface()
 {
     return m_itf_name;
 }
 
-std::string NetAddr::addr()
+std::string IPAddr::addr()
 {
     return m_addr;
 }
 
-std::string NetAddr::snmask()
+std::string IPAddr::snmask()
 {
     return m_mask;
 }
 
-std::string NetAddr::addr_grp(uint idx)
+std::string IPAddr::addr_grp(uint idx)
 {
     return get_group(m_addr, idx);
 }
 
-std::string NetAddr::mask_grp(uint idx)
+std::string IPAddr::mask_grp(uint idx)
 {
     return get_group(m_mask, idx);
 }
 
-StrVect NetAddr::split_addr(std::string s, char delimiter)
+StrVect IPAddr::split_addr(std::string s, char delimiter)
 {
     StrVect v;
     std::string t = "";

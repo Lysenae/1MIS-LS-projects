@@ -19,10 +19,10 @@ enum class IPVer
     IPV6
 };
 
-class NetAddr
+class IPAddr
 {
 public:
-    NetAddr(ifaddrs *ifa, IPVer v);
+    IPAddr(ifaddrs *ifa, IPVer v);
     std::string interface();
     std::string addr();
     std::string snmask();

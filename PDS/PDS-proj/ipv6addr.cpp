@@ -1,6 +1,6 @@
 #include "ipv6addr.h"
 
-IPv6Addr::IPv6Addr(ifaddrs *ifa) : NetAddr(ifa, IPVer::IPV6)
+IPv6Addr::IPv6Addr(ifaddrs *ifa) : IPAddr(ifa, IPVer::IPV6)
 {
 }
 

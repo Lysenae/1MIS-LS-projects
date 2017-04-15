@@ -3,9 +3,9 @@
 
 #include <vector>
 
-#include "netaddr.h"
+#include "ipaddr.h"
 
-class IPv6Addr : public NetAddr
+class IPv6Addr : public IPAddr
 {
 public:
     static const uint IPV6_BLOCKS = 8;
