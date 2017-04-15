@@ -23,7 +23,7 @@ SocketStatus Socket::open()
 {
     m_fd     = socket(m_domain, m_type, m_protocol);
     if(m_fd == OP_FAIL)
-        std::cerr << "Socket::open failed" << std::endl;
+        perror("Socket::open failed");
     else
         m_status = SocketStatus::OPENED;
     return m_status;
@@ -34,9 +34,9 @@ SocketStatus Socket::close()
     int r = -1;
     if(m_status == SocketStatus::OPENED)
     {
-        r = shutdown(m_fd, 2);
+        r = ::close(m_fd);
         if(r == OP_FAIL)
-            std::cerr << "Socket::close failed" << std::endl;
+            perror("Socket::close");
         else
             m_status = SocketStatus::CLOSED;
     }

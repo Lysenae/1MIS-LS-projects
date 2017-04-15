@@ -1,9 +1,11 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
-#include <iostream>
+#include <cstdio>
+#include <cerrno>
 
 #include <sys/socket.h>
+#include <unistd.h>
 
 #include "types.h"
 
