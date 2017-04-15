@@ -28,15 +28,18 @@ public:
     IPv4Addr *ipv4();
     IPv6Vect ipv6();
     MACAddr *mac();
-    int if_index();
+    int index();
 
 private:
     std::string m_interface;
     struct ifaddrs *m_ifaddrs;
     struct ifaddrs *m_ifa_next;
-    struct ifreq m_ifr;
+    struct ifreq *m_ifr;
     void *m_tmp_addr;
     Socket *m_sock;
+
+    void free_ifr();
+    void free_ifaddr();
 };
 
 #endif // NETITF_H

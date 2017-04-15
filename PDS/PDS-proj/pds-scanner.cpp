@@ -36,9 +36,9 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    NetItf net(interface);
-    cout << "Interface index: " << net.if_index() << endl;
-    IPv4Addr *v4 = net.ipv4();
+    NetItf *netitf = new NetItf(interface);
+    cout << "Interface index: " << netitf->index() << endl;
+    IPv4Addr *v4 = netitf->ipv4();
     if(v4)
     {
         cout << "IPv4 [" << v4->interface() << "] " << v4->addr() << "/" <<
@@ -48,11 +48,12 @@ int main(int argc, char *argv[])
         for(uint i=0; i<ips.size(); ++i)
             cout << ips[i] << endl;*/
     }
-    IPv6Vect v6s = net.ipv6();
+    IPv6Vect v6s = netitf->ipv6();
     for(uint i=0; i<v6s.size(); ++i)
     {
         cout << "IPv6 [" << v6s[i]->interface() << "] " << v6s[i]->addr() << "/" <<
             v6s[i]->snmask() << endl;
     }
+    delete netitf;
     return 0;
 }

@@ -21,17 +21,20 @@ SocketStatus Socket::status() const
 
 SocketStatus Socket::open()
 {
-    m_fd     = socket(m_domain, m_type, m_protocol);
-    if(m_fd == OP_FAIL)
-        perror("Socket::open failed");
-    else
-        m_status = SocketStatus::OPENED;
+    if(m_status != SocketStatus::OPENED)
+    {
+        m_fd     = socket(m_domain, m_type, m_protocol);
+        if(m_fd == OP_FAIL)
+            perror("Socket::open failed");
+        else
+            m_status = SocketStatus::OPENED;
+    }
     return m_status;
 }
 
 SocketStatus Socket::close()
 {
-    int r = -1;
+    int r = OP_FAIL;
     if(m_status == SocketStatus::OPENED)
     {
         r = ::close(m_fd);
