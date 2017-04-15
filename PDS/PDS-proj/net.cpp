@@ -45,3 +45,16 @@ IPv6Vect Net::ipv6()
     }
     return v;
 }
+
+int Net::if_index()
+{
+    struct ifreq ifr;
+    Socket s(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+    if(s.open() != SocketStatus::OPENED)
+        return OP_FAIL;
+    strncpy(ifr.ifr_name, m_interface.c_str(), IFNAMSIZ);
+    if(ioctl(s.fd(), SIOCGIFINDEX, &ifr) == -1)
+        return OP_FAIL;
+    s.close();
+    return ifr.ifr_ifindex;
+}

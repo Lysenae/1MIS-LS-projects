@@ -37,6 +37,7 @@ int main(int argc, char *argv[])
     }
 
     Net net(interface);
+    cout << "Interface index: " << net.if_index() << endl;
     IPv4Addr *v4 = net.ipv4();
     if(v4)
     {

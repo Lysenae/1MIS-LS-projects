@@ -10,7 +10,8 @@ SOURCES += \
     net.cpp \
     ipv4addr.cpp \
     ipv6addr.cpp \
-    ipaddr.cpp
+    ipaddr.cpp \
+    socket.cpp
 
 HEADERS += \
     packet.h \
@@ -19,7 +20,8 @@ HEADERS += \
     ipv4addr.h \
     ipv6addr.h \
     types.h \
-    ipaddr.h
+    ipaddr.h \
+    socket.h
 
 DISTFILES += \
     Makefile
