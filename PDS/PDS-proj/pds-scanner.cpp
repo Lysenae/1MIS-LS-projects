@@ -36,8 +36,8 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    Net net;
-    IPv4Addr *v4 = net.ipv4(interface);
+    Net net(interface);
+    IPv4Addr *v4 = net.ipv4();
     if(v4)
     {
         cout << "IPv4 [" << v4->interface() << "] " << v4->addr() << "/" <<
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
         for(uint i=0; i<ips.size(); ++i)
             cout << ips[i] << endl;*/
     }
-    IPv6Vect v6s = net.ipv6(interface);
+    IPv6Vect v6s = net.ipv6();
     for(uint i=0; i<v6s.size(); ++i)
     {
         cout << "IPv6 [" << v6s[i]->interface() << "] " << v6s[i]->addr() << "/" <<

@@ -15,11 +15,13 @@
 class Net
 {
 public:
-    Net();
-    IPv4Addr *ipv4(std::string interface);
-    IPv6Vect ipv6(std::string interface);
+    Net(std::string interface);
+    IPv4Addr *ipv4();
+    IPv6Vect ipv6();
+    int if_index();
 
 private:
+    std::string m_interface;
     struct ifaddrs *m_ifaddrs;
     struct ifaddrs *m_ifa_next;
     void *m_tmp_addr;
