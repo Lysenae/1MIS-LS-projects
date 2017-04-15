@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include <cstring>
+#include <cstdio>
+#include <cerrno>
 #include <iostream>
 
 #include <sys/types.h>
@@ -32,12 +34,13 @@ public:
 
 private:
     std::string m_interface;
-    struct ifaddrs *m_ifaddrs;
-    struct ifaddrs *m_ifa_next;
-    struct ifreq *m_ifr;
+    ifaddrs *m_ifaddrs;
+    ifaddrs *m_ifa_next;
+    ifreq *m_ifr;
     void *m_tmp_addr;
     Socket *m_sock;
 
+    void init_ifr();
     void free_ifr();
     void free_ifaddr();
 };

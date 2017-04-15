@@ -2,6 +2,7 @@
 #define ARPPKT_H
 
 #include "ipv4addr.h"
+#include "macaddr.h"
 #include "packet.h"
 
 class ArpPkt : public Packet

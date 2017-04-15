@@ -62,25 +62,44 @@ IPv6Vect NetItf::ipv6()
     return v;
 }
 
+// Ciastocne prebrane z http://stackoverflow.com/a/16712726
 MACAddr *NetItf::mac()
 {
-
-    return nullptr;
+    if(m_sock->open() != SocketStatus::OPENED)
+        return nullptr;
+    init_ifr();
+    if(ioctl(m_sock->fd(), SIOCGIFHWADDR, m_ifr) == OP_FAIL)
+    {
+        perror("NetItf::mac()");
+        return nullptr;
+    }
+    MACAddr *m = new MACAddr(m_ifr);
+    free_ifr();
+    return m;
 }
 
+// Ciastocne prebrane z http://stackoverflow.com/a/16712726
 int NetItf::index()
 {
     int idx = OP_FAIL;
-    m_ifr = new ifreq;
     if(m_sock->open() != SocketStatus::OPENED)
         return OP_FAIL;
-    strncpy(m_ifr->ifr_name, m_interface.c_str(), IFNAMSIZ);
+    init_ifr();
     if(ioctl(m_sock->fd(), SIOCGIFINDEX, m_ifr) == OP_FAIL)
+    {
+        perror("NetItf::index()");
         return OP_FAIL;
+    }
     m_sock->close();
     idx = m_ifr->ifr_ifindex;
     free_ifr();
     return idx;
+}
+
+void NetItf::init_ifr()
+{
+    m_ifr = new ifreq;
+    strncpy(m_ifr->ifr_name, m_interface.c_str(), IFNAMSIZ);
 }
 
 void NetItf::free_ifr()

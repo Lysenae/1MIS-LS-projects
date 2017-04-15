@@ -38,15 +38,13 @@ int main(int argc, char *argv[])
 
     NetItf *netitf = new NetItf(interface);
     cout << "Interface index: " << netitf->index() << endl;
+    cout << "Local MAC: " << netitf->mac()->to_string() << endl;
     IPv4Addr *v4 = netitf->ipv4();
     if(v4)
     {
         cout << "IPv4 [" << v4->interface() << "] " << v4->addr() << "/" <<
             v4->mask_n() << endl;
         cout << "MASK: " << v4->snmask() << endl;
-        /*StrVect ips = v4->net_host_ips();
-        for(uint i=0; i<ips.size(); ++i)
-            cout << ips[i] << endl;*/
     }
     IPv6Vect v6s = netitf->ipv6();
     for(uint i=0; i<v6s.size(); ++i)

@@ -1,6 +1,8 @@
 #ifndef MACADDR_H
 #define MACADDR_H
 
+#include <cstdio>
+
 #include <sys/ioctl.h>
 #include <net/if.h>
 
@@ -10,7 +12,10 @@
 class MACAddr
 {
 public:
-    MACAddr(struct ifreq ifr);
+    static const uint MAC_BLOCKS = 6;
+
+    MACAddr(ifreq *ifr);
+    std::string to_string() const;
 
 private:
     uchar m_mac[6];

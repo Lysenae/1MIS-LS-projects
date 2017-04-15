@@ -1,5 +1,5 @@
-#ifndef NETADDR_H
-#define NETADDR_H
+#ifndef IPADDR_H
+#define IPADDR_H
 
 #include <string>
 #include <vector>
@@ -38,4 +38,4 @@ protected:
     virtual std::string get_group(std::string ins, uint idx) = 0;
 };
 
-#endif // NETADDR_H
+#endif // IPADDR_H
