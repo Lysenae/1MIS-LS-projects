@@ -10,6 +10,7 @@ public:
     static const uint BITS   = 32;
 
     IPv4Addr(struct ifaddrs *ifa);
+    IPv4Addr(std::string addr, std::string mask);
     int mask_n();
     StrVect net_host_ips();
 

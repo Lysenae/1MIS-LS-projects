@@ -1,9 +1,6 @@
 #ifndef IPADDR_H
 #define IPADDR_H
 
-#include <string>
-#include <vector>
-
 #include <sys/types.h>
 #include <ifaddrs.h>
 #include <netinet/in.h>
@@ -23,6 +20,7 @@ class IPAddr
 {
 public:
     IPAddr(ifaddrs *ifa, IPVer v);
+    IPAddr(std::string ip, std::string mask);
     std::string interface();
     std::string addr();
     std::string snmask();

@@ -31,10 +31,12 @@ public:
     void set_src_mac_addr(uint octet, std::string value);
     void set_src_ip_addr(uint octet, uchar value);
     void set_src_ip_addr(uint octet, std::string value);
+    void set_src_ip_addr(IPv4Addr *ipv4);
     void set_dst_mac_addr(uint octet, uchar value);
     void set_dst_mac_addr(uint octet, std::string value);
     void set_dst_ip_addr(uint octet, uchar value);
     void set_dst_ip_addr(uint octet, std::string value);
+    void set_dst_ip_addr(IPv4Addr *ipv4);
     sockaddr_ll *sock_addr(int if_idx);
     uchar *serialize();
     void print();
@@ -43,22 +45,38 @@ private:
     const uint ETH_HW_TYPE = 1;
     const uint BUFF_SIZE   = 60;
     const uint ETH_HDR_LEN = 14;
+    const uint OC_ARP_REQ  = 0x01;
+    const uint OC_ARP_RESP = 0x02;
+
+    enum class Field
+    {
+        HW_TYPE,
+        PROT_TYPE,
+        HW_ADDLN,
+        PROT_ADDLN,
+        OPCODE,
+        SRC_HWA,
+        SRC_IPA,
+        DST_HWA,
+        DST_IPA
+    };
 
     ArpPktType m_type;
 
-    ushort m_hw_t;
-    ushort m_prot_t;
-    uchar  m_hw_addl;
-    uchar  m_prot_addl;
-    ushort m_op;
-    uchar  m_src_hwa[6];
-    uchar  m_src_ip[4];
-    uchar  m_dst_hwa[6];
-    uchar  m_dst_ip[4];
+    uint16_t m_hw_t;
+    uint16_t m_prot_t;
+    uchar    m_hw_addl;
+    uchar    m_prot_addl;
+    uint16_t m_op;
+    uchar    m_src_hwa[6];
+    uchar    m_src_ip[4];
+    uchar    m_dst_hwa[6];
+    uchar    m_dst_ip[4];
 
     sockaddr_ll *m_sock_addr;
 
     uchar str_to_uch(std::string s);
+    uint offs(Field f, uint add_len);
 };
 
 #endif // ARPPKT_H

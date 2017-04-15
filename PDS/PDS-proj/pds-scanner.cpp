@@ -56,13 +56,18 @@ int main(int argc, char *argv[])
             v6s[i]->snmask() << endl;
     }
 
+    IPv4Addr *v4another = new IPv4Addr("192.168.100.2", "255.255.255.0");
     ArpPkt *apkt = new ArpPkt(ArpPktType::REQUEST, v4, m);
+    apkt->set_dst_ip_addr(v4another);
     apkt->print();
     uchar *s = apkt->serialize();
-    for(uint i=0;i<14;i++)
+    for(uint i=0;i<42;i++)
     {
         printf("%02X ",s[i]);
+        if(i == 13)
+            printf("\n");
     }
+    cout << endl;
     delete netitf;
     return 0;
 }

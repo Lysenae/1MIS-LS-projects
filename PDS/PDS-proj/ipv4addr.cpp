@@ -4,6 +4,10 @@ IPv4Addr::IPv4Addr(ifaddrs *ifa) : IPAddr(ifa, IPVer::IPV4)
 {
 }
 
+IPv4Addr::IPv4Addr(std::string addr, std::string mask) : IPAddr(addr, mask)
+{
+}
+
 int IPv4Addr::mask_n()
 {
     int mask = 0;

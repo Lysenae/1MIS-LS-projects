@@ -18,6 +18,32 @@ IPAddr::IPAddr(ifaddrs *ifa, IPVer v)
     m_mask = std::string(buff);
 }
 
+IPAddr::IPAddr(std::string ip, std::string mask)
+{
+    struct sockaddr_in sa;
+    int rslt;
+
+    rslt = inet_pton(AF_INET, ip.c_str(), &(sa.sin_addr));
+    if(rslt != 0)
+        m_addr = ip;
+    else
+    {
+        std::cerr << "IPAddr constructor: Invalid IP address" << std::endl;
+        m_addr = "";
+    }
+
+    rslt = inet_pton(AF_INET, mask.c_str(), &(sa.sin_addr));
+    if(rslt != 0)
+        m_mask = mask;
+    else
+    {
+        std::cerr << "IPAddr constructor: Invalid subnet mask" << std::endl;
+        m_addr = "";
+    }
+
+    m_itf_name = "";
+}
+
 std::string IPAddr::interface()
 {
     return m_itf_name;

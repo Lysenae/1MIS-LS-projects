@@ -140,7 +140,7 @@ int main()
         for(index=0;index<42;index++)
         {
             printf("%02X ",buffer[index]);
-            if(index % 16 ==0 && index !=0)
+            if(index == 13)
                 printf("\n\t");
         }
     }
