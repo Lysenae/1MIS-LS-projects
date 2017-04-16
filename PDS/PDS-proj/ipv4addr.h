@@ -7,12 +7,14 @@ class IPv4Addr : public IPAddr
 {
 public:
     static const uint OCTETS = 4;
-    static const uint BITS   = 32;
 
     IPv4Addr(struct ifaddrs *ifa);
     IPv4Addr(std::string addr, std::string mask);
+    ~IPv4Addr() {}
     int mask_n();
     StrVect net_host_ips();
+    virtual std::string addr_grp(uint idx) override;
+    virtual std::string mask_grp(uint idx) override;
 
 private:
     virtual std::string get_group(std::string ins, uint idx) override;

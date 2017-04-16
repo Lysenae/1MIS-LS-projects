@@ -16,8 +16,11 @@ public:
     static const uint OCTETS = 6;
 
     MACAddr(ifreq *ifr);
+    MACAddr(std::vector<uchar> oct);
     std::string to_string() const;
     uchar octet(uint idx);
+    bool eq(MACAddr *other);
+    bool empty() const;
 
 private:
     uchar m_mac[OCTETS];

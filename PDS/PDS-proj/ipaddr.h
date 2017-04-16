@@ -21,11 +21,12 @@ class IPAddr
 public:
     IPAddr(ifaddrs *ifa, IPVer v);
     IPAddr(std::string ip, std::string mask);
+    virtual ~IPAddr() {}
     std::string interface();
     std::string addr();
     std::string snmask();
-    std::string addr_grp(uint idx);
-    std::string mask_grp(uint idx);
+    virtual std::string addr_grp(uint idx) = 0;
+    virtual std::string mask_grp(uint idx) = 0;
 
 protected:
     std::string m_itf_name;

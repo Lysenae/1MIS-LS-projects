@@ -2,10 +2,9 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include <unistd.h>
-
 #include "netitf.h"
 #include "arppkt.h"
+#include "socket.h"
 
 using namespace std;
 
@@ -38,36 +37,44 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    NetItf *netitf = new NetItf(interface);
-    cout << "Interface index: " << netitf->index() << endl;
-    MACAddr *m = netitf->mac();
-    cout << "Local MAC: " << m->to_string() << endl;
-    IPv4Addr *v4 = netitf->ipv4();
-    if(v4)
+    NetItf      *netitf    = new NetItf(interface);
+    MACAddr     *loc_mac   = netitf->mac();
+    IPv4Addr    *loc_ipv4  = netitf->ipv4();
+    StrVect      v4s       = loc_ipv4->net_host_ips();
+    IPv4Addr    *v4another = nullptr;
+    ArpPkt      *apkt      = new ArpPkt(ArpPktType::REQUEST, loc_ipv4, loc_mac);
+    sockaddr_ll  saddr     = apkt->sock_addr(netitf->index());
+    MACAddr    *tm         = nullptr;
+    uchar buf[ArpPkt::BUFF_LEN];
+
+    Socket s(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+    if(s.open() != SocketStatus::OPENED)
     {
-        cout << "IPv4 [" << v4->interface() << "] " << v4->addr() << "/" <<
-            v4->mask_n() << endl;
-        cout << "MASK: " << v4->snmask() << endl;
-    }
-    IPv6Vect v6s = netitf->ipv6();
-    for(uint i=0; i<v6s.size(); ++i)
-    {
-        cout << "IPv6 [" << v6s[i]->interface() << "] " << v6s[i]->addr() << "/" <<
-            v6s[i]->snmask() << endl;
+        cerr << "pds-scanner: Failed to open socket" << endl;
+        return -1;
     }
 
-    IPv4Addr *v4another = new IPv4Addr("192.168.100.2", "255.255.255.0");
-    ArpPkt *apkt = new ArpPkt(ArpPktType::REQUEST, v4, m);
-    apkt->set_dst_ip_addr(v4another);
-    apkt->print();
-    uchar *s = apkt->serialize();
-    for(uint i=0;i<42;i++)
+    for(std::string ip : v4s)
     {
-        printf("%02X ",s[i]);
-        if(i == 13)
-            printf("\n");
+        memset(buf, 0, ArpPkt::BUFF_LEN);
+        v4another = new IPv4Addr(ip, loc_ipv4->snmask());
+        apkt->set_dst_ip_addr(v4another);
+        s.send_to(apkt->serialize(), ArpPkt::LEN, 0, (sockaddr*)&saddr,
+            sizeof(saddr));
+        int rcvd = s.recv_from(buf, ArpPkt::BUFF_LEN-1, 0, nullptr, nullptr);
+        tm = ArpPkt::parse_src_mac(buf, rcvd);
+        if(!tm->eq(loc_mac) && !tm->empty())
+            cout << v4another->addr() << " has MAC " << tm->to_string() << endl;
+
+        delete tm;
+        tm = nullptr;
+        delete v4another;
+        v4another = nullptr;
     }
-    cout << endl;
+
     delete netitf;
+    delete loc_ipv4;
+    delete loc_mac;
+    delete apkt;
     return 0;
 }

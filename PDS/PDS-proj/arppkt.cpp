@@ -8,6 +8,7 @@ ArpPkt::ArpPkt(ArpPktType type, IPv4Addr *ip, MACAddr *mac)
     m_op        = htons(type == ArpPktType::REQUEST ? OC_ARP_REQ : OC_ARP_RESP);
     m_hw_addl   = (uchar) MACAddr::OCTETS;
     m_prot_addl = (uchar) IPv4Addr::OCTETS;
+    m_eth_prot  = htons(ETH_P_ARP);
 
     for(uint i=0; i<MACAddr::OCTETS; ++i)
     {
@@ -24,13 +25,6 @@ ArpPkt::ArpPkt(ArpPktType type, IPv4Addr *ip, MACAddr *mac)
     for(uint i=0; i<IPv4Addr::OCTETS; ++i)
         m_dst_ip[i] = 0;
     set_src_ip_addr(ip);
-
-    m_sock_addr = new sockaddr_ll;
-}
-
-ArpPkt::~ArpPkt()
-{
-    delete m_sock_addr;
 }
 
 void ArpPkt::set_hw_type(ushort hw_type)
@@ -119,38 +113,34 @@ void ArpPkt::set_dst_ip_addr(IPv4Addr *ipv4)
     }
 }
 
-sockaddr_ll *ArpPkt::sock_addr(int if_idx)
+sockaddr_ll ArpPkt::sock_addr(int if_idx)
 {
-    if(m_src_hwa[0] != (uchar)0)
-    {
-        m_sock_addr->sll_family   = AF_PACKET;
-        m_sock_addr->sll_protocol = htons(ETH_P_ARP);
-        m_sock_addr->sll_ifindex  = if_idx;
-        m_sock_addr->sll_hatype   = htons(ETH_HW_TYPE);
-        m_sock_addr->sll_pkttype  = (PACKET_BROADCAST);
-        m_sock_addr->sll_halen    = MACAddr::OCTETS;
-        m_sock_addr->sll_addr[6]  = 0x00;
-        m_sock_addr->sll_addr[7]  = 0x00;
-        for(uint i=0; i<MACAddr::OCTETS; ++i)
-            m_sock_addr->sll_addr[i] = m_src_hwa[i];
-        return m_sock_addr;
-    }
-    std::cerr << "ArpPkt::sock_addr(" << if_idx << "): Source MAC not set" << std::endl;
-    return nullptr;
+    sockaddr_ll sock_addr;
+    sock_addr.sll_family   = AF_PACKET;
+    sock_addr.sll_protocol = htons(ETH_P_ARP);
+    sock_addr.sll_ifindex  = if_idx;
+    sock_addr.sll_hatype   = htons(ETH_HW_TYPE);
+    sock_addr.sll_pkttype  = (PACKET_BROADCAST);
+    sock_addr.sll_halen    = MACAddr::OCTETS;
+    sock_addr.sll_addr[6]  = 0x00;
+    sock_addr.sll_addr[7]  = 0x00;
+    for(uint i=0; i<MACAddr::OCTETS; ++i)
+        sock_addr.sll_addr[i] = m_src_hwa[i];
+    return sock_addr;
 }
 
 uchar *ArpPkt::serialize()
 {
     uint o = ETH_HDR_LEN;
-    uchar *buff = new uchar[BUFF_SIZE];
-    memset(buff, 0, BUFF_SIZE);
+    uchar *buff = new uchar[BUFF_LEN];
+    memset(buff, 0, BUFF_LEN);
     // Serialize Ethernet header
     for(uint i=0; i<MACAddr::OCTETS; ++i)
     {
         buff[i]                   = m_dst_hwa[i];
         buff[MACAddr::OCTETS + i] = m_src_hwa[i];
     }
-    memcpy(buff+2*MACAddr::OCTETS, &m_prot_t, S_USHORT);
+    memcpy(buff+2*MACAddr::OCTETS, &m_eth_prot, S_USHORT);
 
     // Serialize ARP header
     memcpy(buff+offs(Field::HW_TYPE, o), &m_hw_t, S_USHORT);        // HW type
@@ -190,6 +180,25 @@ void ArpPkt::print()
     for(uint i = 0; i<IPv4Addr::OCTETS; ++i)
         std::cout << (int)m_dst_ip[i] << (i==IPv4Addr::OCTETS-1 ? "" : ".");
     std::cout << std::endl;
+}
+
+MACAddr *ArpPkt::parse_src_mac(uchar *pkt, int len)
+{
+    std::vector<uchar> mac;
+    if(len > 0 && (uint)len >= offs(Field::SRC_HWA, ETH_HDR_LEN) + MACAddr::OCTETS)
+    {
+        uint16_t t;
+        uchar p[2];
+        p[0] = pkt[12];
+        p[1] = pkt[13];
+        memcpy(&t, p, S_USHORT);
+        if(htons(t) == 0x0806)
+        {
+            for(uint i=0; i<MACAddr::OCTETS; ++i)
+                mac.push_back(pkt[offs(Field::SRC_HWA, ETH_HDR_LEN) + i]);
+        }
+    }
+    return new MACAddr(mac);
 }
 
 uchar ArpPkt::str_to_uch(std::string s)

@@ -36,6 +36,8 @@ StrVect IPv4Addr::net_host_ips()
         int  octet = OCTETS - (mask / BITS +1);
         uint bits  = BITS - mask;
         bool whole = mask % BITS == 0;
+        std::cout << BITS << std::endl;
+        std::cout << (mask % BITS) << std::endl;
         int  ov    = 0;
         int  max   = 0;
 
@@ -59,11 +61,20 @@ StrVect IPv4Addr::net_host_ips()
             }
         }
 
-
         v = expand_ips(v, max, ov, octet);
         v = remove_bc_net(v);
     }
     return v;
+}
+
+std::string IPv4Addr::addr_grp(uint idx)
+{
+    return get_group(m_addr, idx);
+}
+
+std::string IPv4Addr::mask_grp(uint idx)
+{
+    return get_group(m_mask, idx);
 }
 
 std::string IPv4Addr::get_group(std::string ins, uint idx)

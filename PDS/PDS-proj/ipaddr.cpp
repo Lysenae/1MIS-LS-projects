@@ -59,16 +59,6 @@ std::string IPAddr::snmask()
     return m_mask;
 }
 
-std::string IPAddr::addr_grp(uint idx)
-{
-    return get_group(m_addr, idx);
-}
-
-std::string IPAddr::mask_grp(uint idx)
-{
-    return get_group(m_mask, idx);
-}
-
 StrVect IPAddr::split_addr(std::string s, char delimiter)
 {
     StrVect v;

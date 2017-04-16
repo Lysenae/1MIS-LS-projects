@@ -24,6 +24,10 @@ public:
     SocketStatus status() const;
     SocketStatus open();
     SocketStatus close();
+    int send_to( const void *buf, size_t len, int flags,
+        const struct sockaddr *dest_addr, socklen_t addrlen);
+    int recv_from(void *buf, size_t len, int flags,
+        struct sockaddr *src_addr, socklen_t *addrlen);
 
 private:
     int m_domain;

@@ -4,6 +4,16 @@ IPv6Addr::IPv6Addr(ifaddrs *ifa) : IPAddr(ifa, IPVer::IPV6)
 {
 }
 
+std::string IPv6Addr::addr_grp(uint idx)
+{
+    return get_group(m_addr, idx);
+}
+
+std::string IPv6Addr::mask_grp(uint idx)
+{
+    return get_group(m_mask, idx);
+}
+
 std::string IPv6Addr::get_group(std::string ins, uint idx)
 {
     std::string s = "";

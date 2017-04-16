@@ -45,3 +45,18 @@ SocketStatus Socket::close()
     }
     return m_status;
 }
+
+int Socket::send_to(const void *buf, size_t len, int flags,
+const sockaddr *dest_addr, socklen_t addrlen)
+{
+    if(m_status == SocketStatus::OPENED)
+        return sendto(m_fd, buf, len, flags, dest_addr, addrlen);
+    return -1;
+}
+
+int Socket::recv_from(void *buf, size_t len, int flags, sockaddr *src_addr, socklen_t *addrlen)
+{
+    if(m_status == SocketStatus::OPENED)
+        return recvfrom(m_fd, buf, len, flags, src_addr, addrlen);
+    return -1;
+}

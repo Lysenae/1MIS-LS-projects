@@ -21,8 +21,10 @@ enum class ArpPktType
 class ArpPkt
 {
 public:
+    static const uint BUFF_LEN = 60;
+    static const uint LEN      = 42;
+
     ArpPkt(ArpPktType type, IPv4Addr *ip = nullptr, MACAddr *mac = nullptr);
-    ~ArpPkt();
     void set_hw_type(ushort hw_type);
     void set_protocol_type(ushort pt_type);
     void set_hw_add_ln(uchar hal);
@@ -37,16 +39,17 @@ public:
     void set_dst_ip_addr(uint octet, uchar value);
     void set_dst_ip_addr(uint octet, std::string value);
     void set_dst_ip_addr(IPv4Addr *ipv4);
-    sockaddr_ll *sock_addr(int if_idx);
+    sockaddr_ll sock_addr(int if_idx);
     uchar *serialize();
     void print();
 
+    static MACAddr *parse_src_mac(uchar *pkt, int len);
+
 private:
-    const uint ETH_HW_TYPE = 1;
-    const uint BUFF_SIZE   = 60;
-    const uint ETH_HDR_LEN = 14;
-    const uint OC_ARP_REQ  = 0x01;
-    const uint OC_ARP_RESP = 0x02;
+    static const uint ETH_HDR_LEN = 14;
+    const uint ETH_HW_TYPE        = 1;
+    const uint OC_ARP_REQ         = 0x01;
+    const uint OC_ARP_RESP        = 0x02;
 
     enum class Field
     {
@@ -72,11 +75,11 @@ private:
     uchar    m_src_ip[4];
     uchar    m_dst_hwa[6];
     uchar    m_dst_ip[4];
-
-    sockaddr_ll *m_sock_addr;
+    uint16_t m_eth_prot;
 
     uchar str_to_uch(std::string s);
-    uint offs(Field f, uint add_len);
+
+    static uint offs(Field f, uint add_len);
 };
 
 #endif // ARPPKT_H
