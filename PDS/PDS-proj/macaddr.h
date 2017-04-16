@@ -16,7 +16,7 @@ public:
     static const uint OCTETS = 6;
 
     MACAddr(ifreq *ifr);
-    MACAddr(std::vector<uchar> oct);
+    MACAddr(UchrVect oct);
     std::string to_string() const;
     uchar octet(uint idx);
     bool eq(MACAddr *other);

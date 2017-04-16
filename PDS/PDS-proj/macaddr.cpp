@@ -6,7 +6,7 @@ MACAddr::MACAddr(ifreq *ifr)
         m_mac[i] = ifr->ifr_hwaddr.sa_data[i];
 }
 
-MACAddr::MACAddr(std::vector<uchar> oct)
+MACAddr::MACAddr(UchrVect oct)
 {
     if(oct.size() == OCTETS)
     {

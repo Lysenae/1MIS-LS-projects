@@ -40,12 +40,13 @@ int main(int argc, char *argv[])
     NetItf      *netitf    = new NetItf(interface);
     MACAddr     *loc_mac   = netitf->mac();
     IPv4Addr    *loc_ipv4  = netitf->ipv4();
-    StrVect      v4s       = loc_ipv4->net_host_ips();
-    IPv4Addr    *v4another = nullptr;
+    IPv6Vect     loc_ipv6s = netitf->ipv6();
+    //StrVect      v4s       = loc_ipv4->net_host_ips();
+    //IPv4Addr    *v4another = nullptr;
     ArpPkt      *apkt      = new ArpPkt(loc_ipv4, loc_mac);
-    sockaddr_ll  saddr     = apkt->sock_addr(netitf->index());
-    MACAddr    *tm         = nullptr;
-    uchar buf[ArpPkt::BUFF_LEN];
+    //sockaddr_ll  saddr     = apkt->sock_addr(netitf->index());
+    //MACAddr    *tm         = nullptr;
+    //uchar buf[ArpPkt::BUFF_LEN];
 
     Socket s(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
     if(s.open() != SocketStatus::OPENED)
@@ -54,7 +55,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    for(std::string ip : v4s)
+    /*for(std::string ip : v4s)
     {
         memset(buf, 0, ArpPkt::BUFF_LEN);
         v4another = new IPv4Addr(ip, loc_ipv4->snmask());
@@ -70,6 +71,12 @@ int main(int argc, char *argv[])
         tm = nullptr;
         delete v4another;
         v4another = nullptr;
+    }*/
+
+    for(IPv6Addr *v6 : loc_ipv6s)
+    {
+        cout << v6->addr() << "/" << v6->snmask() << endl;
+        v6->to_uchar();
     }
 
     delete netitf;

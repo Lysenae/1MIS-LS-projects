@@ -113,7 +113,7 @@ uchar *ArpPkt::serialize()
 
 MACAddr *ArpPkt::parse_src_mac(uchar *pkt, int len)
 {
-    std::vector<uchar> mac;
+    UchrVect mac;
     if(len > 0 && (uint)len >= offs(Field::SRC_HWA, ETH_HDR_LEN) + MACAddr::OCTETS)
     {
         uint16_t t;
@@ -121,7 +121,7 @@ MACAddr *ArpPkt::parse_src_mac(uchar *pkt, int len)
         p[0] = pkt[12];
         p[1] = pkt[13];
         memcpy(&t, p, S_USHORT);
-        if(htons(t) == 0x0806)
+        if(htons(t) == ETH_P_ARP)
         {
             for(uint i=0; i<MACAddr::OCTETS; ++i)
                 mac.push_back(pkt[offs(Field::SRC_HWA, ETH_HDR_LEN) + i]);

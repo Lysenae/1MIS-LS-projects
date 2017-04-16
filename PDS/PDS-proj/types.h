@@ -9,6 +9,7 @@ typedef unsigned short ushort;
 typedef unsigned int   uint;
 
 typedef std::vector<std::string> StrVect;
+typedef std::vector<uchar>       UchrVect;
 
 const uint BITS       = 8;
 const uint UCHAR_MIN  = 0;

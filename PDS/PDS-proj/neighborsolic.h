@@ -14,6 +14,8 @@ public:
     uchar *serialize();
 
 private:
+    static const uint ETH_HDR_LEN = 14;
+
     IPv6Addr *m_ip;
     MACAddr  *m_mac;
 };

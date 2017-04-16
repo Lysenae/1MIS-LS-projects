@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 
 #include <iostream>
+#include <cstring>
 
 #include "types.h"
 
