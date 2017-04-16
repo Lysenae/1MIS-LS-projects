@@ -73,10 +73,16 @@ int main(int argc, char *argv[])
         v4another = nullptr;
     }*/
 
+    char buff[2];
     for(IPv6Addr *v6 : loc_ipv6s)
     {
         cout << v6->addr() << "/" << v6->snmask() << endl;
-        v6->to_uchar();
+        UchrVect v = v6->to_uchar();
+        for(uchar u : v)
+        {
+            sprintf(buff, "%02X", u);
+            cout << string(buff) << endl;
+        }
     }
 
     delete netitf;

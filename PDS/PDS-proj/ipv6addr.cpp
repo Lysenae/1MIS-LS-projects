@@ -52,6 +52,12 @@ UchrVect IPv6Addr::to_uchar()
             newgrps.push_back(s);
         }
     }
+
+    for(std::string s : newgrps)
+    {
+        uc.push_back(literal_to_uchr(s.substr(0, 2)));
+        uc.push_back(literal_to_uchr(s.substr(2, 2)));
+    }
     return uc;
 }
 
@@ -82,4 +88,14 @@ std::string IPv6Addr::get_group(std::string ins, uint idx)
         s = newgrps[BLOCKS - idx - 1];
     }
     return s;
+}
+
+uchar IPv6Addr::literal_to_uchr(std::string s)
+{
+    if(s.size() == 2)
+    {
+        long r = strtol(s.c_str(), nullptr, 16);
+        return (uchar) r;
+    }
+    return 0x00;
 }

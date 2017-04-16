@@ -20,6 +20,7 @@ public:
 
 private:
     virtual std::string get_group(std::string ins, uint idx) override;
+    uchar literal_to_uchr(std::string s);
 };
 
 typedef std::vector<IPv6Addr *> IPv6Vect;
