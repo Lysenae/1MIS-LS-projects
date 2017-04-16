@@ -11,7 +11,8 @@ SOURCES += \
     ipaddr.cpp \
     socket.cpp \
     macaddr.cpp \
-    netitf.cpp
+    netitf.cpp \
+    neighborsolic.cpp
 
 HEADERS += \
     arppkt.h \
@@ -21,7 +22,8 @@ HEADERS += \
     ipaddr.h \
     socket.h \
     macaddr.h \
-    netitf.h
+    netitf.h \
+    neighborsolic.h
 
 DISTFILES += \
     Makefile

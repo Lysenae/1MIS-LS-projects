@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     IPv4Addr    *loc_ipv4  = netitf->ipv4();
     StrVect      v4s       = loc_ipv4->net_host_ips();
     IPv4Addr    *v4another = nullptr;
-    ArpPkt      *apkt      = new ArpPkt(ArpPktType::REQUEST, loc_ipv4, loc_mac);
+    ArpPkt      *apkt      = new ArpPkt(loc_ipv4, loc_mac);
     sockaddr_ll  saddr     = apkt->sock_addr(netitf->index());
     MACAddr    *tm         = nullptr;
     uchar buf[ArpPkt::BUFF_LEN];

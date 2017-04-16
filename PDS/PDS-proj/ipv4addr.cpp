@@ -36,8 +36,6 @@ StrVect IPv4Addr::net_host_ips()
         int  octet = OCTETS - (mask / BITS +1);
         uint bits  = BITS - mask;
         bool whole = mask % BITS == 0;
-        std::cout << BITS << std::endl;
-        std::cout << (mask % BITS) << std::endl;
         int  ov    = 0;
         int  max   = 0;
 
