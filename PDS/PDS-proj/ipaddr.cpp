@@ -1,6 +1,6 @@
 #include "ipaddr.h"
 
-IPAddr::IPAddr(ifaddrs *ifa, IPVer v)
+IPAddr::IPAddr(IPVer v, ifaddrs *ifa)
 {
     sockaddr_in  *in4 = nullptr;
     sockaddr_in6 *in6 = nullptr;
@@ -30,12 +30,16 @@ IPAddr::IPAddr(ifaddrs *ifa, IPVer v)
     m_mask = std::string(mask);
 }
 
-IPAddr::IPAddr(std::string ip, std::string mask)
+IPAddr::IPAddr(IPVer v, std::string ip, std::string mask)
 {
-    struct sockaddr_in sa;
+    sockaddr_in  sa4;
+    sockaddr_in6 sa6;
     int rslt;
 
-    rslt = inet_pton(AF_INET, ip.c_str(), &(sa.sin_addr));
+    if(v == IPVer::IPV4)
+        rslt = inet_pton(AF_INET, ip.c_str(), &(sa4.sin_addr));
+    else
+        rslt = inet_pton(AF_INET6, ip.c_str(), &(sa6.sin6_addr));
     if(rslt != 0)
         m_addr = ip;
     else
@@ -44,7 +48,12 @@ IPAddr::IPAddr(std::string ip, std::string mask)
         m_addr = "";
     }
 
-    rslt = inet_pton(AF_INET, mask.c_str(), &(sa.sin_addr));
+    if(v == IPVer::IPV4)
+        rslt = inet_pton(AF_INET, mask.c_str(), &(sa4.sin_addr));
+    else
+    {
+        rslt = inet_pton(AF_INET6, mask.c_str(), &(sa6.sin6_addr));
+    }
     if(rslt != 0)
         m_mask = mask;
     else

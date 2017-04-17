@@ -9,9 +9,9 @@ public:
     static const uint OCTETS = 4;
 
     IPv4Addr(struct ifaddrs *ifa);
-    IPv4Addr(std::string addr, std::string mask);
+    IPv4Addr(std::string ip, std::string mask);
     ~IPv4Addr() {}
-    int mask_n();
+    virtual int mask_n() override;
     StrVect net_host_ips();
     virtual std::string addr_grp(uint idx) override;
     virtual std::string mask_grp(uint idx) override;

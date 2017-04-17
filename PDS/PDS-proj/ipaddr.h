@@ -20,12 +20,13 @@ enum class IPVer
 class IPAddr
 {
 public:
-    IPAddr(ifaddrs *ifa, IPVer v);
-    IPAddr(std::string ip, std::string mask);
+    IPAddr(IPVer v, ifaddrs *ifa);
+    IPAddr(IPVer v, std::string ip, std::string mask);
     virtual ~IPAddr() {}
     std::string interface();
     std::string addr();
     std::string snmask();
+    virtual int mask_n() = 0;
     virtual std::string addr_grp(uint idx) = 0;
     virtual std::string mask_grp(uint idx) = 0;
 

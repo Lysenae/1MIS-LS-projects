@@ -1,10 +1,9 @@
 #include "ipv4addr.h"
 
-IPv4Addr::IPv4Addr(ifaddrs *ifa) : IPAddr(ifa, IPVer::IPV4)
-{
-}
+IPv4Addr::IPv4Addr(ifaddrs *ifa) : IPAddr(IPVer::IPV4, ifa) {}
 
-IPv4Addr::IPv4Addr(std::string addr, std::string mask) : IPAddr(addr, mask)
+IPv4Addr::IPv4Addr(std::string ip, std::string mask) :
+IPAddr(IPVer::IPV4, ip, mask)
 {
 }
 

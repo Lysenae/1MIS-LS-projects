@@ -1,7 +1,11 @@
 #include "ipv6addr.h"
 
-IPv6Addr::IPv6Addr(ifaddrs *ifa) : IPAddr(ifa, IPVer::IPV6)
+IPv6Addr::IPv6Addr(ifaddrs *ifa) : IPAddr(IPVer::IPV6, ifa) {}
+IPv6Addr::IPv6Addr(std::string ip, std::string mask) :
+IPAddr(IPVer::IPV6, ip, mask)
 {
+    if(mask_n() == OP_FAIL)
+        std::cerr << "IPv6Addr Constructor: Invalid subnet mask format\n";
 }
 
 std::string IPv6Addr::addr_grp(uint idx)
@@ -12,6 +16,28 @@ std::string IPv6Addr::addr_grp(uint idx)
 std::string IPv6Addr::mask_grp(uint idx)
 {
     return get_group(m_mask, idx);
+}
+
+int IPv6Addr::mask_n()
+{
+    int m = 0;
+    for(char c : m_mask)
+    {
+        switch(c)
+        {
+            case '0': m += 0; break;
+            case '8': m += 1; break;
+            case 'C':
+            case 'c': m += 2; break;
+            case 'E':
+            case 'e': m += 3; break;
+            case 'F':
+            case 'f': m += 4; break;
+            case ':': break;
+            default: return OP_FAIL;
+        }
+    }
+    return m;
 }
 
 UchrVect IPv6Addr::to_uchar()
@@ -92,7 +118,7 @@ std::string IPv6Addr::get_group(std::string ins, uint idx)
 
 uchar IPv6Addr::literal_to_uchr(std::string s)
 {
-    if(s.size() == 2)
+    if(s.size() <= 2)
     {
         long r = strtol(s.c_str(), nullptr, 16);
         return (uchar) r;
