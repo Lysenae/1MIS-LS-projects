@@ -19,6 +19,7 @@ public:
     virtual std::string mask_grp(uint idx) override;
     virtual int mask_n() override;
     UchrVect to_uchar();
+    in6_addr addr_struct() const;
 
 private:
     virtual std::string get_group(std::string ins, uint idx) override;

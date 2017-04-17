@@ -3,6 +3,10 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
 
 typedef unsigned char  uchar;
 typedef unsigned short ushort;
@@ -17,5 +21,7 @@ const uint UCHAR_MAX  = 255;
 const int  OP_FAIL    = -1;
 const uint S_UCHAR    = 1;
 const uint S_USHORT   = 2;
+
+std::string str_bytes16(uint16_t t);
 
 #endif // TYPES_H

@@ -1,10 +1,8 @@
-#include <iostream>
-#include <cstdio>
-#include <cstdlib>
-
+#include "types.h"
 #include "netitf.h"
 #include "arppkt.h"
 #include "socket.h"
+#include "neighborsolic.h"
 
 using namespace std;
 
@@ -72,6 +70,10 @@ int main(int argc, char *argv[])
         delete v4another;
         v4another = nullptr;
     }*/
+
+    NeighborSolic *ns = new NeighborSolic(loc_ipv6s[0], loc_mac);
+    uint16_t checksum = ns->checksum();
+    cout << "Checksum: " << checksum << " (" << str_bytes16(checksum) << ")" << endl;
 
     delete netitf;
     delete loc_ipv4;

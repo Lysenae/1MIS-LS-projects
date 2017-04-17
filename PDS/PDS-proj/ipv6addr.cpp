@@ -44,7 +44,6 @@ UchrVect IPv6Addr::to_uchar()
 {
     UchrVect uc;
     std::string s = "";
-    std::cout << m_addr << std::endl;
     StrVect grps  = split_addr(m_addr, ':');
     uint nonempty = 0;
     uint empty    = 0;
@@ -85,6 +84,13 @@ UchrVect IPv6Addr::to_uchar()
         uc.push_back(literal_to_uchr(s.substr(2, 2)));
     }
     return uc;
+}
+
+in6_addr IPv6Addr::addr_struct() const
+{
+    sockaddr_in6 sa6;
+    inet_pton(AF_INET6, m_addr.c_str(), &(sa6.sin6_addr));
+    return sa6.sin6_addr;
 }
 
 std::string IPv6Addr::get_group(std::string ins, uint idx)

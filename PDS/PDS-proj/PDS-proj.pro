@@ -12,7 +12,8 @@ SOURCES += \
     socket.cpp \
     macaddr.cpp \
     netitf.cpp \
-    neighborsolic.cpp
+    neighborsolic.cpp \
+    types.cpp
 
 HEADERS += \
     arppkt.h \
