@@ -17,7 +17,7 @@ public:
     void print();
 
 private:
-    std::map<std::string, StrVect> m_map;
+    std::map<std::string, StrVect*> m_map;
 };
 
 #endif // HASH_H

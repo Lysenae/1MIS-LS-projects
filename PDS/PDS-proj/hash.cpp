@@ -17,7 +17,7 @@ void Hash::add_existing(std::string key, std::string value)
 StrVect Hash::keys()
 {
     StrVect v;
-    for(std::map<std::string, StrVect>::const_iterator it = m_map.begin(); it != m_map.end(); ++it)
+    for(std::map<std::string, StrVect*>::const_iterator it = m_map.begin(); it != m_map.end(); ++it)
       v.push_back(it->first);
     return v;
 }
@@ -27,6 +27,7 @@ bool Hash::has_key(std::string key)
     StrVect ks = keys();
     for(std::string k : ks)
     {
+        std::cout << key << " <=> " << k << std::endl;
         if(k == key)
             return true;
     }
@@ -37,8 +38,8 @@ bool Hash::has_value(std::string key, std::string value)
 {
     if(!has_key(key))
         return false;
-    StrVect vals = m_map[key];
-    for(std::string v : vals)
+    StrVect *vals = m_map[key];
+    for(std::string v : *vals)
     {
         if(v == value)
             return true;
@@ -50,13 +51,9 @@ void Hash::add_value(std::string key, std::string value)
 {
     if(!has_key(key))
     {
-        StrVect v;
-        m_map[key] = v;
+        m_map[key] = new StrVect();
     }
-    else
-    {
-        m_map[key].push_back(value);
-    }
+    m_map[key]->push_back(value);
 }
 
 void Hash::print()
@@ -65,8 +62,8 @@ void Hash::print()
     for(std::string k : ks)
     {
         std::cout << k << std::endl;
-        StrVect vals = m_map[k];
-        for(std::string v : vals)
+        StrVect *vals = m_map[k];
+        for(std::string v : *vals)
             std::cout << "\t" << v << std::endl;
     }
 }

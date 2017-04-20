@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
 
     signal(SIGINT, on_sigint);
 
+    Hash h;
     NetItf      *netitf    = new NetItf(interface);
     MACAddr     *loc_mac   = netitf->mac();
     IPv4Addr    *loc_ipv4  = netitf->ipv4();
@@ -82,8 +83,11 @@ int main(int argc, char *argv[])
         rcvd = s4.recv_from(buf, ArpPkt::BUFF_LEN-1, 0, nullptr, nullptr);
         IPv4Addr *ipa  = nullptr;
         tm = apkt->parse_src_mac(buf, rcvd, &ipa);
-        if(!tm->eq(loc_mac) && !tm->empty() && ipa != nullptr)
+        if(!tm->eq(loc_mac) && !tm->empty() && ipa != nullptr && ipa->addr() == ip)
+        {
             cout << ipa->addr() << " has MAC " << tm->to_string() << endl;
+            h.add_value(tm->to_string(), ipa->addr());
+        }
 
         delete tm;
         tm = nullptr;
@@ -91,6 +95,7 @@ int main(int argc, char *argv[])
         v4another = nullptr;
     }
     cout << "Searching for IPv4 hosts copmleted" << endl;
+    h.print();
     s4.close();
     search = true;
 
@@ -107,39 +112,49 @@ int main(int argc, char *argv[])
     uchar *nsu = ns->serialize();
     cout << "Sending solicit from:" << loc_ipv6s[2]->addr() << endl;
     s6.send_to(nsu, ns->pktlen(), 0, (sockaddr*)&saddr_v6, sizeof(saddr_v6));
-    uchar *buf_v6 = new uchar[500];
-    uint16_t pl;
-    uchar plb[2];
-    uint cnt = 0;
+    uchar *buf_v6   = new uchar[500];
+    uint cnt        = 0;
+    uint keys       = h.keys().size();
+    std::string mac = "";
+    std::string ip6 = "";
+    int pl;
     while(true)
     {
-        if(!search)
+        if(!search || keys == 0 || cnt == 50)
             break;
-        if(cnt == 25)
-            break; // Pocet neecho ping reply paketov za sebou prekrocil hranicu
         rcvd = s6.recv_from(buf_v6, 500, 0, nullptr, nullptr);
-        plb[0] = buf_v6[18];
-        plb[1] = buf_v6[19];
-        memcpy(&pl, plb, S_USHORT);
-        pl = ntohs(pl);
-        if(pl == 24)
+        pl   = (int)buf_v6[19];
+        if(pl == 24 || pl == 32) // Mozno echo reply alebo ns
         {
-            if(buf_v6[54] == 0x81)
+            if(buf_v6[54] == 0x81 || buf_v6[54] == 0x87)
             {
-                cnt = 0;
-                continue;
-            }
-        }
-        else if(pl == 32)
-        {
-            if(buf_v6[54] == 0x87)
-            {
+                mac = "";
+                ip6 = "";
+                for(uint i=6; i<12; ++i)
+                {
+                    mac += str_bytes8(buf_v6[i]);
+                    mac += (i == 11 ? "" : ":");
+                }
+                if(h.has_key(mac))
+                {
+                    for(uint i=22; i<38; ++i)
+                    {
+                        ip6 += str_bytes8(buf_v6[i]);
+                        ip6 += (i < 37 && i % 2 == 1) ? ":" : "";
+                    }
+                    h.add_existing(mac, ip6);
+                    keys--;
+                    if(keys == 0)
+                        break;
+                }
                 cnt = 0;
                 continue;
             }
         }
         cnt++;
     }
+    s6.close();
+    h.print();
 
     delete netitf;
     delete loc_ipv4;
