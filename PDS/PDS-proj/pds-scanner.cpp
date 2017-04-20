@@ -39,12 +39,12 @@ int main(int argc, char *argv[])
     MACAddr     *loc_mac   = netitf->mac();
     IPv4Addr    *loc_ipv4  = netitf->ipv4();
     IPv6Vect     loc_ipv6s = netitf->ipv6();
-    //StrVect      v4s       = loc_ipv4->net_host_ips();
-    //IPv4Addr    *v4another = nullptr;
+    StrVect      v4s       = loc_ipv4->net_host_ips();
+    IPv4Addr    *v4another = nullptr;
     ArpPkt      *apkt      = new ArpPkt(loc_ipv4, loc_mac);
-    //sockaddr_ll  saddr     = apkt->sock_addr(netitf->index());
-    //MACAddr    *tm         = nullptr;
-    //uchar buf[ArpPkt::BUFF_LEN];
+    sockaddr_ll  saddr     = apkt->sock_addr(netitf->index());
+    MACAddr    *tm         = nullptr;
+    uchar buf[ArpPkt::BUFF_LEN];
 
     Socket s(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
     if(s.open() != SocketStatus::OPENED)
@@ -53,23 +53,28 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /*for(std::string ip : v4s)
+    int rcvd;
+    cout << "Searching for IPv4 hosts" << endl;
+    for(std::string ip : v4s)
     {
         memset(buf, 0, ArpPkt::BUFF_LEN);
         v4another = new IPv4Addr(ip, loc_ipv4->snmask());
         apkt->set_dst_ip_addr(v4another);
         s.send_to(apkt->serialize(), ArpPkt::LEN, 0, (sockaddr*)&saddr,
             sizeof(saddr));
-        int rcvd = s.recv_from(buf, ArpPkt::BUFF_LEN-1, 0, nullptr, nullptr);
-        tm = ArpPkt::parse_src_mac(buf, rcvd);
-        if(!tm->eq(loc_mac) && !tm->empty())
-            cout << v4another->addr() << " has MAC " << tm->to_string() << endl;
+
+        rcvd = s.recv_from(buf, ArpPkt::BUFF_LEN-1, 0, nullptr, nullptr);
+        IPv4Addr *ipa  = nullptr;
+        tm = apkt->parse_src_mac(buf, rcvd, &ipa);
+        if(!tm->eq(loc_mac) && !tm->empty() && ipa != nullptr)
+            cout << ipa->addr() << " has MAC " << tm->to_string() << endl;
 
         delete tm;
         tm = nullptr;
         delete v4another;
         v4another = nullptr;
-    }*/
+    }
+    cout << "Searching for IPv4 hosts copmleted" << endl;
 
     NeighborSolic *ns = new NeighborSolic(loc_ipv6s[0], loc_mac);
     uint16_t checksum = ns->checksum();

@@ -21,7 +21,7 @@ class IPAddr
 {
 public:
     IPAddr(IPVer v, ifaddrs *ifa);
-    IPAddr(IPVer v, std::string ip, std::string mask);
+    IPAddr(IPVer v, std::string ip, std::string mask = "");
     virtual ~IPAddr() {}
     std::string interface();
     std::string addr();

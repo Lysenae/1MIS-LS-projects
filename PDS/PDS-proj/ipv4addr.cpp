@@ -74,6 +74,11 @@ std::string IPv4Addr::mask_grp(uint idx)
     return get_group(m_mask, idx);
 }
 
+uchar IPv4Addr::octet(uint idx)
+{
+    return str_to_uch(addr_grp(idx));
+}
+
 std::string IPv4Addr::get_group(std::string ins, uint idx)
 {
     std::string s = "";

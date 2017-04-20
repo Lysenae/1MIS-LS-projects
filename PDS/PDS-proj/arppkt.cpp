@@ -111,33 +111,47 @@ uchar *ArpPkt::serialize()
     return buff;
 }
 
-MACAddr *ArpPkt::parse_src_mac(uchar *pkt, int len)
+MACAddr *ArpPkt::parse_src_mac(uchar *pkt, int len, IPv4Addr **ip)
 {
     UchrVect mac;
     if(len > 0 && (uint)len >= offs(Field::SRC_HWA, ETH_HDR_LEN) + MACAddr::OCTETS)
     {
+        std::string ips = "";
         uint16_t t;
         uchar p[2];
         p[0] = pkt[12];
         p[1] = pkt[13];
+        bool valid_pkt = false;
         memcpy(&t, p, S_USHORT);
-        if(htons(t) == ETH_P_ARP)
+        if(htons(t) == ETH_P_ARP && pkt[21] == 0x02) // ARP Reply only
         {
+            valid_pkt = true;
             for(uint i=0; i<MACAddr::OCTETS; ++i)
-                mac.push_back(pkt[offs(Field::SRC_HWA, ETH_HDR_LEN) + i]);
+            {
+                if(pkt[i] != m_src_hwa[i])
+                {
+                    valid_pkt = false;
+                    break;
+                }
+            }
+
+            if(valid_pkt)
+            {
+                for(uint i=0; i<MACAddr::OCTETS; ++i)
+                    mac.push_back(pkt[offs(Field::SRC_HWA, ETH_HDR_LEN) + i]);
+                for(uint i=0; i<IPv4Addr::OCTETS; ++i)
+                {
+                    ips += std::to_string(
+                        (int)pkt[offs(Field::SRC_IPA, ETH_HDR_LEN) + i]);
+                    if(i < IPv4Addr::OCTETS-1)
+                        ips += ".";
+                }
+            }
+            if(ips != "")
+                *ip = new IPv4Addr(ips);
         }
     }
     return new MACAddr(mac);
-}
-
-uchar ArpPkt::str_to_uch(std::string s)
-{
-    size_t ptr;
-    int val = std::stoi(s, &ptr);
-    if(val >= (int)UCHAR_MIN && val <= (int)UCHAR_MAX && ptr == s.size())
-        return (uchar) val;
-    std::cerr << "ArpPkt::str_to_uch(" << s << "): Conversion error" << std::endl;
-    return (uchar) 0;
 }
 
 uint ArpPkt::offs(Field f, uint add_len = 0)

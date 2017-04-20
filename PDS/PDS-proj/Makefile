@@ -3,7 +3,7 @@
 # Datum:   2017-04-14
 # Soubor:  Makefile
 
-CXXFLAGS=-std=c++11 -Wall -Wextra -Werror -pedantic
+CXXFLAGS=-std=c++11 -Wall -Wno-unused-but-set-variable -pedantic
 CXX=g++
 
 PROG1=pds-scanner

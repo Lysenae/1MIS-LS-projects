@@ -27,8 +27,7 @@ public:
     void set_dst_ip_addr(IPv4Addr *ipv4);
     sockaddr_ll sock_addr(int if_idx);
     uchar *serialize();
-
-    static MACAddr *parse_src_mac(uchar *pkt, int len);
+    MACAddr *parse_src_mac(uchar *pkt, int len, IPv4Addr **ip);
 
 private:
     static const uint ETH_HDR_LEN = 14;
@@ -58,8 +57,6 @@ private:
     uchar    m_dst_hwa[6];
     uchar    m_dst_ip[4];
     uint16_t m_eth_prot;
-
-    uchar str_to_uch(std::string s);
 
     static uint offs(Field f, uint add_len);
 };

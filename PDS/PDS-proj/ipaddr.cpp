@@ -48,18 +48,25 @@ IPAddr::IPAddr(IPVer v, std::string ip, std::string mask)
         m_addr = "";
     }
 
-    if(v == IPVer::IPV4)
-        rslt = inet_pton(AF_INET, mask.c_str(), &(sa4.sin_addr));
-    else
+    if(mask != "")
     {
-        rslt = inet_pton(AF_INET6, mask.c_str(), &(sa6.sin6_addr));
+        if(v == IPVer::IPV4)
+            rslt = inet_pton(AF_INET, mask.c_str(), &(sa4.sin_addr));
+        else
+        {
+            rslt = inet_pton(AF_INET6, mask.c_str(), &(sa6.sin6_addr));
+        }
+        if(rslt != 0)
+            m_mask = mask;
+        else
+        {
+            std::cerr << "IPAddr constructor: Invalid subnet mask" << std::endl;
+            m_addr = "";
+        }
     }
-    if(rslt != 0)
-        m_mask = mask;
     else
     {
-        std::cerr << "IPAddr constructor: Invalid subnet mask" << std::endl;
-        m_addr = "";
+        m_mask = mask;
     }
 
     m_itf_name = "";

@@ -13,7 +13,7 @@ public:
     static const uint GRP_S  = 4;
 
     IPv6Addr(ifaddrs *ifa);
-    IPv6Addr(std::string ip, std::string mask);
+    IPv6Addr(std::string ip, std::string mask = "");
     ~IPv6Addr() {}
     virtual std::string addr_grp(uint idx) override;
     virtual std::string mask_grp(uint idx) override;
