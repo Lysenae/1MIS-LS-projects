@@ -86,25 +86,3 @@ std::string IPAddr::snmask()
 {
     return m_mask;
 }
-
-StrVect IPAddr::split_addr(std::string s, char delimiter)
-{
-    StrVect v;
-    std::string t = "";
-    for(uint i=0; i<s.size(); ++i)
-    {
-        if(s[i] == delimiter)
-        {
-            v.push_back(t);
-            t = "";
-        }
-        else
-        {
-            t += s[i];
-            if(i == s.size()-1)
-                v.push_back(t);
-        }
-    }
-    return v;
-}
-

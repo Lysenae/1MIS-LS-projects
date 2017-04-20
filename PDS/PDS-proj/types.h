@@ -25,5 +25,7 @@ const uint S_USHORT   = 2;
 std::string str_bytes16(uint16_t t);
 std::string str_bytes8(uchar t);
 uchar str_to_uch(std::string s);
+uchar literal_to_uchr(std::string s);
+StrVect split_addr(std::string s, char delimiter);
 
 #endif // TYPES_H

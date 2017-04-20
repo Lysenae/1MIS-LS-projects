@@ -36,9 +36,9 @@ uint NeighborDiscovery::payload_length() const
 uchar *NeighborDiscovery::serialize()
 {
     uchar *buff    = new uchar[pktlen()];
-    uchar *ehdr    = eth_header(EthDest::BCv6);
+    uchar *ehdr    = eth_header(m_dst_hwa == nullptr ? EthDest::BCv6 : EthDest::UC);
     uchar *ihdr    = ipv6_hdr();
-    uchar *icmphdr = serialize_echo();
+    uchar *icmphdr = icmp_body();
     memset(buff, 0, pktlen());
     for(uint i=0; i<ETH_HDR_LEN; ++i)
         buff[i] = ehdr[i];
@@ -84,6 +84,17 @@ uchar *NeighborDiscovery::ipv6_hdr()
         hdr[8 + i + IPv6Addr::BYTES] = dst_ip_u[i];
     }
     return hdr;
+}
+
+uchar *NeighborDiscovery::icmp_body()
+{
+    switch(m_type)
+    {
+        case NDType::NS: return serialize_ns();
+        case NDType::NA: return serialize_na();
+        case NDType::EchoP: return serialize_echo();
+        default: return nullptr;
+    }
 }
 
 uchar *NeighborDiscovery::serialize_ns()

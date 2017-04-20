@@ -20,6 +20,20 @@ MACAddr::MACAddr(UchrVect oct)
     }
 }
 
+MACAddr::MACAddr(std::string mac)
+{
+    StrVect octs = split_addr(mac, ':');
+    for(std::string o : octs)
+        std::cout << o << std::endl;
+    if(octs.size() == OCTETS)
+    {
+        for(uint i=0; i<OCTETS; ++i)
+        {
+            m_mac[i] = literal_to_uchr(octs[i]);
+        }
+    }
+}
+
 std::string MACAddr::to_string() const
 {
     char buffer[20];

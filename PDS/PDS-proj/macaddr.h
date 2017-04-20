@@ -17,6 +17,7 @@ public:
 
     MACAddr(ifreq *ifr);
     MACAddr(UchrVect oct);
+    MACAddr(std::string mac);
     std::string to_string() const;
     uchar octet(uint idx);
     bool eq(MACAddr *other);

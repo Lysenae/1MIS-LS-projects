@@ -130,13 +130,3 @@ std::string IPv6Addr::get_group(std::string ins, uint idx)
     }
     return s;
 }
-
-uchar IPv6Addr::literal_to_uchr(std::string s)
-{
-    if(s.size() <= 2)
-    {
-        long r = strtol(s.c_str(), nullptr, 16);
-        return (uchar) r;
-    }
-    return 0x00;
-}

@@ -48,6 +48,7 @@ private:
     uchar     m_echo_id[2];
 
     uchar *ipv6_hdr();
+    uchar *icmp_body();
     uchar *serialize_ns();
     uchar *serialize_na();
     uchar *serialize_echo();

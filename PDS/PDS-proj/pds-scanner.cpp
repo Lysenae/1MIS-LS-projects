@@ -61,6 +61,11 @@ int main(int argc, char *argv[])
     MACAddr    *tm         = nullptr;
     uchar buf[ArpPkt::BUFF_LEN];
 
+    for(IPv6Addr *a : loc_ipv6s)
+    {
+        std::cout << "IPV6: " << a->addr() << endl;
+    }
+
     Socket s4(PF_PACKET, SOCK_RAW, htons(ETH_P_ARP));
     if(s4.open() != SocketStatus::OPENED)
     {
@@ -106,12 +111,12 @@ int main(int argc, char *argv[])
         return OP_FAIL;
     }
 
-    NeighborDiscovery *ns  = new NeighborDiscovery(NDType::EchoP, loc_ipv6s[2], loc_mac);
-    sockaddr_ll  saddr_v6  = ns->sock_addr(netitf->index());
-    ns->set_dst_ip(new IPv6Addr("ff02::1"));
-    uchar *nsu = ns->serialize();
+    NeighborDiscovery *nde  = new NeighborDiscovery(NDType::EchoP, loc_ipv6s[2], loc_mac);
+    sockaddr_ll  saddr_v6  = nde->sock_addr(netitf->index());
+    nde->set_dst_ip(new IPv6Addr("ff02::1"));
+    uchar *nsu = nde->serialize();
     cout << "Sending solicit from:" << loc_ipv6s[2]->addr() << endl;
-    s6.send_to(nsu, ns->pktlen(), 0, (sockaddr*)&saddr_v6, sizeof(saddr_v6));
+    //s6.send_to(nsu, nde->pktlen(), 0, (sockaddr*)&saddr_v6, sizeof(saddr_v6));
     uchar *buf_v6   = new uchar[500];
     uint cnt        = 0;
     uint keys       = h.keys().size();
@@ -120,6 +125,7 @@ int main(int argc, char *argv[])
     int pl;
     while(true)
     {
+        break;
         if(!search || keys == 0 || cnt == 50)
             break;
         rcvd = s6.recv_from(buf_v6, 500, 0, nullptr, nullptr);
@@ -153,9 +159,24 @@ int main(int argc, char *argv[])
         }
         cnt++;
     }
-    s6.close();
+
     h.print();
 
+    NeighborDiscovery *nds  = new NeighborDiscovery(NDType::NS, loc_ipv6s[1], loc_mac);
+    nds->set_dst_ip(new IPv6Addr("::"));
+    StrVect macs = h.keys();
+    nsu = nds->serialize();
+    for(std::string m : macs)
+    {
+        cout << "NDS: '" << m << "'" << endl;
+        nds->set_dst_hwa(new MACAddr(m));
+        s6.send_to(nsu, nde->pktlen(), 0, (sockaddr*)&saddr_v6, sizeof(saddr_v6));
+    }
+    h.print();
+    s6.close();
+
+    delete nds;
+    delete nde;
     delete netitf;
     delete loc_ipv4;
     delete loc_mac;

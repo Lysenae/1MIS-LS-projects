@@ -32,7 +32,7 @@ protected:
     std::string m_addr;
     std::string m_mask;
 
-    StrVect split_addr(std::string s, char delimiter);
+
     virtual std::string get_group(std::string ins, uint idx) = 0;
 };
 

@@ -27,7 +27,6 @@ bool Hash::has_key(std::string key)
     StrVect ks = keys();
     for(std::string k : ks)
     {
-        std::cout << key << " <=> " << k << std::endl;
         if(k == key)
             return true;
     }
