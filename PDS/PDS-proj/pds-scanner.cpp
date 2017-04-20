@@ -1,6 +1,7 @@
 #include <csignal>
 
 #include "types.h"
+#include "hash.h"
 #include "netitf.h"
 #include "arppkt.h"
 #include "socket.h"
@@ -114,21 +115,25 @@ int main(int argc, char *argv[])
     {
         if(!search)
             break;
-        if(cnt == 10)
+        if(cnt == 25)
             break; // Pocet neecho ping reply paketov za sebou prekrocil hranicu
-        cout << "Counter: " << cnt << endl;
         rcvd = s6.recv_from(buf_v6, 500, 0, nullptr, nullptr);
-        cout << "RECVD: " << rcvd << endl;
         plb[0] = buf_v6[18];
         plb[1] = buf_v6[19];
         memcpy(&pl, plb, S_USHORT);
         pl = ntohs(pl);
-        cout << "PL:" << pl << endl;
         if(pl == 24)
         {
             if(buf_v6[54] == 0x81)
             {
-                cout << "Echo Reply" << endl;
+                cnt = 0;
+                continue;
+            }
+        }
+        else if(pl == 32)
+        {
+            if(buf_v6[54] == 0x87)
+            {
                 cnt = 0;
                 continue;
             }

@@ -9,6 +9,7 @@ CXX=g++
 PROG1=pds-scanner
 FILES1= \
 	types.o \
+	hash.o \
 	socket.o \
 	macaddr.o \
 	ipaddr.o \
@@ -24,6 +25,9 @@ all: $(PROG1)
 
 types.o: types.cpp
 	$(CXX) $(CXXFLAGS) -c types.cpp
+
+hash.o: hash.cpp
+	$(CXX) $(CXXFLAGS) -c hash.cpp
 
 socket.o: socket.cpp
 	$(CXX) $(CXXFLAGS) -c socket.cpp

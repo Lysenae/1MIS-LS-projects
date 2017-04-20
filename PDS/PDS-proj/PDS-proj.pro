@@ -14,7 +14,8 @@ SOURCES += \
     netitf.cpp \
     types.cpp \
     neighbordiscovery.cpp \
-    packet.cpp
+    packet.cpp \
+    hash.cpp
 
 HEADERS += \
     arppkt.h \
@@ -26,7 +27,8 @@ HEADERS += \
     macaddr.h \
     netitf.h \
     neighbordiscovery.h \
-    packet.h
+    packet.h \
+    hash.h
 
 DISTFILES += \
     Makefile
