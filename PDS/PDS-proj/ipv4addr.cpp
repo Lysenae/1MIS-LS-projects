@@ -166,12 +166,14 @@ StrVect IPv4Addr::expand_ips(StrVect ips, int max, int base, int octet)
 
 StrVect IPv4Addr::remove_bc_net(StrVect ips)
 {
+    std::string net = ips[0];
+    std::string rt  = ips[1];
+    std::string bc  = ips[ips.size()-1];
     StrVect v;
-    for(uint i=0; i<ips.size(); ++i)
+    for(std::string ip : ips)
     {
-        if(i == 0 || i == ips.size()-1)
-            continue;
-        v.push_back(ips[i]);
+        if(ip != net && ip != rt && ip != bc)
+            v.push_back(ip);
     }
     return v;
 }

@@ -12,7 +12,7 @@ bool search = true;
 
 void on_sigint(int signum)
 {
-    cout << "SIGINT(" << signum << ") detected" << endl;
+    cout << " SIGINT(" << signum << ") detected" << endl;
     search = false;
 }
 
