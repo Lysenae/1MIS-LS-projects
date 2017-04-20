@@ -1,18 +1,20 @@
 #include "neighbordiscovery.h"
 
-NeighborDiscovery::NeighborDiscovery(NDType ndp, IPv6Addr *ip, MACAddr *mac)
+NeighborDiscovery::NeighborDiscovery(NDType ndp, IPv6Addr *ip, MACAddr *mac) :
+    Packet(mac)
 {
-    m_type    = ndp;
-    m_src_ip  = ip;
-    m_src_mac = mac;
+    m_type     = ndp;
+    m_src_ip   = ip;
+    m_eth_prot = htons(ETH_P_IPV6);
     checksum();
 }
 
 uchar *NeighborDiscovery::serialize()
 {
-    //uchar *buff = new uchar[LEN];
+    uint len    = m_type == NDType::NS ? ICMPV6_NS_LEN : ICMPV6_NA_LEN;
+    uchar *buff = new uchar[len];
     // Create Ethernet Header
-    return 0x00;
+    return buff;
 }
 
 uint16_t NeighborDiscovery::checksum()
@@ -70,4 +72,14 @@ uint16_t NeighborDiscovery::checksum()
     memcpy(t, &checksum, 2);
     sprintf(buffer, "%02X %02X", t[0],t[1]);
     return checksum;
+}
+
+uchar *NeighborDiscovery::serialize_ns()
+{
+    return nullptr;
+}
+
+uchar *NeighborDiscovery::serialize_na()
+{
+    return nullptr;
 }

@@ -77,7 +77,7 @@ sockaddr_ll ArpPkt::sock_addr(int if_idx)
 uchar *ArpPkt::serialize()
 {
     uchar *buff = new uchar[BUFF_LEN];
-    uchar *ehdr = eth_header(EthDest::BC);
+    uchar *ehdr = eth_header(EthDest::BCv4);
     memset(buff, 0, BUFF_LEN);
     for(uint i=0; i<ETH_HDR_LEN; ++i)
         buff[i] = ehdr[i];

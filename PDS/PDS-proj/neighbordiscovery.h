@@ -4,16 +4,12 @@
 #include <netinet/ip6.h>
 
 #include "ipv6addr.h"
-#include "macaddr.h"
-#include "types.h"
-
+#include "packet.h"
 
 /// \enum NDType
 /// \brief definuje typ Neighbor Discovery paketu
-/// \var NDType::NS
-/// je Neighbor Solicitation paket
-/// \var NDType::NA
-/// je Neighbor Advertisiment paket
+/// \var NDType::NS je Neighbor Solicitation paket
+/// \var NDType::NA je Neighbor Advertisiment paket
 enum class NDType
 {
     NS,
@@ -23,7 +19,7 @@ enum class NDType
 ///
 /// \brief Trieda NeighborDiscovery
 ///
-class NeighborDiscovery
+class NeighborDiscovery : public Packet
 {
 public:
     static const uint LEN = 86;
@@ -35,11 +31,14 @@ public:
 private:
     static const uint  ETH_HDR_LEN   = 14;
     static const uchar ICMPV6_NS_LEN = 32;
+    static const uchar ICMPV6_NA_LEN = 32;
     static const uchar ICMPV6_TYPE   = 58;
 
     NDType    m_type;
     IPv6Addr *m_src_ip;
-    MACAddr  *m_src_mac;
+
+    uchar *serialize_ns();
+    uchar *serialize_na();
 };
 
 #endif // NEIGHBORSOLIC_H
