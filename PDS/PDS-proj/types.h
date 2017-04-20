@@ -23,6 +23,7 @@ const uint S_UCHAR    = 1;
 const uint S_USHORT   = 2;
 
 std::string str_bytes16(uint16_t t);
+std::string str_bytes8(uchar t);
 uchar str_to_uch(std::string s);
 
 #endif // TYPES_H

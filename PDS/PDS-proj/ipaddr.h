@@ -6,9 +6,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include <iostream>
-#include <cstring>
-
 #include "types.h"
 
 enum class IPVer

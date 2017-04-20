@@ -173,7 +173,9 @@ StrVect IPv4Addr::remove_bc_net(StrVect ips)
     for(std::string ip : ips)
     {
         if(ip != net && ip != rt && ip != bc)
+        {
             v.push_back(ip);
+        }
     }
     return v;
 }

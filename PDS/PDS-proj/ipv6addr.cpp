@@ -1,10 +1,11 @@
 #include "ipv6addr.h"
 
 IPv6Addr::IPv6Addr(ifaddrs *ifa) : IPAddr(IPVer::IPV6, ifa) {}
+
 IPv6Addr::IPv6Addr(std::string ip, std::string mask) :
 IPAddr(IPVer::IPV6, ip, mask)
 {
-    if(mask_n() == OP_FAIL)
+    if(mask != "" && mask_n() == OP_FAIL)
         std::cerr << "IPv6Addr Constructor: Invalid subnet mask format\n";
 }
 
@@ -91,6 +92,14 @@ in6_addr IPv6Addr::addr_struct() const
     sockaddr_in6 sa6;
     inet_pton(AF_INET6, m_addr.c_str(), &(sa6.sin6_addr));
     return sa6.sin6_addr;
+}
+
+bool IPv6Addr::is_ll()
+{
+    std::string fg = addr_grp(IPv6Addr::BLOCKS-1);
+    if(fg == "FE80" || fg == "fe80" || fg == "Fe80" || fg == "fE80")
+        return true;
+    return false;
 }
 
 std::string IPv6Addr::get_group(std::string ins, uint idx)

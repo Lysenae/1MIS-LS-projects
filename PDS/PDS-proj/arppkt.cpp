@@ -139,6 +139,7 @@ MACAddr *ArpPkt::parse_src_mac(uchar *pkt, int len, IPv4Addr **ip)
             }
             if(ips != "")
                 *ip = new IPv4Addr(ips);
+            (void)ip;
         }
     }
     return new MACAddr(mac);

@@ -9,8 +9,10 @@
 class IPv6Addr : public IPAddr
 {
 public:
-    static const uint BLOCKS = 8;
-    static const uint GRP_S  = 4;
+    static const uint BYTES    = 16;
+    static const uint BLOCKS   = 8;
+    static const uint GRP_S    = 4;
+    static const uint HDRS_LEN = 54;
 
     IPv6Addr(ifaddrs *ifa);
     IPv6Addr(std::string ip, std::string mask = "");
@@ -20,6 +22,7 @@ public:
     virtual int mask_n() override;
     UchrVect to_uchar();
     in6_addr addr_struct() const;
+    bool is_ll();
 
 private:
     virtual std::string get_group(std::string ins, uint idx) override;

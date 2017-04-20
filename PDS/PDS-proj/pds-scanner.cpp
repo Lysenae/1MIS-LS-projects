@@ -55,15 +55,15 @@ int main(int argc, char *argv[])
     StrVect      v4s       = loc_ipv4->net_host_ips();
     IPv4Addr    *v4another = nullptr;
     ArpPkt      *apkt      = new ArpPkt(loc_ipv4, loc_mac);
-    sockaddr_ll  saddr     = apkt->sock_addr(netitf->index());
+    sockaddr_ll  saddr_v4  = apkt->sock_addr(netitf->index());
     MACAddr    *tm         = nullptr;
     uchar buf[ArpPkt::BUFF_LEN];
 
-    Socket s(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
-    if(s.open() != SocketStatus::OPENED)
+    Socket s4(PF_PACKET, SOCK_RAW, htons(ETH_P_ARP));
+    if(s4.open() != SocketStatus::OPENED)
     {
-        cerr << "pds-scanner: Failed to open socket" << endl;
-        return -1;
+        cerr << "pds-scanner: Failed to open socket for ARP packets" << endl;
+        return OP_FAIL;
     }
 
     int rcvd;
@@ -75,10 +75,10 @@ int main(int argc, char *argv[])
         memset(buf, 0, ArpPkt::BUFF_LEN);
         v4another = new IPv4Addr(ip, loc_ipv4->snmask());
         apkt->set_dst_ip_addr(v4another);
-        s.send_to(apkt->serialize(), ArpPkt::LEN, 0, (sockaddr*)&saddr,
-            sizeof(saddr));
+        s4.send_to(apkt->serialize(), ArpPkt::LEN, 0, (sockaddr*)&saddr_v4,
+            sizeof(saddr_v4));
 
-        rcvd = s.recv_from(buf, ArpPkt::BUFF_LEN-1, 0, nullptr, nullptr);
+        rcvd = s4.recv_from(buf, ArpPkt::BUFF_LEN-1, 0, nullptr, nullptr);
         IPv4Addr *ipa  = nullptr;
         tm = apkt->parse_src_mac(buf, rcvd, &ipa);
         if(!tm->eq(loc_mac) && !tm->empty() && ipa != nullptr)
@@ -90,10 +90,51 @@ int main(int argc, char *argv[])
         v4another = nullptr;
     }
     cout << "Searching for IPv4 hosts copmleted" << endl;
+    s4.close();
+    search = true;
 
-    NeighborDiscovery *ns = new NeighborDiscovery(NDType::NS, loc_ipv6s[0], loc_mac);
-    uint16_t checksum = ns->checksum();
-    cout << "Checksum: " << checksum << " (" << str_bytes16(checksum) << ")" << endl;
+    Socket s6(PF_PACKET, SOCK_RAW, htons(ETH_P_IPV6));
+    if(s6.open() != SocketStatus::OPENED)
+    {
+        cerr << "pds-scanner: Failed to open socket for ARP packets" << endl;
+        return OP_FAIL;
+    }
+
+    NeighborDiscovery *ns  = new NeighborDiscovery(NDType::EchoP, loc_ipv6s[2], loc_mac);
+    sockaddr_ll  saddr_v6  = ns->sock_addr(netitf->index());
+    ns->set_dst_ip(new IPv6Addr("ff02::1"));
+    uchar *nsu = ns->serialize();
+    cout << "Sending solicit from:" << loc_ipv6s[2]->addr() << endl;
+    s6.send_to(nsu, ns->pktlen(), 0, (sockaddr*)&saddr_v6, sizeof(saddr_v6));
+    uchar *buf_v6 = new uchar[500];
+    uint16_t pl;
+    uchar plb[2];
+    uint cnt = 0;
+    while(true)
+    {
+        if(!search)
+            break;
+        if(cnt == 10)
+            break; // Pocet neecho ping reply paketov za sebou prekrocil hranicu
+        cout << "Counter: " << cnt << endl;
+        rcvd = s6.recv_from(buf_v6, 500, 0, nullptr, nullptr);
+        cout << "RECVD: " << rcvd << endl;
+        plb[0] = buf_v6[18];
+        plb[1] = buf_v6[19];
+        memcpy(&pl, plb, S_USHORT);
+        pl = ntohs(pl);
+        cout << "PL:" << pl << endl;
+        if(pl == 24)
+        {
+            if(buf_v6[54] == 0x81)
+            {
+                cout << "Echo Reply" << endl;
+                cnt = 0;
+                continue;
+            }
+        }
+        cnt++;
+    }
 
     delete netitf;
     delete loc_ipv4;

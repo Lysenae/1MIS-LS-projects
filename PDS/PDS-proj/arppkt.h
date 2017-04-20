@@ -2,7 +2,6 @@
 #define ARPPKT_H
 
 #include <arpa/inet.h>
-#include <linux/if_packet.h>
 
 #include "packet.h"
 #include "types.h"
@@ -22,7 +21,7 @@ public:
     void set_dst_ip_addr(uint octet, uchar value);
     void set_dst_ip_addr(uint octet, std::string value);
     void set_dst_ip_addr(IPv4Addr *ipv4);
-    sockaddr_ll sock_addr(int if_idx);
+    virtual sockaddr_ll sock_addr(int if_idx) override;
     uchar *serialize();
     MACAddr *parse_src_mac(uchar *pkt, int len, IPv4Addr **ip);
 
