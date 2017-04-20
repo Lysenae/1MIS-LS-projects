@@ -14,9 +14,10 @@ FILES1= \
 	ipaddr.o \
 	ipv4addr.o \
 	ipv6addr.o \
-	neighbordiscovery.o \
 	netitf.o \
+	packet.o \
 	arppkt.o \
+	neighbordiscovery.o \
 	pds-scanner.o
 
 all: $(PROG1)
@@ -39,14 +40,17 @@ ipv4addr.o: ipv4addr.cpp
 ipv6addr.o: ipv6addr.cpp
 	$(CXX) $(CXXFLAGS) -c ipv6addr.cpp
 
-neighbordiscovery.o: neighbordiscovery.cpp
-	$(CXX) $(CXXFLAGS) -c neighbordiscovery.cpp
-
 netitf.o: netitf.cpp
 	$(CXX) $(CXXFLAGS) -c netitf.cpp
 
+packet.o: packet.cpp
+	$(CXX) $(CXXFLAGS) -c packet.cpp
+
 arppkt.o: arppkt.cpp
 	$(CXX) $(CXXFLAGS) -c arppkt.cpp
+
+neighbordiscovery.o: neighbordiscovery.cpp
+	$(CXX) $(CXXFLAGS) -c neighbordiscovery.cpp
 
 pds-scanner.o: pds-scanner.cpp
 	$(CXX) $(CXXFLAGS) -c pds-scanner.cpp

@@ -33,9 +33,9 @@ public:
     uint16_t checksum();
 
 private:
-    static const uint  ETH_HDR_LEN  = 14;
-    static const uchar ICMPV6_NS_L  = 32;
-    static const uchar ICMPV6_HDN   = 58;
+    static const uint  ETH_HDR_LEN   = 14;
+    static const uchar ICMPV6_NS_LEN = 32;
+    static const uchar ICMPV6_TYPE   = 58;
 
     NDType    m_type;
     IPv6Addr *m_src_ip;

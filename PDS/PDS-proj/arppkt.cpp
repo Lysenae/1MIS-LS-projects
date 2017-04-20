@@ -1,6 +1,6 @@
 #include "arppkt.h"
 
-ArpPkt::ArpPkt(IPv4Addr *ip, MACAddr *mac)
+ArpPkt::ArpPkt(IPv4Addr *ip, MACAddr *mac) : Packet(mac)
 {
     m_hw_t      = htons(ETH_HW_TYPE);
     m_prot_t    = htons(ETH_P_IP);
@@ -9,11 +9,6 @@ ArpPkt::ArpPkt(IPv4Addr *ip, MACAddr *mac)
     m_prot_addl = (uchar) IPv4Addr::OCTETS;
     m_eth_prot  = htons(ETH_P_ARP);
 
-    for(uint i=0; i<MACAddr::OCTETS; ++i)
-    {
-        m_src_hwa[i] = mac->octet(i);
-        m_dst_hwa[i] = 0x00;
-    }
     for(uint i=0; i<IPv4Addr::OCTETS; ++i)
         m_dst_ip[i] = 0;
     set_src_ip_addr(ip);
@@ -75,38 +70,33 @@ sockaddr_ll ArpPkt::sock_addr(int if_idx)
     sock_addr.sll_addr[6]  = 0x00;
     sock_addr.sll_addr[7]  = 0x00;
     for(uint i=0; i<MACAddr::OCTETS; ++i)
-        sock_addr.sll_addr[i] = m_src_hwa[i];
+        sock_addr.sll_addr[i] = m_src_hwa_o[i];
     return sock_addr;
 }
 
 uchar *ArpPkt::serialize()
 {
-    uint o = ETH_HDR_LEN;
     uchar *buff = new uchar[BUFF_LEN];
+    uchar *ehdr = eth_header(EthDest::BC);
     memset(buff, 0, BUFF_LEN);
-    // Serialize Ethernet header
-    for(uint i=0; i<MACAddr::OCTETS; ++i)
-    {
-        buff[i]                   = 0xFF; // Broadcast
-        buff[MACAddr::OCTETS + i] = m_src_hwa[i];
-    }
-    memcpy(buff+2*MACAddr::OCTETS, &m_eth_prot, S_USHORT);
+    for(uint i=0; i<ETH_HDR_LEN; ++i)
+        buff[i] = ehdr[i];
 
     // Serialize ARP header
-    memcpy(buff+offs(Field::HW_TYPE, o),    &m_hw_t,      S_USHORT); // HW type
-    memcpy(buff+offs(Field::PROT_TYPE, o),  &m_prot_t,    S_USHORT); // Protocol type
-    memcpy(buff+offs(Field::HW_ADDLN, o),   &m_hw_addl,   S_UCHAR);  // HW add length
-    memcpy(buff+offs(Field::PROT_ADDLN, o), &m_prot_addl, S_UCHAR);  // Ptcl add ln
-    memcpy(buff+offs(Field::OPCODE, o),     &m_op,        S_USHORT); // Opcode
+    memcpy(buff+offs(ArpField::HW_TYPE),    &m_hw_t,      S_USHORT); // HW type
+    memcpy(buff+offs(ArpField::PROT_TYPE),  &m_prot_t,    S_USHORT); // Protocol type
+    memcpy(buff+offs(ArpField::HW_ADDLN),   &m_hw_addl,   S_UCHAR);  // HW add length
+    memcpy(buff+offs(ArpField::PROT_ADDLN), &m_prot_addl, S_UCHAR);  // Ptcl add ln
+    memcpy(buff+offs(ArpField::OPCODE),     &m_op,        S_USHORT); // Opcode
     for(uint i=0; i<MACAddr::OCTETS; ++i) // Src/Dest HW addr
     {
-        buff[offs(Field::SRC_HWA, o+i)] = m_src_hwa[i];
-        buff[offs(Field::DST_HWA, o+i)] = m_dst_hwa[i];
+        buff[offs(ArpField::SRC_HWA) + i] = m_src_hwa_o[i];
+        buff[offs(ArpField::DST_HWA) + i] = m_dst_hwa_o[i];
     }
     for(uint i=0; i<IPv4Addr::OCTETS; ++i) // Src/Dest IP addr
     {
-        buff[offs(Field::SRC_IPA, o+i)] = m_src_ip[i];
-        buff[offs(Field::DST_IPA, o+i)] = m_dst_ip[i];
+        buff[offs(ArpField::SRC_IPA) + i] = m_src_ip[i];
+        buff[offs(ArpField::DST_IPA) + i] = m_dst_ip[i];
     }
     return buff;
 }
@@ -114,7 +104,7 @@ uchar *ArpPkt::serialize()
 MACAddr *ArpPkt::parse_src_mac(uchar *pkt, int len, IPv4Addr **ip)
 {
     UchrVect mac;
-    if(len > 0 && (uint)len >= offs(Field::SRC_HWA, ETH_HDR_LEN) + MACAddr::OCTETS)
+    if(len > 0 && (uint)len >= offs(ArpField::SRC_HWA) + MACAddr::OCTETS)
     {
         std::string ips = "";
         uint16_t t;
@@ -128,7 +118,7 @@ MACAddr *ArpPkt::parse_src_mac(uchar *pkt, int len, IPv4Addr **ip)
             valid_pkt = true;
             for(uint i=0; i<MACAddr::OCTETS; ++i)
             {
-                if(pkt[i] != m_src_hwa[i])
+                if(pkt[i] != m_src_hwa_o[i])
                 {
                     valid_pkt = false;
                     break;
@@ -138,11 +128,11 @@ MACAddr *ArpPkt::parse_src_mac(uchar *pkt, int len, IPv4Addr **ip)
             if(valid_pkt)
             {
                 for(uint i=0; i<MACAddr::OCTETS; ++i)
-                    mac.push_back(pkt[offs(Field::SRC_HWA, ETH_HDR_LEN) + i]);
+                    mac.push_back(pkt[offs(ArpField::SRC_HWA) + i]);
                 for(uint i=0; i<IPv4Addr::OCTETS; ++i)
                 {
                     ips += std::to_string(
-                        (int)pkt[offs(Field::SRC_IPA, ETH_HDR_LEN) + i]);
+                        (int)pkt[offs(ArpField::SRC_IPA) + i]);
                     if(i < IPv4Addr::OCTETS-1)
                         ips += ".";
                 }
@@ -154,21 +144,21 @@ MACAddr *ArpPkt::parse_src_mac(uchar *pkt, int len, IPv4Addr **ip)
     return new MACAddr(mac);
 }
 
-uint ArpPkt::offs(Field f, uint add_len = 0)
+uint ArpPkt::offs(ArpField f)
 {
     uint o = 0;
     switch(f)
     {
-        case Field::HW_TYPE:    o = 0;  break;
-        case Field::PROT_TYPE:  o = 2;  break;
-        case Field::HW_ADDLN:   o = 4;  break;
-        case Field::PROT_ADDLN: o = 5;  break;
-        case Field::OPCODE:     o = 6;  break;
-        case Field::SRC_HWA:    o = 8;  break;
-        case Field::SRC_IPA:    o = 14; break;
-        case Field::DST_HWA:    o = 18; break;
-        case Field::DST_IPA:    o = 24; break;
+        case ArpField::HW_TYPE:    o = 0;  break;
+        case ArpField::PROT_TYPE:  o = 2;  break;
+        case ArpField::HW_ADDLN:   o = 4;  break;
+        case ArpField::PROT_ADDLN: o = 5;  break;
+        case ArpField::OPCODE:     o = 6;  break;
+        case ArpField::SRC_HWA:    o = 8;  break;
+        case ArpField::SRC_IPA:    o = 14; break;
+        case ArpField::DST_HWA:    o = 18; break;
+        case ArpField::DST_IPA:    o = 24; break;
         default: break;
     }
-    return o + add_len;
+    return o + ETH_HDR_LEN;
 }
