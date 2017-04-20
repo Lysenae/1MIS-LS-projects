@@ -7,12 +7,28 @@
 #include "macaddr.h"
 #include "types.h"
 
-class NeighborSolic
+
+/// \enum NDType
+/// \brief definuje typ Neighbor Discovery paketu
+/// \var NDType::NS
+/// je Neighbor Solicitation paket
+/// \var NDType::NA
+/// je Neighbor Advertisiment paket
+enum class NDType
+{
+    NS,
+    NA
+};
+
+///
+/// \brief Trieda NeighborDiscovery
+///
+class NeighborDiscovery
 {
 public:
     static const uint LEN = 86;
 
-    NeighborSolic(IPv6Addr *ip, MACAddr *mac);
+    NeighborDiscovery(NDType ndp, IPv6Addr *ip, MACAddr *mac);
     uchar *serialize();
     uint16_t checksum();
 
@@ -21,6 +37,7 @@ private:
     static const uchar ICMPV6_NS_L  = 32;
     static const uchar ICMPV6_HDN   = 58;
 
+    NDType    m_type;
     IPv6Addr *m_src_ip;
     MACAddr  *m_src_mac;
 };

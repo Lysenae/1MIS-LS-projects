@@ -4,7 +4,7 @@
 #include "netitf.h"
 #include "arppkt.h"
 #include "socket.h"
-#include "neighborsolic.h"
+#include "neighbordiscovery.h"
 
 using namespace std;
 
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     }
     cout << "Searching for IPv4 hosts copmleted" << endl;
 
-    NeighborSolic *ns = new NeighborSolic(loc_ipv6s[0], loc_mac);
+    NeighborDiscovery *ns = new NeighborDiscovery(NDType::NS, loc_ipv6s[0], loc_mac);
     uint16_t checksum = ns->checksum();
     cout << "Checksum: " << checksum << " (" << str_bytes16(checksum) << ")" << endl;
 
