@@ -1,3 +1,5 @@
+#include <csignal>
+
 #include "types.h"
 #include "netitf.h"
 #include "arppkt.h"
@@ -5,6 +7,15 @@
 #include "neighborsolic.h"
 
 using namespace std;
+
+bool search = true;
+
+void on_sigint(int signum)
+{
+    cout << "SIGINT(" << signum << ") detected" << endl;
+    search = false;
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -35,6 +46,8 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
+    signal(SIGINT, on_sigint);
+
     NetItf      *netitf    = new NetItf(interface);
     MACAddr     *loc_mac   = netitf->mac();
     IPv4Addr    *loc_ipv4  = netitf->ipv4();
@@ -57,6 +70,8 @@ int main(int argc, char *argv[])
     cout << "Searching for IPv4 hosts" << endl;
     for(std::string ip : v4s)
     {
+        if(!search)
+            break;
         memset(buf, 0, ArpPkt::BUFF_LEN);
         v4another = new IPv4Addr(ip, loc_ipv4->snmask());
         apkt->set_dst_ip_addr(v4another);
