@@ -19,7 +19,7 @@ uint16_t NeighborDiscovery::checksum()
 {
     IPv6Addr *src_ip = new IPv6Addr("fe80::3305:34c7:8b78:6f6d", "FFFF:FFFF:FFFF:FFFF::");
     IPv6Addr *dst_ip = new IPv6Addr("fe80::bf3c:dbad:db55:f6e1", "FFFF:FFFF:FFFF:FFFF::");
-    /*uchar icmp[ICMPV6_NS_L] = {
+    uchar icmp[ICMPV6_NS_L] = {
         0x87,
         0x00,
         0x00, 0x00,
@@ -28,7 +28,7 @@ uint16_t NeighborDiscovery::checksum()
         0x01,
         0x01,
         0xDC, 0x4A, 0x3E, 0xDB, 0x43, 0x99
-    };*/
+    };
 
     uint16_t tmp16;
     uchar    tmp[2];

@@ -14,7 +14,7 @@ FILES1= \
 	ipaddr.o \
 	ipv4addr.o \
 	ipv6addr.o \
-	neighborsolic.o \
+	neighbordiscovery.o \
 	netitf.o \
 	arppkt.o \
 	pds-scanner.o
@@ -39,8 +39,8 @@ ipv4addr.o: ipv4addr.cpp
 ipv6addr.o: ipv6addr.cpp
 	$(CXX) $(CXXFLAGS) -c ipv6addr.cpp
 
-neighborsolic.o: neighborsolic.cpp
-	$(CXX) $(CXXFLAGS) -c neighborsolic.cpp
+neighbordiscovery.o: neighbordiscovery.cpp
+	$(CXX) $(CXXFLAGS) -c neighbordiscovery.cpp
 
 netitf.o: netitf.cpp
 	$(CXX) $(CXXFLAGS) -c netitf.cpp
