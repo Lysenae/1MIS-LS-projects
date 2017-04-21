@@ -89,3 +89,8 @@ std::string IPAddr::snmask()
 {
     return m_mask;
 }
+
+bool IPAddr::empty()
+{
+    return m_addr == "";
+}

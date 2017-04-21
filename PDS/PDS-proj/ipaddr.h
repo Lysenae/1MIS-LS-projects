@@ -38,6 +38,7 @@ public:
     virtual int mask_n() = 0;
     virtual std::string addr_grp(uint idx) = 0;
     virtual std::string mask_grp(uint idx) = 0;
+    bool empty();
 
 protected:
     std::string m_itf_name;

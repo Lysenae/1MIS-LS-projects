@@ -72,10 +72,7 @@ MACAddr *NetItf::mac()
         return nullptr;
     init_ifr();
     if(ioctl(m_sock->fd(), SIOCGIFHWADDR, m_ifr) == OP_FAIL)
-    {
-        perror("NetItf::mac()");
         return nullptr;
-    }
     MACAddr *m = new MACAddr(m_ifr);
     free_ifr();
     return m;
@@ -89,10 +86,7 @@ int NetItf::index()
         return OP_FAIL;
     init_ifr();
     if(ioctl(m_sock->fd(), SIOCGIFINDEX, m_ifr) == OP_FAIL)
-    {
-        perror("NetItf::index()");
         return OP_FAIL;
-    }
     m_sock->close();
     idx = m_ifr->ifr_ifindex;
     free_ifr();

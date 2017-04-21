@@ -80,9 +80,38 @@ int main(int argc, char *argv[])
             loc_ipv6_gl = a;
     }
 
-    cout << "Searching for IPv4 hosts" << endl;
-    result = search_ipv4_hosts(loc_ipv4, loc_mac, ifn, &hosts);
-    cout << "Searching for IPv4 hosts copmleted" << endl;
+    if(ifn < 0)
+    {
+        cerr << "Failed to get netinterface ID" << endl;
+        result = false;
+    }
+    if(loc_mac == nullptr || loc_mac->empty())
+    {
+        cerr << "Failed to get local MAC address" << endl;
+        result = false;
+    }
+    if(loc_ipv4 == nullptr || loc_ipv4->empty())
+    {
+        cerr << "Failed to get local IPv4 address" << endl;
+        result = false;
+    }
+    if(loc_ipv6_ll == nullptr || loc_ipv6_ll->empty())
+    {
+        cerr << "Failed to get Link-Local IPv6 address" << endl;
+        result = false;
+    }
+    if(loc_ipv6_gl == nullptr || loc_ipv6_gl->empty())
+    {
+        cerr << "Failed to get global scope IPv6 address" << endl;
+        result = false;
+    }
+
+    if(result && search)
+    {
+        cout << "Searching for IPv4 hosts" << endl;
+        result = search_ipv4_hosts(loc_ipv4, loc_mac, ifn, &hosts);
+        cout << "Searching for IPv4 hosts copmleted" << endl;
+    }
 
     if(result && search)
     {
