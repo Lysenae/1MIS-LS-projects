@@ -14,12 +14,10 @@ using namespace std;
 
 bool search = true;
 
-void on_sigint(int signum)
-{
-    cout << " SIGINT(" << signum << ") detected" << endl;
-    search = false;
-}
-
+void on_sigint(int signum);
+bool search_ipv4_hosts(IPv4Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts);
+bool search_ipv6_hosts(IPv6Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts);
+void writeHosts(Hash *hosts);
 
 int main(int argc, char *argv[])
 {
@@ -52,58 +50,105 @@ int main(int argc, char *argv[])
 
     signal(SIGINT, on_sigint);
 
-    Hash h;
+    bool result;
+    Hash hosts;
     NetItf      *netitf      = new NetItf(interface);
     MACAddr     *loc_mac     = netitf->mac();
     IPv4Addr    *loc_ipv4    = netitf->ipv4();
     IPv6Vect     loc_ipv6s   = netitf->ipv6();
     IPv6Addr    *loc_ipv6_ll = nullptr;
     IPv6Addr    *loc_ipv6_gl = nullptr;
-    StrVect      v4s         = loc_ipv4->net_host_ips();
-    IPv4Addr    *v4another   = nullptr;
-    ArpPkt      *apkt        = new ArpPkt(ArpType::Request, loc_ipv4, loc_mac);
-    sockaddr_ll  saddr_v4    = apkt->sock_addr(netitf->index());
-    MACAddr    *tm           = nullptr;
-    uchar buf[ArpPkt::BUFF_LEN];
+    int          ifn         = netitf->index();
 
     for(IPv6Addr *a : loc_ipv6s)
     {
         if(a->is_ll() && loc_ipv6_ll == nullptr)
             loc_ipv6_ll = a;
-        else if(a->is_global() && loc_ipv6_gl == nullptr)
+        if(a->is_global() && loc_ipv6_gl == nullptr)
             loc_ipv6_gl = a;
     }
 
+    cout << "Searching for IPv4 hosts" << endl;
+    result = search_ipv4_hosts(loc_ipv4, loc_mac, ifn, &hosts);
+    cout << "Searching for IPv4 hosts copmleted" << endl;
+
+    search = true; // TODO Remove
+
+    if(result && search)
+    {
+        cout << "Searching for Link-Local IPv6 hosts" << endl;
+        result = search_ipv6_hosts(loc_ipv6_ll, loc_mac, ifn, &hosts);
+        cout << "Searching for Link-Local IPv6 hosts completed" << endl;
+    }
+
+    if(result && search)
+    {
+        cout << "Searching for Global IPv6 hosts" << endl;
+        result = search_ipv6_hosts(loc_ipv6_gl, loc_mac, ifn, &hosts);
+        cout << "Searching for Global IPv6 hosts completed" << endl;
+    }
+
+    if(result)
+        writeHosts(Hash &hosts);
+
+    delete netitf;
+    delete loc_ipv4;
+    delete loc_mac;
+    for(IPv6Addr *a : loc_ipv6s)
+    {
+        delete a;
+        a = nullptr;
+    }
+    loc_ipv6s.clear();
+    return 0;
+}
+
+void on_sigint(int signum)
+{
+    cout << " SIGINT(" << signum << ") detected" << endl;
+    search = false;
+}
+
+bool search_ipv4_hosts(IPv4Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts)
+{
     Socket s4(PF_PACKET, SOCK_RAW, htons(ETH_P_ARP));
     if(s4.open() != SocketStatus::Opened)
     {
         cerr << "pds-scanner: Failed to open socket for ARP packets" << endl;
-        return OP_FAIL;
+        return false;
     }
 
+    StrVect      v4s       = loc_ip->net_host_ips();
+    IPv4Addr    *v4another = nullptr;
+    ArpPkt      *apkt      = new ArpPkt(ArpType::Request, loc_ip, loc_mac);
+    sockaddr_ll  saddr_v4  = apkt->sock_addr(ifn);
+    MACAddr     *tm        = nullptr;
+    IPv4Addr    *ipa       = nullptr;
+    uchar        buf[ArpPkt::BUFF_LEN];
+
+    cout << "Possible " << v4s.size() << " hosts" << endl;
+
     int rcvd;
-    cout << "Searching for IPv4 hosts" << endl;
-    for(uint rpt=1; rpt<2; ++rpt)
+    for(uint rpt=1; rpt<=2; ++rpt)
     {
         cout << "Cycle " << rpt << "/2" << endl;
         for(std::string ip : v4s)
         {
+            //cout << "IP: " << ip << endl;
             if(!search)
                 break;
             memset(buf, 0, ArpPkt::BUFF_LEN);
-            v4another = new IPv4Addr(ip, loc_ipv4->snmask());
+            v4another = new IPv4Addr(ip, loc_ip->snmask());
             apkt->set_dst_ip_addr(v4another);
             s4.send_to(apkt->serialize(), ArpPkt::LEN, 0, (sockaddr*)&saddr_v4,
                 sizeof(saddr_v4));
-
             rcvd = s4.recv_from(buf, ArpPkt::BUFF_LEN-1, 0, nullptr, nullptr);
-            IPv4Addr *ipa  = nullptr;
             if(apkt->analyze_pkt(buf, rcvd, &tm, &ipa))
             {
                 if(!tm->eq(loc_mac) && !tm->empty() && ipa->addr() == ip)
                 {
                     cout << ipa->addr() << " has MAC " << tm->to_string() << endl;
-                    h.add_value(tm->to_string(), ipa->addr());
+                    hosts->add_value(tm->to_string(), ipa->addr());
                 }
             }
 
@@ -113,34 +158,39 @@ int main(int argc, char *argv[])
             v4another = nullptr;
         }
     }
-    cout << "Searching for IPv4 hosts copmleted" << endl;
-    h.print();
+    hosts->print();
     s4.close();
-    search = true; // TODO Remove
+    delete apkt;
+    return true;
+}
 
+bool search_ipv6_hosts(IPv6Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts)
+{
     Socket s6(PF_PACKET, SOCK_RAW, htons(ETH_P_IPV6));
     if(s6.open() != SocketStatus::Opened)
     {
-        cerr << "pds-scanner: Failed to open socket for ARP packets" << endl;
-        return OP_FAIL;
+        cerr << "pds-scanner: Failed to open socket for ICMPv6 packets" << endl;
+        return false;
     }
 
-    IcmpV6Pkt *nde  = new IcmpV6Pkt(IcmpV6Type::Ping, loc_ipv6_ll, loc_mac);
-    sockaddr_ll  saddr_v6  = nde->sock_addr(netitf->index());
-    nde->set_dst_ip(new IPv6Addr("ff02::1"));
-    uchar *nsu = nde->serialize();
-    uchar *buf_v6   = new uchar[500];
-    uint cnt        = 0;
-    uint keys       = h.keys().size();
-    std::string mac = "";
-    std::string ip6 = "";
+    IcmpV6Pkt *ping  = new IcmpV6Pkt(IcmpV6Type::Ping, loc_ip, loc_mac);
+    IPv6Addr *dst    = new IPv6Addr("ff02::1");
+    sockaddr_ll  saddr_v6  = ping->sock_addr(ifn);
+    ping->set_dst_ip(dst);
+    uchar *data      = ping->serialize();
+    uchar *buf_v6    = new uchar[500];
+    uint cnt         = 0;
+    uint keys        = hosts->keys().size();
+    std::string mac  = "";
+    std::string ip6  = "";
 
-    cout << "Searching for IPv6 hosts" << endl;
+    int rcvd;
     for(uint rpt=1; rpt<=2; ++rpt)
     {
         cout << "Cycle: " << rpt << "/2: Sending ping from:" <<
-            loc_ipv6_ll->addr() << endl;
-        s6.send_to(nsu, nde->pktlen(), 0, (sockaddr*)&saddr_v6, sizeof(saddr_v6));
+            loc_ip->addr() << endl;
+        s6.send_to(data, ping->pktlen(), 0, (sockaddr*)&saddr_v6,
+            sizeof(saddr_v6));
 
         int pl;
         while(true)
@@ -148,7 +198,9 @@ int main(int argc, char *argv[])
             if(!search || keys == 0 || cnt == 50)
                 break;
             rcvd = s6.recv_from(buf_v6, 500, 0, nullptr, nullptr);
-            pl   = (int)buf_v6[19];
+            if(rcvd < (int)(Packet::ETH_HDR_LEN + IcmpV6Pkt::IPV6_HDR_LEN))
+                continue; // Nemoze byt IPv6 packet
+            pl = (int)buf_v6[19];
             if(pl == 24 || pl == 32) // Mozno echo reply alebo ns
             {
                 if(buf_v6[54] == 0x81 || buf_v6[54] == 0x87)
@@ -160,14 +212,14 @@ int main(int argc, char *argv[])
                         mac += str_bytes8(buf_v6[i]);
                         mac += (i == 11 ? "" : ":");
                     }
-                    if(h.has_key(mac))
+                    if(hosts->has_key(mac))
                     {
                         for(uint i=22; i<38; ++i)
                         {
                             ip6 += str_bytes8(buf_v6[i]);
                             ip6 += (i < 37 && i % 2 == 1) ? ":" : "";
                         }
-                        h.add_existing(mac, ip6);
+                        hosts->add_existing(mac, ip6);
                         keys--;
                         if(keys == 0)
                             break;
@@ -179,26 +231,15 @@ int main(int argc, char *argv[])
             cnt++;
         }
     }
-    h.print();
-
-    /*IcmpV6Pkt *nds  = new IcmpV6Pkt(IcmpV6Type::NS, loc_ipv6s[1], loc_mac);
-    nds->set_dst_ip(new IPv6Addr("::"));
-    StrVect macs = h.keys();
-    nsu = nds->serialize(false);
-    for(std::string m : macs)
-    {
-        cout << "NDS: '" << m << "'" << endl;
-        nds->set_dst_hwa(new MACAddr(m));
-        s6.send_to(nsu, nde->pktlen(), 0, (sockaddr*)&saddr_v6, sizeof(saddr_v6));
-    }
-    h.print();*/
     s6.close();
+    delete ping;
+    delete dst;
+    delete buf_v6;
+    hosts->print();
+    return true;
+}
 
-    //delete nds;
-    delete nde;
-    delete netitf;
-    delete loc_ipv4;
-    delete loc_mac;
-    delete apkt;
-    return 0;
+void writeHosts(Hash *hosts)
+{
+
 }

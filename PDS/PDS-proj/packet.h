@@ -17,14 +17,15 @@
 class Packet
 {
 public:
+    static const uint  ETH_HDR_LEN = 14;
+    static const uint  ETH_HW_TYPE = 1;
+
     Packet(MACAddr *src_mac);
     virtual ~Packet() {}
     void set_dst_hwa(MACAddr *dst_mac);
     virtual sockaddr_ll sock_addr(int if_idx) = 0;
 
 protected:
-    static const uint  ETH_HDR_LEN = 14;
-    static const uint  ETH_HW_TYPE = 1;
     static const uchar MAC_BCV4[];
     static const uchar MAC_BCV6[];
 

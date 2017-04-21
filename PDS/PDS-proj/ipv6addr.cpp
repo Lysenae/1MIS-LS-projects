@@ -120,10 +120,10 @@ std::string IPv6Addr::get_group(std::string ins, uint idx)
     {
         StrVect grps = split_addr(ins, ':');
         uint nonempty = 0;
-        uint empty    = 0;
+        int empty     = -1;
         for(uint i=0; i<grps.size(); ++i)
         {
-            if( grps[i] != "")
+            if(grps[i] != "")
                 ++nonempty;
             else
                 empty = i;
@@ -131,7 +131,7 @@ std::string IPv6Addr::get_group(std::string ins, uint idx)
         StrVect newgrps;
         for(uint i=0; i<grps.size(); ++i)
         {
-            if(i == empty)
+            if((int)i == empty)
                 for(uint j=0; j<(BLOCKS-nonempty); ++j)
                     newgrps.push_back("0");
             else if(grps[i] != "")
