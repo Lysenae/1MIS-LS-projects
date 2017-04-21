@@ -16,8 +16,8 @@ using namespace std;
 bool do_spoofing = true;
 
 void print_usage();
-bool spoof_arp();
-bool spoof_ndp();
+bool spoof_arp(NetItf *itf, IPv4Addr *ip1, IPv4Addr *ip2, MACAddr *m1, MACAddr *m2);
+bool spoof_ndp(NetItf *itf, IPv6Addr *ip1, IPv6Addr *ip2, MACAddr *m1, MACAddr *m2);
 
 int main(int argc, char **argv)
 {
@@ -163,11 +163,13 @@ int main(int argc, char **argv)
     {
         if(protocol == "arp")
         {
-            spoof_arp();
+            if(!spoof_arp(netitf, v1ip4, v2ip4, v1maca, v2maca))
+                cerr << "ARP spoof failed" << endl;
         }
         else
         {
-            spoof_ndp();
+            if(!spoof_ndp(netitf, v1ip6, v2ip6, v1maca, v2maca))
+                cerr << "NDP spoof failed" << endl;
         }
     }
 
@@ -188,12 +190,24 @@ void print_usage()
         "ipaddress -victim2mac macaddress" << endl;
 }
 
-bool spoof_arp()
+bool spoof_arp(NetItf *itf, IPv4Addr *ip1, IPv4Addr *ip2, MACAddr *m1, MACAddr *m2)
 {
+    cout << "ARP spoof" << endl;
+    (void) itf;
+    (void) ip1;
+    (void) ip2;
+    (void) m1;
+    (void) m2;
     return false;
 }
 
-bool spoof_ndp()
+bool spoof_ndp(NetItf *itf, IPv6Addr *ip1, IPv6Addr *ip2, MACAddr *m1, MACAddr *m2)
 {
+    cout << "NDP spoof" << endl;
+    (void) itf;
+    (void) ip1;
+    (void) ip2;
+    (void) m1;
+    (void) m2;
     return false;
 }
