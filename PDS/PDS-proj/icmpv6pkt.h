@@ -37,7 +37,7 @@ public:
     static const uchar ICMPV6_PING_LEN  = 24;
     static const uchar ICMPV6_PING_TYPE = 0x80;
 
-    IcmpV6Pkt(IcmpV6Type ndp, IPv6Addr *ip, MACAddr *mac);
+    IcmpV6Pkt(IcmpV6Type type, IPv6Addr *ip, MACAddr *mac);
     void set_dst_ip(IPv6Addr *ipv6);
     uint pktlen() const;
     uint payload_length() const;
@@ -45,10 +45,10 @@ public:
     virtual sockaddr_ll sock_addr(int if_idx) override;
 
 private:
-    IcmpV6Type    m_type;
-    IPv6Addr *m_src_ip;
-    IPv6Addr *m_dst_ip;
-    uchar     m_echo_id[2];
+    IcmpV6Type  m_type;
+    IPv6Addr   *m_src_ip;
+    IPv6Addr   *m_dst_ip;
+    uchar       m_echo_id[2];
 
     uchar *ipv6_hdr();
     uchar *icmp_body();

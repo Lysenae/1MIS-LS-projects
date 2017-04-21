@@ -3,10 +3,10 @@
 
 #include "icmpv6pkt.h"
 
-IcmpV6Pkt::IcmpV6Pkt(IcmpV6Type ndp, IPv6Addr *ip, MACAddr *mac) :
+IcmpV6Pkt::IcmpV6Pkt(IcmpV6Type type, IPv6Addr *ip, MACAddr *mac) :
 Packet(mac)
 {
-    m_type       = ndp;
+    m_type       = type;
     m_src_ip     = ip;
     m_dst_ip     = nullptr;
     m_eth_prot   = htons(ETH_P_IPV6);

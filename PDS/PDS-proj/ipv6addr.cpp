@@ -50,7 +50,7 @@ UchrVect IPv6Addr::to_uchar()
     std::string s = "";
     StrVect grps  = split_addr(m_addr, ':');
     uint nonempty = 0;
-    uint empty    = 0;
+    int empty     = -1;
     uint diff     = 0;
     StrVect newgrps;
 
@@ -63,7 +63,7 @@ UchrVect IPv6Addr::to_uchar()
     }
     for(uint i=0; i<grps.size(); ++i)
     {
-        if(i == empty)
+        if((int)i == empty)
             for(uint j=0; j<(BLOCKS-nonempty); ++j)
                 newgrps.push_back("0000");
         else if(grps[i] != "")
