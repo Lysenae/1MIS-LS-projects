@@ -13,9 +13,9 @@ SOURCES += \
     macaddr.cpp \
     netitf.cpp \
     types.cpp \
-    neighbordiscovery.cpp \
     packet.cpp \
-    hash.cpp
+    hash.cpp \
+    icmpv6pkt.cpp
 
 HEADERS += \
     arppkt.h \
@@ -26,9 +26,9 @@ HEADERS += \
     socket.h \
     macaddr.h \
     netitf.h \
-    neighbordiscovery.h \
     packet.h \
-    hash.h
+    hash.h \
+    icmpv6pkt.h
 
 DISTFILES += \
     Makefile

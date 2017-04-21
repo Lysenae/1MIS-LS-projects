@@ -1,5 +1,5 @@
-#ifndef NEIGHBORSOLIC_H
-#define NEIGHBORSOLIC_H
+#ifndef ICMPV6PKT_H
+#define ICMPV6PKT_H
 
 #include <netinet/ip6.h>
 #include <ctime>
@@ -22,7 +22,7 @@ enum class NDType
 ///
 /// \brief Trieda NeighborDiscovery
 ///
-class NeighborDiscovery : public Packet
+class IcmpV6Pkt : public Packet
 {
 public:
     static const uint  IPV6_HDR_LEN   = 40;
@@ -34,7 +34,7 @@ public:
     static const uchar ECHOP_LEN      = 24;
     static const uchar ECHOP_TYPE     = 0x80;
 
-    NeighborDiscovery(NDType ndp, IPv6Addr *ip, MACAddr *mac);
+    IcmpV6Pkt(NDType ndp, IPv6Addr *ip, MACAddr *mac);
     void set_dst_ip(IPv6Addr *ipv6);
     uint pktlen() const;
     uint payload_length() const;
@@ -55,4 +55,4 @@ private:
     uint16_t checksum(uchar *icmp);
 };
 
-#endif // NEIGHBORSOLIC_H
+#endif // ICMPV6PKT_H

@@ -5,7 +5,7 @@
 #include "netitf.h"
 #include "arppkt.h"
 #include "socket.h"
-#include "neighbordiscovery.h"
+#include "icmpv6pkt.h"
 
 using namespace std;
 
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     IPv6Vect     loc_ipv6s = netitf->ipv6();
     StrVect      v4s       = loc_ipv4->net_host_ips();
     IPv4Addr    *v4another = nullptr;
-    ArpPkt      *apkt      = new ArpPkt(loc_ipv4, loc_mac);
+    ArpPkt      *apkt      = new ArpPkt(ArpType::Request, loc_ipv4, loc_mac);
     sockaddr_ll  saddr_v4  = apkt->sock_addr(netitf->index());
     MACAddr    *tm         = nullptr;
     uchar buf[ArpPkt::BUFF_LEN];
@@ -87,11 +87,13 @@ int main(int argc, char *argv[])
 
         rcvd = s4.recv_from(buf, ArpPkt::BUFF_LEN-1, 0, nullptr, nullptr);
         IPv4Addr *ipa  = nullptr;
-        tm = apkt->parse_src_mac(buf, rcvd, &ipa);
-        if(!tm->eq(loc_mac) && !tm->empty() && ipa != nullptr && ipa->addr() == ip)
+        if(apkt->analyze_pkt(buf, rcvd, &tm, &ipa))
         {
-            cout << ipa->addr() << " has MAC " << tm->to_string() << endl;
-            h.add_value(tm->to_string(), ipa->addr());
+            if(!tm->eq(loc_mac) && !tm->empty() && ipa->addr() == ip)
+            {
+                cout << ipa->addr() << " has MAC " << tm->to_string() << endl;
+                h.add_value(tm->to_string(), ipa->addr());
+            }
         }
 
         delete tm;
@@ -102,7 +104,7 @@ int main(int argc, char *argv[])
     cout << "Searching for IPv4 hosts copmleted" << endl;
     h.print();
     s4.close();
-    search = true;
+    search = true; // TODO Remove
 
     Socket s6(PF_PACKET, SOCK_RAW, htons(ETH_P_IPV6));
     if(s6.open() != SocketStatus::OPENED)
@@ -111,7 +113,7 @@ int main(int argc, char *argv[])
         return OP_FAIL;
     }
 
-    NeighborDiscovery *nde  = new NeighborDiscovery(NDType::EchoP, loc_ipv6s[2], loc_mac);
+    IcmpV6Pkt *nde  = new IcmpV6Pkt(NDType::EchoP, loc_ipv6s[2], loc_mac);
     sockaddr_ll  saddr_v6  = nde->sock_addr(netitf->index());
     nde->set_dst_ip(new IPv6Addr("ff02::1"));
     uchar *nsu = nde->serialize();
@@ -162,7 +164,7 @@ int main(int argc, char *argv[])
 
     h.print();
 
-    NeighborDiscovery *nds  = new NeighborDiscovery(NDType::NS, loc_ipv6s[1], loc_mac);
+    IcmpV6Pkt *nds  = new IcmpV6Pkt(NDType::NS, loc_ipv6s[1], loc_mac);
     nds->set_dst_ip(new IPv6Addr("::"));
     StrVect macs = h.keys();
     nsu = nds->serialize();

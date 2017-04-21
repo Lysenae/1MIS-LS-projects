@@ -8,13 +8,21 @@
 #include "ipv4addr.h"
 #include "macaddr.h"
 
+enum class ArpType
+{
+    Request,
+    Response
+};
+
 class ArpPkt : public Packet
 {
 public:
-    static const uint BUFF_LEN = 60;
-    static const uint LEN      = 42;
+    static const uint BUFF_LEN   = 60;
+    static const uint LEN        = 42;
+    static const uchar ARP_REPLY = 0x02;
+    static const uchar ARP_REQ   = 0x01;
 
-    ArpPkt(IPv4Addr *ip, MACAddr *mac);
+    ArpPkt(ArpType t, IPv4Addr *ip, MACAddr *mac);
     void set_src_ip_addr(uint octet, uchar value);
     void set_src_ip_addr(uint octet, std::string value);
     void set_src_ip_addr(IPv4Addr *ipv4);
@@ -23,11 +31,9 @@ public:
     void set_dst_ip_addr(IPv4Addr *ipv4);
     virtual sockaddr_ll sock_addr(int if_idx) override;
     uchar *serialize();
-    MACAddr *parse_src_mac(uchar *pkt, int len, IPv4Addr **ip);
+    bool analyze_pkt(uchar *pkt, int len, MACAddr **mac, IPv4Addr **ip);
 
 private:
-    const uint OC_ARP_REQ         = 0x01;
-
     enum class ArpField
     {
         HW_TYPE,
@@ -41,6 +47,7 @@ private:
         DST_IPA
     };
 
+    ArpType  m_type;
     uint16_t m_hw_t;
     uint16_t m_prot_t;
     uchar    m_hw_addl;

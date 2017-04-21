@@ -1,6 +1,6 @@
-#include "neighbordiscovery.h"
+#include "icmpv6pkt.h"
 
-NeighborDiscovery::NeighborDiscovery(NDType ndp, IPv6Addr *ip, MACAddr *mac) :
+IcmpV6Pkt::IcmpV6Pkt(NDType ndp, IPv6Addr *ip, MACAddr *mac) :
 Packet(mac)
 {
     m_type       = ndp;
@@ -12,17 +12,17 @@ Packet(mac)
     srand(time(nullptr));
 }
 
-void NeighborDiscovery::set_dst_ip(IPv6Addr *ipv6)
+void IcmpV6Pkt::set_dst_ip(IPv6Addr *ipv6)
 {
     m_dst_ip = ipv6;
 }
 
-uint NeighborDiscovery::pktlen() const
+uint IcmpV6Pkt::pktlen() const
 {
     return ETH_HDR_LEN + IPV6_HDR_LEN + payload_length();
 }
 
-uint NeighborDiscovery::payload_length() const
+uint IcmpV6Pkt::payload_length() const
 {
     switch(m_type)
     {
@@ -33,7 +33,7 @@ uint NeighborDiscovery::payload_length() const
     }
 }
 
-uchar *NeighborDiscovery::serialize()
+uchar *IcmpV6Pkt::serialize()
 {
     uchar *buff    = new uchar[pktlen()];
     uchar *ehdr    = eth_header(m_dst_hwa == nullptr ? EthDest::BCv6 : EthDest::UC);
@@ -49,7 +49,7 @@ uchar *NeighborDiscovery::serialize()
     return buff;
 }
 
-sockaddr_ll NeighborDiscovery::sock_addr(int if_idx)
+sockaddr_ll IcmpV6Pkt::sock_addr(int if_idx)
 {
     sockaddr_ll sock_addr;
     sock_addr.sll_family   = AF_PACKET;
@@ -65,7 +65,7 @@ sockaddr_ll NeighborDiscovery::sock_addr(int if_idx)
     return sock_addr;
 }
 
-uchar *NeighborDiscovery::ipv6_hdr()
+uchar *IcmpV6Pkt::ipv6_hdr()
 {
     uchar *hdr        = new uchar[IPV6_HDR_LEN];
     uint16_t pl       = htons(payload_length());
@@ -86,7 +86,7 @@ uchar *NeighborDiscovery::ipv6_hdr()
     return hdr;
 }
 
-uchar *NeighborDiscovery::icmp_body()
+uchar *IcmpV6Pkt::icmp_body()
 {
     switch(m_type)
     {
@@ -97,7 +97,7 @@ uchar *NeighborDiscovery::icmp_body()
     }
 }
 
-uchar *NeighborDiscovery::serialize_ns()
+uchar *IcmpV6Pkt::serialize_ns()
 {
     uchar *hdr        = new uchar[payload_length()];
     UchrVect dst_ip_u = m_dst_ip->to_uchar();
@@ -115,14 +115,14 @@ uchar *NeighborDiscovery::serialize_ns()
     return hdr;
 }
 
-uchar *NeighborDiscovery::serialize_na()
+uchar *IcmpV6Pkt::serialize_na()
 {
     uchar *hdr = new uchar[payload_length()];
     memset(hdr, 0, payload_length());
     return hdr;
 }
 
-uchar *NeighborDiscovery::serialize_echo()
+uchar *IcmpV6Pkt::serialize_echo()
 {
     uchar *hdr        = new uchar[payload_length()];
     UchrVect src_ip_u = m_src_ip->to_uchar();
@@ -141,7 +141,7 @@ uchar *NeighborDiscovery::serialize_echo()
     return hdr;
 }
 
-uint16_t NeighborDiscovery::checksum(uchar *icmp)
+uint16_t IcmpV6Pkt::checksum(uchar *icmp)
 {
     uint16_t tmp16;
     uchar    tmp[2];

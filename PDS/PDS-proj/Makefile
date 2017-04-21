@@ -18,7 +18,7 @@ FILES1= \
 	netitf.o \
 	packet.o \
 	arppkt.o \
-	neighbordiscovery.o \
+	icmpv6pkt.o \
 	pds-scanner.o
 
 all: $(PROG1)
@@ -53,8 +53,8 @@ packet.o: packet.cpp
 arppkt.o: arppkt.cpp
 	$(CXX) $(CXXFLAGS) -c arppkt.cpp
 
-neighbordiscovery.o: neighbordiscovery.cpp
-	$(CXX) $(CXXFLAGS) -c neighbordiscovery.cpp
+icmpv6pkt.o: icmpv6pkt.cpp
+	$(CXX) $(CXXFLAGS) -c icmpv6pkt.cpp
 
 pds-scanner.o: pds-scanner.cpp
 	$(CXX) $(CXXFLAGS) -c pds-scanner.cpp

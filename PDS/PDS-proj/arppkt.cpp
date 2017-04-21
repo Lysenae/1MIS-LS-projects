@@ -1,10 +1,11 @@
 #include "arppkt.h"
 
-ArpPkt::ArpPkt(IPv4Addr *ip, MACAddr *mac) : Packet(mac)
+ArpPkt::ArpPkt(ArpType t, IPv4Addr *ip, MACAddr *mac) : Packet(mac)
 {
+    m_type      = t;
     m_hw_t      = htons(ETH_HW_TYPE);
     m_prot_t    = htons(ETH_P_IP);
-    m_op        = htons(OC_ARP_REQ); // Request
+    m_op        = htons(m_type == ArpType::Request ? ARP_REQ : ARP_REPLY);
     m_hw_addl   = (uchar) MACAddr::OCTETS;
     m_prot_addl = (uchar) IPv4Addr::OCTETS;
     m_eth_prot  = htons(ETH_P_ARP);
@@ -101,9 +102,12 @@ uchar *ArpPkt::serialize()
     return buff;
 }
 
-MACAddr *ArpPkt::parse_src_mac(uchar *pkt, int len, IPv4Addr **ip)
+bool ArpPkt::analyze_pkt(uchar *pkt, int len, MACAddr **mac, IPv4Addr **ip)
 {
-    UchrVect mac;
+    if(m_type == ArpType::Response) // Len pre odpovede na requesty
+        return false;
+
+    UchrVect mac_u;
     if(len > 0 && (uint)len >= offs(ArpField::SRC_HWA) + MACAddr::OCTETS)
     {
         std::string ips = "";
@@ -113,7 +117,7 @@ MACAddr *ArpPkt::parse_src_mac(uchar *pkt, int len, IPv4Addr **ip)
         p[1] = pkt[13];
         bool valid_pkt = false;
         memcpy(&t, p, S_USHORT);
-        if(htons(t) == ETH_P_ARP && pkt[21] == 0x02) // ARP Reply only
+        if(htons(t) == ETH_P_ARP && pkt[21] == ARP_REPLY) // ARP Reply only
         {
             valid_pkt = true;
             for(uint i=0; i<MACAddr::OCTETS; ++i)
@@ -128,7 +132,7 @@ MACAddr *ArpPkt::parse_src_mac(uchar *pkt, int len, IPv4Addr **ip)
             if(valid_pkt)
             {
                 for(uint i=0; i<MACAddr::OCTETS; ++i)
-                    mac.push_back(pkt[offs(ArpField::SRC_HWA) + i]);
+                    mac_u.push_back(pkt[offs(ArpField::SRC_HWA) + i]);
                 for(uint i=0; i<IPv4Addr::OCTETS; ++i)
                 {
                     ips += std::to_string(
@@ -139,10 +143,10 @@ MACAddr *ArpPkt::parse_src_mac(uchar *pkt, int len, IPv4Addr **ip)
             }
             if(ips != "")
                 *ip = new IPv4Addr(ips);
-            (void)ip;
+            *mac = new MACAddr(mac_u);
         }
     }
-    return new MACAddr(mac);
+    return *mac != nullptr && *ip != nullptr;
 }
 
 uint ArpPkt::offs(ArpField f)
