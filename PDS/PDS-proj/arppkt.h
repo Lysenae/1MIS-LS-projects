@@ -11,12 +11,21 @@
 #include "ipv4addr.h"
 #include "macaddr.h"
 
+///
+/// \enum ArpType
+/// \brief Type ARP sprav
+/// \var ArpType::Request je ARP Request
+/// \var ARPType::Response je ARP Response
+///
 enum class ArpType
 {
     Request,
     Response
 };
 
+///
+/// \brief Trieda ArpPkt
+///
 class ArpPkt : public Packet
 {
 public:

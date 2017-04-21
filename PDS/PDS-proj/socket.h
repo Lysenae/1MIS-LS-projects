@@ -12,13 +12,23 @@
 
 #include "types.h"
 
+///
+/// \enum SocketStatus
+/// \brief Stav socketu
+/// \var SocketStatus::New je novo vytvoreny socket
+/// \var SocketStatus::Opened je otvoreny socket
+/// \var SocketStatus::Closed je zatvoreny socket
+///
 enum class SocketStatus
 {
-    NEW,
-    OPENED,
-    CLOSED
+    New,
+    Opened,
+    Closed
 };
 
+///
+/// \brief Socket
+///
 class Socket
 {
 public:

@@ -25,6 +25,9 @@
 #include "socket.h"
 #include "macaddr.h"
 
+///
+/// \brief Sietove rozhranie
+///
 class NetItf
 {
 public:

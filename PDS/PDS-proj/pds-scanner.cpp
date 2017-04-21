@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
     }
 
     Socket s4(PF_PACKET, SOCK_RAW, htons(ETH_P_ARP));
-    if(s4.open() != SocketStatus::OPENED)
+    if(s4.open() != SocketStatus::Opened)
     {
         cerr << "pds-scanner: Failed to open socket for ARP packets" << endl;
         return OP_FAIL;
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
     search = true; // TODO Remove
 
     Socket s6(PF_PACKET, SOCK_RAW, htons(ETH_P_IPV6));
-    if(s6.open() != SocketStatus::OPENED)
+    if(s6.open() != SocketStatus::Opened)
     {
         cerr << "pds-scanner: Failed to open socket for ARP packets" << endl;
         return OP_FAIL;

@@ -11,12 +11,21 @@
 
 #include "types.h"
 
+///
+/// \enum IPVer
+/// \brief Verzie IP protokolu
+/// \var IPVer::IPv4 je IPv4
+/// \var IPVer::IPv6 je IPv6
+///
 enum class IPVer
 {
-    IPV4,
-    IPV6
+    IPv4,
+    IPv6
 };
 
+///
+/// \brief Abstraktna trieda pr IP adresy
+///
 class IPAddr
 {
 public:

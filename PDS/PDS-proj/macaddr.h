@@ -13,6 +13,9 @@
 #include "types.h"
 #include "socket.h"
 
+///
+/// \brief MAC adresa
+///
 class MACAddr
 {
 public:

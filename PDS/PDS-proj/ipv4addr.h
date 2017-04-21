@@ -6,6 +6,9 @@
 
 #include "ipaddr.h"
 
+///
+/// \brief IPv4 adresa
+///
 class IPv4Addr : public IPAddr
 {
 public:

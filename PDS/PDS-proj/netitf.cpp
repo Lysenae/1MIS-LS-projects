@@ -17,7 +17,7 @@ NetItf::~NetItf()
 {
     free_ifaddr();
     free_ifr();
-    if(m_sock->status() == SocketStatus::OPENED)
+    if(m_sock->status() == SocketStatus::Opened)
     {
         m_sock->close();
         delete m_sock;
@@ -68,7 +68,7 @@ IPv6Vect NetItf::ipv6()
 // Ciastocne prebrane z http://stackoverflow.com/a/16712726
 MACAddr *NetItf::mac()
 {
-    if(m_sock->open() != SocketStatus::OPENED)
+    if(m_sock->open() != SocketStatus::Opened)
         return nullptr;
     init_ifr();
     if(ioctl(m_sock->fd(), SIOCGIFHWADDR, m_ifr) == OP_FAIL)
@@ -85,7 +85,7 @@ MACAddr *NetItf::mac()
 int NetItf::index()
 {
     int idx = OP_FAIL;
-    if(m_sock->open() != SocketStatus::OPENED)
+    if(m_sock->open() != SocketStatus::Opened)
         return OP_FAIL;
     init_ifr();
     if(ioctl(m_sock->fd(), SIOCGIFINDEX, m_ifr) == OP_FAIL)

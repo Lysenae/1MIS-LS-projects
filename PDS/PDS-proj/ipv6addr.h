@@ -9,6 +9,9 @@
 #include "ipaddr.h"
 #include "types.h"
 
+///
+/// \brief IPv6 adresa
+///
 class IPv6Addr : public IPAddr
 {
 public:
@@ -31,6 +34,9 @@ private:
     virtual std::string get_group(std::string ins, uint idx) override;
 };
 
+///
+/// \brief IPv6Vect je alias pre std::vector<IPv6Addr *>
+///
 typedef std::vector<IPv6Addr *> IPv6Vect;
 
 #endif // IPV6ADDR_H

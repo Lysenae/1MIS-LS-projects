@@ -3,10 +3,10 @@
 
 #include "ipv6addr.h"
 
-IPv6Addr::IPv6Addr(ifaddrs *ifa) : IPAddr(IPVer::IPV6, ifa) {}
+IPv6Addr::IPv6Addr(ifaddrs *ifa) : IPAddr(IPVer::IPv6, ifa) {}
 
 IPv6Addr::IPv6Addr(std::string ip, std::string mask) :
-IPAddr(IPVer::IPV6, ip, mask)
+IPAddr(IPVer::IPv6, ip, mask)
 {
     if(mask != "" && mask_n() == OP_FAIL)
         std::cerr << "IPv6Addr Constructor: Invalid subnet mask format\n";

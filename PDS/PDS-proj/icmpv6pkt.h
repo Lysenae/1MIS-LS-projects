@@ -12,9 +12,9 @@
 
 /// \enum NDType
 /// \brief definuje typ Neighbor Discovery paketu
-/// \var NDType::NS je Neighbor Solicitation paket
-/// \var NDType::NA je Neighbor Advertisiment paket
-/// \var NDType::Echo je Echo ping
+/// \var IcmpV6Type::NS je Neighbor Solicitation paket
+/// \var IcmpV6Type::NA je Neighbor Advertisiment paket
+/// \var IcmpV6Type::Ping je Echo ping
 enum class IcmpV6Type
 {
     NS,
@@ -23,7 +23,7 @@ enum class IcmpV6Type
 };
 
 ///
-/// \brief Trieda NeighborDiscovery
+/// \brief Trieda IcmpV6Pkt
 ///
 class IcmpV6Pkt : public Packet
 {

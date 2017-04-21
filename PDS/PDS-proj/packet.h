@@ -12,7 +12,7 @@
 #include "ipaddr.h"
 
 ///
-/// \brief Trieda Packet
+/// \brief Packet
 ///
 class Packet
 {

@@ -14,7 +14,7 @@ IPAddr::IPAddr(IPVer v, ifaddrs *ifa)
     memset(addr, 0, INET6_ADDRSTRLEN);
     memset(mask, 0, INET6_ADDRSTRLEN);
 
-    if(v == IPVer::IPV4)
+    if(v == IPVer::IPv4)
     {
         in4 = (struct sockaddr_in*) ifa->ifa_addr;
         inet_ntop(AF_INET, &in4->sin_addr, addr, INET_ADDRSTRLEN);
@@ -39,7 +39,7 @@ IPAddr::IPAddr(IPVer v, std::string ip, std::string mask)
     sockaddr_in6 sa6;
     int rslt;
 
-    if(v == IPVer::IPV4)
+    if(v == IPVer::IPv4)
         rslt = inet_pton(AF_INET, ip.c_str(), &(sa4.sin_addr));
     else
         rslt = inet_pton(AF_INET6, ip.c_str(), &(sa6.sin6_addr));
@@ -53,7 +53,7 @@ IPAddr::IPAddr(IPVer v, std::string ip, std::string mask)
 
     if(mask != "")
     {
-        if(v == IPVer::IPV4)
+        if(v == IPVer::IPv4)
             rslt = inet_pton(AF_INET, mask.c_str(), &(sa4.sin_addr));
         else
         {
