@@ -17,7 +17,8 @@ SOURCES += \
     types.cpp \
     packet.cpp \
     hash.cpp \
-    icmpv6pkt.cpp
+    icmpv6pkt.cpp \
+    pds-spoof.cpp
 
 HEADERS += \
     arppkt.h \

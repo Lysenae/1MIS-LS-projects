@@ -1,13 +1,12 @@
 # Projekt: PDS - L2 MitM
 # Autor:   Daniel Klimaj, xklima22@stud.fit.vutbr.cz
-# Datum:   2017-04-14
-# Soubor:  Makefile
 
 CXXFLAGS=-std=c++11 -Wall -Werror -Wextra -pedantic
 CXX=g++
 
 PROG1=pds-scanner
-FILES1= \
+PROG2=pds-spoof
+FILES= \
 	types.o \
 	hash.o \
 	socket.o \
@@ -19,9 +18,8 @@ FILES1= \
 	packet.o \
 	arppkt.o \
 	icmpv6pkt.o \
-	pds-scanner.o
 
-all: $(PROG1)
+all: $(PROG1) $(PROG2)
 
 types.o: types.cpp
 	$(CXX) $(CXXFLAGS) -c types.cpp
@@ -59,8 +57,16 @@ icmpv6pkt.o: icmpv6pkt.cpp
 pds-scanner.o: pds-scanner.cpp
 	$(CXX) $(CXXFLAGS) -c pds-scanner.cpp -I/usr/include/libxml2/ -lxml2
 
-$(PROG1): $(FILES1)
-	$(CXX) $(CXXFLAGS) $(FILES1) -o $(PROG1) -I/usr/include/libxml2/ -lxml2
+pds-spoof.o: pds-spoof.cpp
+	$(CXX) $(CXXFLAGS) -c pds-spoof.cpp
+
+# --- Binarky ---
+
+$(PROG1): $(FILES) $(PROG1).o
+	$(CXX) $(CXXFLAGS) $(FILES) $(PROG1).o -o $(PROG1) -I/usr/include/libxml2/ -lxml2
+
+$(PROG2): $(FILES) $(PROG2).o
+	$(CXX) $(CXXFLAGS) $(FILES) $(PROG2).o -o $(PROG2)
 
 clean:
 	rm -f *~
