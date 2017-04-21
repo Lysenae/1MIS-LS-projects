@@ -60,6 +60,7 @@ private:
     uchar *serialize_na();
     uchar *serialize_echo();
     uint16_t checksum(uchar *icmp);
+    uchar na_flags();
 };
 
 #endif // ICMPV6PKT_H
