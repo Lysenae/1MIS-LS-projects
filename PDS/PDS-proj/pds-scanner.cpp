@@ -14,6 +14,10 @@
 
 using namespace std;
 
+///
+/// \brief Priznak urcujuci, ci sa bude este scanovat siet, SIGINT ho nastavuje
+/// na false
+///
 bool search = true;
 
 void on_sigint(int signum);
@@ -21,6 +25,12 @@ bool search_ipv4_hosts(IPv4Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts)
 bool search_ipv6_hosts(IPv6Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts);
 bool writeHosts(Hash *hosts, string fname);
 
+///
+/// \brief main
+/// \param argc
+/// \param argv
+/// \return
+///
 int main(int argc, char *argv[])
 {
     int opt;
@@ -74,8 +84,6 @@ int main(int argc, char *argv[])
     result = search_ipv4_hosts(loc_ipv4, loc_mac, ifn, &hosts);
     cout << "Searching for IPv4 hosts copmleted" << endl;
 
-    search = true; // TODO Remove
-
     if(result && search)
     {
         cout << "Searching for Link-Local IPv6 hosts" << endl;
@@ -105,12 +113,24 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+///
+/// \brief SIGINT handler
+/// \param signum
+///
 void on_sigint(int signum)
 {
     cout << " SIGINT(" << signum << ") detected" << endl;
     search = false;
 }
 
+///
+/// \brief Vyhlada IPv4 hostov v sieti
+/// \param loc_ip IPv4 adresa volajuceho PC
+/// \param loc_mac MAC adresa volajuceho PC
+/// \param ifn cislo sietoveho rozhrania
+/// \param hosts Zoznam najdenych hostov
+/// \return false pri chybe
+///
 bool search_ipv4_hosts(IPv4Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts)
 {
     Socket s4(PF_PACKET, SOCK_RAW, htons(ETH_P_ARP));
@@ -136,7 +156,6 @@ bool search_ipv4_hosts(IPv4Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts)
         cout << "Cycle " << rpt << "/2" << endl;
         for(std::string ip : v4s)
         {
-            //cout << "IP: " << ip << endl;
             if(!search)
                 break;
             memset(buf, 0, ArpPkt::BUFF_LEN);
@@ -149,7 +168,8 @@ bool search_ipv4_hosts(IPv4Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts)
             {
                 if(!tm->eq(loc_mac) && !tm->empty() && ipa->addr() == ip)
                 {
-                    cout << ipa->addr() << " has MAC " << tm->to_string() << endl;
+                    cout << "Host found: " << ipa->addr() << " [" <<
+                        tm->to_string() << "]" << endl;
                     hosts->add_value(tm->to_string(), ipa->addr());
                 }
             }
@@ -166,31 +186,52 @@ bool search_ipv4_hosts(IPv4Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts)
     return true;
 }
 
+///
+/// \brief Vyhlada IPv6 hostov v sieti
+/// \param loc_ip IPv6 adresa volajuceho PC
+/// \param loc_mac MAC adresa volajuceho PC
+/// \param ifn cislo sietoveho rozhrania
+/// \param hosts Zoznam najdenych hostov
+/// \return false pri chybe
+///
 bool search_ipv6_hosts(IPv6Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts)
 {
     Socket s6(PF_PACKET, SOCK_RAW, htons(ETH_P_IPV6));
     if(s6.open() != SocketStatus::Opened)
     {
-        cerr << "pds-scanner: Failed to open socket for ICMPv6 packets" << endl;
+        cerr << "pds-scanner: Failed to open socket 1 for ICMPv6 packets" << endl;
+        return false;
+    }
+    Socket s6_adv(PF_PACKET, SOCK_RAW, htons(ETH_P_IPV6));
+    if(s6_adv.open() != SocketStatus::Opened)
+    {
+        s6.close();
+        cerr << "pds-scanner: Failed to open socket 2 for ICMPv6 packets" << endl;
         return false;
     }
 
     IcmpV6Pkt *ping  = new IcmpV6Pkt(IcmpV6Type::Ping, loc_ip, loc_mac);
+    IcmpV6Pkt *adv   = new IcmpV6Pkt(IcmpV6Type::NA, loc_ip, loc_mac);
     IPv6Addr *dst    = new IPv6Addr("ff02::1");
     sockaddr_ll  saddr_v6  = ping->sock_addr(ifn);
     ping->set_dst_ip(dst);
-    uchar *data      = ping->serialize();
+    uchar *data      = nullptr;
     uchar *buf_v6    = new uchar[500];
     uint cnt         = 0;
     uint keys        = hosts->keys().size();
     std::string mac  = "";
     std::string ip6  = "";
+    IPv6Addr *tip6   = nullptr;
+    MACAddr *tmac    = nullptr;
+
+    adv->set_na_flag_override(true);
+    adv->set_na_flag_solicited(true);
 
     int rcvd;
     for(uint rpt=1; rpt<=2; ++rpt)
     {
-        cout << "Cycle: " << rpt << "/2: Sending ping from:" <<
-            loc_ip->addr() << endl;
+        data = ping->serialize();
+        cout << "Cycle: " << rpt << "/2" << endl;
         s6.send_to(data, ping->pktlen(), 0, (sockaddr*)&saddr_v6,
             sizeof(saddr_v6));
 
@@ -221,7 +262,19 @@ bool search_ipv6_hosts(IPv6Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts)
                             ip6 += str_bytes8(buf_v6[i]);
                             ip6 += (i < 37 && i % 2 == 1) ? ":" : "";
                         }
+                        cout << "Host found: " << ip6 << " [" << mac << "]" << endl;
                         hosts->add_existing(mac, ip6);
+                        tip6 = new IPv6Addr(ip6);
+                        tmac = new MACAddr(mac);
+                        adv->set_dst_ip(tip6);
+                        adv->set_dst_hwa(tmac);
+                        data = adv->serialize(false);
+                        s6_adv.send_to(data, adv->pktlen(), 0,
+                            (sockaddr*)&saddr_v6, sizeof(saddr_v6));
+                        delete tip6;
+                        delete tmac;
+                        tip6 = nullptr;
+                        tmac = nullptr;
                         keys--;
                         if(keys == 0)
                             break;
@@ -234,6 +287,7 @@ bool search_ipv6_hosts(IPv6Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts)
         }
     }
     s6.close();
+    s6_adv.close();
     delete ping;
     delete dst;
     delete buf_v6;
@@ -241,6 +295,12 @@ bool search_ipv6_hosts(IPv6Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts)
     return true;
 }
 
+////
+/// \brief Zapise najdenych hostov do XML
+/// \param hosts zoznam najdenych hostov
+/// \param fname cesta k cielovemu suboru
+/// \return false pri chybe
+///
 bool writeHosts(Hash *hosts, string fname)
 {
     xmlTextWriterPtr writer;

@@ -134,8 +134,21 @@ uchar *IcmpV6Pkt::serialize_ns()
 
 uchar *IcmpV6Pkt::serialize_na()
 {
-    uchar *hdr = new uchar[payload_length()];
+    uchar *hdr        = new uchar[payload_length()];
+    UchrVect dst_ip_u = m_dst_ip->to_uchar();
     memset(hdr, 0, payload_length());
+    hdr[0] = ICMPV6_NA_TYPE;              // Type 136 (0x88)
+    // Code, Checksum nastavene v memset, byty 1-3
+    hdr[4] = na_flags();                  // Flags
+    // Reserved nastavene v memset, byty 5-7
+    for(uint i=0; i<dst_ip_u.size(); ++i) // Target IP addr
+        hdr[8+i] = dst_ip_u[i];
+    hdr[24] = 0x02;                       // Opts type
+    hdr[25] = 0x01;                       // Opts length
+    for(uint i=0; i<MACAddr::OCTETS; ++i) // Source MAC
+        hdr[26+i] = m_src_hwa_o[i];
+    uint16_t chks = checksum(hdr);
+    memcpy(hdr+2, &chks, S_USHORT);
     return hdr;
 }
 
