@@ -16,11 +16,13 @@
 /// \brief Verzie IP protokolu
 /// \var IPVer::IPv4 je IPv4
 /// \var IPVer::IPv6 je IPv6
+/// \var IPVer::Undef je neznamy typ
 ///
 enum class IPVer
 {
     IPv4,
-    IPv6
+    IPv6,
+    Undef
 };
 
 ///
@@ -39,6 +41,8 @@ public:
     virtual std::string addr_grp(uint idx) = 0;
     virtual std::string mask_grp(uint idx) = 0;
     bool empty();
+
+    static IPVer get_version(std::string addr);
 
 protected:
     std::string m_itf_name;

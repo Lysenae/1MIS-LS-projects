@@ -21,7 +21,7 @@ IPAddr::IPAddr(IPVer v, ifaddrs *ifa)
         in4 = (struct sockaddr_in*) ifa->ifa_netmask;
         inet_ntop(AF_INET, &in4->sin_addr, mask, INET_ADDRSTRLEN);
     }
-    else
+    else if(v == IPVer::IPv6)
     {
         in6 = (struct sockaddr_in6*) ifa->ifa_addr;
         inet_ntop(AF_INET6, &in6->sin6_addr, addr, INET6_ADDRSTRLEN);
@@ -41,7 +41,7 @@ IPAddr::IPAddr(IPVer v, std::string ip, std::string mask)
 
     if(v == IPVer::IPv4)
         rslt = inet_pton(AF_INET, ip.c_str(), &(sa4.sin_addr));
-    else
+    else if(v == IPVer::IPv6)
         rslt = inet_pton(AF_INET6, ip.c_str(), &(sa6.sin6_addr));
     if(rslt != 0)
         m_addr = ip;
@@ -55,7 +55,7 @@ IPAddr::IPAddr(IPVer v, std::string ip, std::string mask)
     {
         if(v == IPVer::IPv4)
             rslt = inet_pton(AF_INET, mask.c_str(), &(sa4.sin_addr));
-        else
+        else if(v == IPVer::IPv6)
         {
             rslt = inet_pton(AF_INET6, mask.c_str(), &(sa6.sin6_addr));
         }
@@ -93,4 +93,14 @@ std::string IPAddr::snmask()
 bool IPAddr::empty()
 {
     return m_addr == "";
+}
+
+IPVer IPAddr::get_version(std::string addr)
+{
+    if(split_addr(addr, '.').size() == 4)
+        return IPVer::IPv4;
+    else if(split_addr(addr, ':').size() >= 3)
+        return IPVer::IPv6;
+
+    return IPVer::Undef;
 }
