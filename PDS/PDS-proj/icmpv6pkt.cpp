@@ -33,10 +33,10 @@ uint IcmpV6Pkt::payload_length() const
     }
 }
 
-uchar *IcmpV6Pkt::serialize()
+uchar *IcmpV6Pkt::serialize(bool multicast)
 {
     uchar *buff    = new uchar[pktlen()];
-    uchar *ehdr    = eth_header(m_dst_hwa == nullptr ? EthDest::BCv6 : EthDest::UC);
+    uchar *ehdr    = eth_header(multicast ? EthDest::BCv6 : EthDest::UC);
     uchar *ihdr    = ipv6_hdr();
     uchar *icmphdr = icmp_body();
     memset(buff, 0, pktlen());
@@ -74,7 +74,7 @@ uchar *IcmpV6Pkt::ipv6_hdr()
 
     memset(hdr, 0, IPV6_HDR_LEN);
     hdr[0] = 0x60;                // Version
-    // Traffic class + Flow label [1-3] boli nastavene v memset, vynechane
+    // Traffic Class a Flow label [1-3] v memset
     memcpy(hdr+4, &pl, S_USHORT); // Payload length
     hdr[6] = ICMPV6_TYPE;         // Next header
     hdr[7] = 0xFF;                // Hop limit, pre ND povinne 255
@@ -102,7 +102,7 @@ uchar *IcmpV6Pkt::serialize_ns()
     uchar *hdr        = new uchar[payload_length()];
     UchrVect dst_ip_u = m_dst_ip->to_uchar();
     memset(hdr, 0, payload_length());
-    hdr[0] = ICMPV6_NS_TYPE; // Type 135 (0x87)
+    hdr[0] = ICMPV6_NS_TYPE;              // Type 135 (0x87)
     // Code, Checksum, Reserved nastavene v memset, byty 1-7
     for(uint i=0; i<dst_ip_u.size(); ++i) // Target IP addr
         hdr[8+i] = dst_ip_u[i];
@@ -127,8 +127,8 @@ uchar *IcmpV6Pkt::serialize_echo()
     uchar *hdr        = new uchar[payload_length()];
     UchrVect src_ip_u = m_src_ip->to_uchar();
     memset(hdr, 0, payload_length());
-    hdr[0] = ICMPV6_PING_TYPE;                  // Type 128 (0x80)
-    // Code v memset, checksum [1-3]
+    hdr[0] = ICMPV6_PING_TYPE;            // Type 128 (0x80)
+    // Code a checksum [1-3] v memset
     m_echo_id[0] = rand() % 255;          // Identifier
     m_echo_id[1] = rand() % 255;
     hdr[4] = m_echo_id[0];

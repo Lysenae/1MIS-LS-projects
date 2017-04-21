@@ -38,7 +38,7 @@ public:
     void set_dst_ip(IPv6Addr *ipv6);
     uint pktlen() const;
     uint payload_length() const;
-    uchar *serialize();
+    uchar *serialize(bool multicast = true);
     virtual sockaddr_ll sock_addr(int if_idx) override;
 
 private:

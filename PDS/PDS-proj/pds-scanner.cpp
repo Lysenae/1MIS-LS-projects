@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
     IcmpV6Pkt *nds  = new IcmpV6Pkt(IcmpV6Type::NS, loc_ipv6s[1], loc_mac);
     nds->set_dst_ip(new IPv6Addr("::"));
     StrVect macs = h.keys();
-    nsu = nds->serialize();
+    nsu = nds->serialize(false);
     for(std::string m : macs)
     {
         cout << "NDS: '" << m << "'" << endl;
