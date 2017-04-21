@@ -62,6 +62,12 @@ void ArpPkt::set_dst_ip_addr(IPv4Addr *ipv4)
     }
 }
 
+void ArpPkt::set_src_hwa(MACAddr *m)
+{
+    for(uint i=0; i<MACAddr::OCTETS; ++i)
+        m_src_hwa_o[i] = m->octet(i);
+}
+
 sockaddr_ll ArpPkt::sock_addr(int if_idx)
 {
     sockaddr_ll sock_addr;
@@ -81,7 +87,7 @@ sockaddr_ll ArpPkt::sock_addr(int if_idx)
 uchar *ArpPkt::serialize()
 {
     uchar *buff = new uchar[BUFF_LEN];
-    uchar *ehdr = eth_header(EthDest::BC);
+    uchar *ehdr = eth_header(m_type == ArpType::Request ? EthDest::BC : EthDest::UC);
     memset(buff, 0, BUFF_LEN);
     for(uint i=0; i<ETH_HDR_LEN; ++i)
         buff[i] = ehdr[i];
