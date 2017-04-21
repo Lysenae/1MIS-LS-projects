@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
         return OP_FAIL;
     }
 
-    IcmpV6Pkt *nde  = new IcmpV6Pkt(NDType::EchoP, loc_ipv6s[2], loc_mac);
+    IcmpV6Pkt *nde  = new IcmpV6Pkt(IcmpV6Type::Ping, loc_ipv6s[2], loc_mac);
     sockaddr_ll  saddr_v6  = nde->sock_addr(netitf->index());
     nde->set_dst_ip(new IPv6Addr("ff02::1"));
     uchar *nsu = nde->serialize();
@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
 
     h.print();
 
-    IcmpV6Pkt *nds  = new IcmpV6Pkt(NDType::NS, loc_ipv6s[1], loc_mac);
+    IcmpV6Pkt *nds  = new IcmpV6Pkt(IcmpV6Type::NS, loc_ipv6s[1], loc_mac);
     nds->set_dst_ip(new IPv6Addr("::"));
     StrVect macs = h.keys();
     nsu = nds->serialize();

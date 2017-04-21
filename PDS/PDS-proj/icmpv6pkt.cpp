@@ -1,6 +1,6 @@
 #include "icmpv6pkt.h"
 
-IcmpV6Pkt::IcmpV6Pkt(NDType ndp, IPv6Addr *ip, MACAddr *mac) :
+IcmpV6Pkt::IcmpV6Pkt(IcmpV6Type ndp, IPv6Addr *ip, MACAddr *mac) :
 Packet(mac)
 {
     m_type       = ndp;
@@ -26,10 +26,10 @@ uint IcmpV6Pkt::payload_length() const
 {
     switch(m_type)
     {
-        case NDType::NS:    return ICMPV6_NS_LEN;
-        case NDType::NA:    return ICMPV6_NA_LEN;
-        case NDType::EchoP: return ECHOP_LEN;
-        default:            return 0;
+        case IcmpV6Type::NS:   return ICMPV6_NS_LEN;
+        case IcmpV6Type::NA:   return ICMPV6_NA_LEN;
+        case IcmpV6Type::Ping: return ICMPV6_PING_LEN;
+        default:               return 0;
     }
 }
 
@@ -90,9 +90,9 @@ uchar *IcmpV6Pkt::icmp_body()
 {
     switch(m_type)
     {
-        case NDType::NS: return serialize_ns();
-        case NDType::NA: return serialize_na();
-        case NDType::EchoP: return serialize_echo();
+        case IcmpV6Type::NS: return serialize_ns();
+        case IcmpV6Type::NA: return serialize_na();
+        case IcmpV6Type::Ping: return serialize_echo();
         default: return nullptr;
     }
 }
@@ -127,7 +127,7 @@ uchar *IcmpV6Pkt::serialize_echo()
     uchar *hdr        = new uchar[payload_length()];
     UchrVect src_ip_u = m_src_ip->to_uchar();
     memset(hdr, 0, payload_length());
-    hdr[0] = ECHOP_TYPE;                  // Type 128 (0x80)
+    hdr[0] = ICMPV6_PING_TYPE;                  // Type 128 (0x80)
     // Code v memset, checksum [1-3]
     m_echo_id[0] = rand() % 255;          // Identifier
     m_echo_id[1] = rand() % 255;
@@ -144,27 +144,25 @@ uchar *IcmpV6Pkt::serialize_echo()
 uint16_t IcmpV6Pkt::checksum(uchar *icmp)
 {
     uint16_t tmp16;
-    uchar    tmp[2];
+    uchar    tmp8[2];
     UchrVect src_ip_u = m_src_ip->to_uchar();
     UchrVect dst_ip_u = m_dst_ip->to_uchar();
-    uint32_t sum = 0;
-    uint16_t checksum;
-    char buffer[20];
+    uint32_t sum      = 0;
 
     // IPv6 Pseudo-header
     for(uint i=0; i<src_ip_u.size(); i+=2)
     {
-        tmp[0] = src_ip_u[i];
-        tmp[1] = src_ip_u[i+1];
-        memcpy(&tmp16, tmp, S_USHORT);
+        tmp8[0] = src_ip_u[i];
+        tmp8[1] = src_ip_u[i+1];
+        memcpy(&tmp16, tmp8, S_USHORT);
         sum += tmp16;
     }
 
     for(uint i=0; i<dst_ip_u.size(); i+=2)
     {
-        tmp[0] = dst_ip_u[i];
-        tmp[1] = dst_ip_u[i+1];
-        memcpy(&tmp16, tmp, S_USHORT);
+        tmp8[0] = dst_ip_u[i];
+        tmp8[1] = dst_ip_u[i+1];
+        memcpy(&tmp16, tmp8, S_USHORT);
         sum += tmp16;
     }
     sum += htons(payload_length());
@@ -173,17 +171,12 @@ uint16_t IcmpV6Pkt::checksum(uchar *icmp)
     // ICMPv6 Body
     for(uint i=0; i<payload_length(); i += 2)
     {
-        tmp[0] = icmp[i];
-        tmp[1] = icmp[i+1];
-        memcpy(&tmp16, tmp, S_USHORT);
+        tmp8[0] = icmp[i];
+        tmp8[1] = icmp[i+1];
+        memcpy(&tmp16, tmp8, S_USHORT);
         sum += tmp16;
     }
 
     sum += sum >> 16;
-    checksum = (uint16_t)~sum;
-    uchar t[2];
-    memcpy(t, &checksum, 2);
-    sprintf(buffer, "%02X %02X", t[0],t[1]);
-    std::cout << "CH: " << buffer << std::endl;
-    return checksum;
+    return (uint16_t)~sum;
 }
