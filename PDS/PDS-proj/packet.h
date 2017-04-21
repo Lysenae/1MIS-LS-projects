@@ -36,16 +36,16 @@ protected:
 
     ///
     /// \enum EthDest
-    /// \brief Rozlisuje ci sa pouzije BC alebo UC MAC adresa
+    /// \brief Rozlisuje ci sa pouzije BC, MC alebo UC MAC adresa
     /// \var EthDest::UC je unicast
-    /// \var EthDest::BCv4 je broadcast nad IPv4
-    /// \var EthDest::BCv6 je broadcast nad IPv6
+    /// \var EthDest::BC je broadcast nad IPv4
+    /// \var EthDest::MC je multicast nad IPv6
     ///
     enum class EthDest
     {
         UC,
-        BCv4,
-        BCv6
+        BC,
+        MC
     };
 
     uchar *eth_header(EthDest dest);

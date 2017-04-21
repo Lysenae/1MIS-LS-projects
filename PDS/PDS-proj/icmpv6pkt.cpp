@@ -39,7 +39,7 @@ uint IcmpV6Pkt::payload_length() const
 uchar *IcmpV6Pkt::serialize(bool multicast)
 {
     uchar *buff    = new uchar[pktlen()];
-    uchar *ehdr    = eth_header(multicast ? EthDest::BCv6 : EthDest::UC);
+    uchar *ehdr    = eth_header(multicast ? EthDest::MC : EthDest::UC);
     uchar *ihdr    = ipv6_hdr();
     uchar *icmphdr = icmp_body();
     memset(buff, 0, pktlen());

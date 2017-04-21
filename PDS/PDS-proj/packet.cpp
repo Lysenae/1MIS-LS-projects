@@ -46,9 +46,9 @@ uchar *Packet::eth_header(EthDest dest)
     // Serialize Ethernet header
     for(uint i=0; i<MACAddr::OCTETS; ++i)
     {
-        if(dest == EthDest::BCv4)
+        if(dest == EthDest::BC)
             hdr[i] = MAC_BCV4[i];           // Broadcast
-        else if(dest == EthDest::BCv6)
+        else if(dest == EthDest::MC)
             hdr[i] = MAC_BCV6[i];
         else
             hdr[i] = m_dst_hwa_o[i]; // Unicast
