@@ -2,6 +2,8 @@ TEMPLATE = app
 CONFIG += console c++11
 CONFIG -= app_bundle
 CONFIG -= qt
+INCLUDEPATH = /usr/include/libxml2
+LIBS += -L/usr/lib -libxml2
 
 SOURCES += \
     arppkt.cpp \

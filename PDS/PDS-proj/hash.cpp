@@ -76,7 +76,9 @@ void Hash::add_value(std::string key, std::string value)
     {
         m_map[key] = new StrVect();
     }
-    m_map[key]->push_back(value);
+
+    if(!has_value(key, value))
+        m_map[key]->push_back(value);
 }
 
 ///

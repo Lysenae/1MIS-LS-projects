@@ -13,6 +13,10 @@ Packet(mac)
     m_echo_id[0] = 0x00;
     m_echo_id[1] = 0x00;
     srand(time(nullptr));
+
+    // NA specific
+    m_na_flag_override  = false;
+    m_na_flag_solicited = false;
 }
 
 void IcmpV6Pkt::set_dst_ip(IPv6Addr *ipv6)
@@ -66,6 +70,16 @@ sockaddr_ll IcmpV6Pkt::sock_addr(int if_idx)
     for(uint i=0; i<MACAddr::OCTETS; ++i)
         sock_addr.sll_addr[i] = m_src_hwa_o[i];
     return sock_addr;
+}
+
+void IcmpV6Pkt::set_na_flag_solicited(bool flag)
+{
+    m_na_flag_solicited = flag;
+}
+
+void IcmpV6Pkt::set_na_flag_override(bool flag)
+{
+    m_na_flag_override = flag;
 }
 
 uchar *IcmpV6Pkt::ipv6_hdr()
@@ -182,4 +196,16 @@ uint16_t IcmpV6Pkt::checksum(uchar *icmp)
 
     sum += sum >> 16;
     return (uint16_t)~sum;
+}
+
+uchar IcmpV6Pkt::na_flags()
+{
+    // 0 Sol Ovr 0 0 0 0 0
+    if(m_na_flag_solicited && m_na_flag_override)
+        return 0x60;
+    if(m_na_flag_solicited && !m_na_flag_override)
+        return 0x40;
+    if(!m_na_flag_solicited && m_na_flag_override)
+        return 0x20;
+    return 0x00;
 }

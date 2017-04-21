@@ -26,8 +26,6 @@ MACAddr::MACAddr(UchrVect oct)
 MACAddr::MACAddr(std::string mac)
 {
     StrVect octs = split_addr(mac, ':');
-    for(std::string o : octs)
-        std::cout << o << std::endl;
     if(octs.size() == OCTETS)
     {
         for(uint i=0; i<OCTETS; ++i)
@@ -70,4 +68,20 @@ bool MACAddr::empty() const
             return false;
     }
     return true;
+}
+
+std::string MACAddr::to_xml(std::string mac)
+{
+    MACAddr *tmp = new MACAddr(mac);
+    std::string xml_mac = "";
+    xml_mac += str_bytes8(tmp->octet(0));
+    xml_mac += str_bytes8(tmp->octet(1));
+    xml_mac += ".";
+    xml_mac += str_bytes8(tmp->octet(2));
+    xml_mac += str_bytes8(tmp->octet(3));
+    xml_mac += ".";
+    xml_mac += str_bytes8(tmp->octet(4));
+    xml_mac += str_bytes8(tmp->octet(5));
+    delete tmp;
+    return xml_mac;
 }

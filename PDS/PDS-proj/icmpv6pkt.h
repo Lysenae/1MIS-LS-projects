@@ -43,12 +43,16 @@ public:
     uint payload_length() const;
     uchar *serialize(bool multicast = true);
     virtual sockaddr_ll sock_addr(int if_idx) override;
+    void set_na_flag_solicited(bool flag);
+    void set_na_flag_override(bool flag);
 
 private:
     IcmpV6Type  m_type;
     IPv6Addr   *m_src_ip;
     IPv6Addr   *m_dst_ip;
     uchar       m_echo_id[2];
+    bool        m_na_flag_solicited;
+    bool        m_na_flag_override;
 
     uchar *ipv6_hdr();
     uchar *icmp_body();

@@ -2,6 +2,8 @@
 // Autor:   Daniel Klimaj; xklima22@stud.fit.vutbr.cz
 
 #include <csignal>
+#include <libxml/encoding.h>
+#include <libxml/xmlwriter.h>
 
 #include "types.h"
 #include "hash.h"
@@ -17,7 +19,7 @@ bool search = true;
 void on_sigint(int signum);
 bool search_ipv4_hosts(IPv4Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts);
 bool search_ipv6_hosts(IPv6Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts);
-void writeHosts(Hash *hosts);
+bool writeHosts(Hash *hosts, string fname);
 
 int main(int argc, char *argv[])
 {
@@ -89,7 +91,7 @@ int main(int argc, char *argv[])
     }
 
     if(result)
-        writeHosts(Hash &hosts);
+        writeHosts(&hosts, fname);
 
     delete netitf;
     delete loc_ipv4;
@@ -239,7 +241,86 @@ bool search_ipv6_hosts(IPv6Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts)
     return true;
 }
 
-void writeHosts(Hash *hosts)
+bool writeHosts(Hash *hosts, string fname)
 {
+    xmlTextWriterPtr writer;
+    StrVect keys = hosts->keys();
+    StrVect vals;
 
+    writer = xmlNewTextWriterFilename(fname.c_str(), 0);
+    if (writer == nullptr)
+    {
+        cerr << "Error creating the xml writer" << endl;
+        return false;
+    }
+
+    if(xmlTextWriterStartDocument(writer, "1.0", "UTF-8", nullptr) < 0)
+    {
+        cerr << "Failed to start XML document" << endl;
+        return false;
+    }
+
+    if(xmlTextWriterStartElement(writer, BAD_CAST "devices") < 0)
+    {
+         cerr << "Failed to write XML root element" << endl;
+         return false;
+    }
+
+    for(string k : keys)
+    {
+        if(xmlTextWriterStartElement(writer, BAD_CAST "host") < 0)
+        {
+            cerr << "Failed to write XML element 'host'" << endl;
+            return false;
+        }
+        if(xmlTextWriterWriteAttribute(writer, BAD_CAST "mac",
+        BAD_CAST MACAddr::to_xml(k).c_str()) < 0)
+        {
+            cerr << "Failed to write device's MAC address" << endl;
+            return false;
+        }
+
+        vals = hosts->values(k);
+        for(std::string v : vals)
+        {
+            if(v.find_first_of(".") != string::npos) // IPv4
+            {
+                if(xmlTextWriterWriteFormatElement(writer, BAD_CAST "ipv4",
+                "%s", v.c_str()) < 0)
+                {
+                    cerr << "Failed to write IPv4" << endl;
+                    return false;
+                }
+            }
+            else if(v.find_first_of(":") != string::npos) // IPv6
+            {
+                if(xmlTextWriterWriteFormatElement(writer, BAD_CAST "ipv6",
+                "%s", v.c_str()) < 0)
+                {
+                    cerr << "Failed to write IPv6" << endl;
+                    return false;
+                }
+            }
+            else
+            {
+                cerr << "Skipping invalid IP address" << endl;
+                continue;
+            }
+        } // ipvx
+
+        if(xmlTextWriterEndElement(writer) < 0)
+        {
+            cerr << "Failed to end XML element 'host'" << endl;
+            return false;
+        }
+    } // host
+
+    if(xmlTextWriterEndElement(writer) < 0)
+    {
+        cerr << "Failed to end root XML element" << endl;
+        return false;
+    }
+
+    xmlFreeTextWriter(writer);
+    return true;
 }

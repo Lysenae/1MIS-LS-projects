@@ -28,6 +28,7 @@ public:
     uchar octet(uint idx);
     bool eq(MACAddr *other);
     bool empty() const;
+    static std::string to_xml(std::string mac);
 
 private:
     uchar m_mac[OCTETS];

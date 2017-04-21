@@ -164,7 +164,7 @@ StrVect IPv4Addr::expand_ips(StrVect ips, int max, int base, int octet)
                 v.push_back(ipaddr);
         }
     }
-    return expand_ips(v, UCHAR_MAX, 0, octet-1);
+    return expand_ips(v, B_UCHAR_MAX, 0, octet-1);
 }
 
 StrVect IPv4Addr::remove_bc_net(StrVect ips)

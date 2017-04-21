@@ -16,7 +16,7 @@ uchar str_to_uch(std::string s)
 {
     size_t ptr;
     int val = std::stoi(s, &ptr);
-    if(val >= (int)UCHAR_MIN && val <= (int)UCHAR_MAX && ptr == s.size())
+    if(val >= (int)B_UCHAR_MIN && val <= (int)B_UCHAR_MAX && ptr == s.size())
         return (uchar) val;
     std::cerr << "str_to_uch(" << s << "): Conversion error" << std::endl;
     return (uchar) 0;

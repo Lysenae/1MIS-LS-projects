@@ -57,10 +57,10 @@ icmpv6pkt.o: icmpv6pkt.cpp
 	$(CXX) $(CXXFLAGS) -c icmpv6pkt.cpp
 
 pds-scanner.o: pds-scanner.cpp
-	$(CXX) $(CXXFLAGS) -c pds-scanner.cpp
+	$(CXX) $(CXXFLAGS) -c pds-scanner.cpp -I/usr/include/libxml2/ -lxml2
 
 $(PROG1): $(FILES1)
-	$(CXX) $(CXXFLAGS) $(FILES1) -o $(PROG1)
+	$(CXX) $(CXXFLAGS) $(FILES1) -o $(PROG1) -I/usr/include/libxml2/ -lxml2
 
 clean:
 	rm -f *~
@@ -68,6 +68,7 @@ clean:
 	rm -f $(PROG1)
 	rm -f .fuse*
 	rm -f *.cpp.*
+	rm -f *.xml
 
 git: clean
 	git add --all
