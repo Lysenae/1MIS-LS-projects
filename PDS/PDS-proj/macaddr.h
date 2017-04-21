@@ -20,6 +20,7 @@ class MACAddr
 {
 public:
     static const uint OCTETS = 6;
+    static const uint QUADS  = 3;
 
     MACAddr(ifreq *ifr);
     MACAddr(UchrVect oct);

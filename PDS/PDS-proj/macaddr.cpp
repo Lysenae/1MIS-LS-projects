@@ -25,12 +25,29 @@ MACAddr::MACAddr(UchrVect oct)
 
 MACAddr::MACAddr(std::string mac)
 {
-    StrVect octs = split_addr(mac, ':');
-    if(octs.size() == OCTETS)
+    for(uint i=0; i<OCTETS; ++i)
+        m_mac[i] = 0x00;
+
+    if(mac.find_first_of(':') != std::string::npos)
     {
-        for(uint i=0; i<OCTETS; ++i)
+        StrVect octs = split_addr(mac, ':');
+        if(octs.size() == OCTETS)
         {
-            m_mac[i] = literal_to_uchr(octs[i]);
+            for(uint i=0; i<OCTETS; ++i)
+                m_mac[i] = literal_to_uchr(octs[i]);
+        }
+    }
+    else if(mac.find_first_of('.') != std::string::npos)
+    {
+        StrVect quads = split_addr(mac, '.');
+        if(quads.size() == QUADS)
+        {
+            m_mac[0] = literal_to_uchr(quads[0].substr(0, 2));
+            m_mac[1] = literal_to_uchr(quads[0].substr(2, 2));
+            m_mac[2] = literal_to_uchr(quads[1].substr(0, 2));
+            m_mac[3] = literal_to_uchr(quads[1].substr(2, 2));
+            m_mac[4] = literal_to_uchr(quads[2].substr(0, 2));
+            m_mac[5] = literal_to_uchr(quads[2].substr(2, 2));
         }
     }
 }

@@ -2,7 +2,6 @@
 // Autor:   Daniel Klimaj; xklima22@stud.fit.vutbr.cz
 
 #include "types.h"
-#include "hash.h"
 #include "netitf.h"
 #include "arppkt.h"
 #include "socket.h"
@@ -20,7 +19,6 @@ void print_usage();
 
 int main(int argc, char **argv)
 {
-    //./pds-spoof -i interface -t sec -p protocol -victim1ip ipaddress -victim1mac macaddress -victim2ip ipaddress -victim2mac macaddress
     StrVect args;
     for(int i=0; i<argc; ++i)
         args.push_back(string(argv[i]));
@@ -72,7 +70,6 @@ int main(int argc, char **argv)
     cout << "v2 MAC:    " << v2mac << endl;
     return 0;
 }
-
 
 void print_usage()
 {
