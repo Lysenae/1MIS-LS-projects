@@ -1,3 +1,6 @@
+// Projekt: PDS - L2 MitM
+// Autor:   Daniel Klimaj; xklima22@stud.fit.vutbr.cz
+
 #ifndef ARPPKT_H
 #define ARPPKT_H
 

@@ -1,3 +1,6 @@
+// Projekt: PDS - L2 MitM
+// Autor:   Daniel Klimaj; xklima22@stud.fit.vutbr.cz
+
 #include "ipv6addr.h"
 
 IPv6Addr::IPv6Addr(ifaddrs *ifa) : IPAddr(IPVer::IPV6, ifa) {}

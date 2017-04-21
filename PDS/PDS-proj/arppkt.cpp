@@ -1,3 +1,6 @@
+// Projekt: PDS - L2 MitM
+// Autor:   Daniel Klimaj; xklima22@stud.fit.vutbr.cz
+
 #include "arppkt.h"
 
 ArpPkt::ArpPkt(ArpType t, IPv4Addr *ip, MACAddr *mac) : Packet(mac)

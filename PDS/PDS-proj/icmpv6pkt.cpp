@@ -1,3 +1,6 @@
+// Projekt: PDS - L2 MitM
+// Autor:   Daniel Klimaj; xklima22@stud.fit.vutbr.cz
+
 #include "icmpv6pkt.h"
 
 IcmpV6Pkt::IcmpV6Pkt(IcmpV6Type ndp, IPv6Addr *ip, MACAddr *mac) :

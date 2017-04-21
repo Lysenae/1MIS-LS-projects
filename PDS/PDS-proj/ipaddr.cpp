@@ -1,3 +1,6 @@
+// Projekt: PDS - L2 MitM
+// Autor:   Daniel Klimaj; xklima22@stud.fit.vutbr.cz
+
 #include "ipaddr.h"
 
 IPAddr::IPAddr(IPVer v, ifaddrs *ifa)

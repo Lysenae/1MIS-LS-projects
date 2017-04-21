@@ -1,3 +1,6 @@
+// Projekt: PDS - L2 MitM
+// Autor:   Daniel Klimaj; xklima22@stud.fit.vutbr.cz
+
 #include "ipv4addr.h"
 
 IPv4Addr::IPv4Addr(ifaddrs *ifa) : IPAddr(IPVer::IPV4, ifa) {}

@@ -1,3 +1,6 @@
+// Projekt: PDS - L2 MitM
+// Autor:   Daniel Klimaj; xklima22@stud.fit.vutbr.cz
+
 #include "packet.h"
 
 const uchar Packet::MAC_BCV4[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};

@@ -1,3 +1,6 @@
+// Projekt: PDS - L2 MitM
+// Autor:   Daniel Klimaj; xklima22@stud.fit.vutbr.cz
+
 #include "macaddr.h"
 
 MACAddr::MACAddr(ifreq *ifr)
