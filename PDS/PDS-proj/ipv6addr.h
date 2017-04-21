@@ -29,6 +29,7 @@ public:
     UchrVect to_uchar();
     in6_addr addr_struct() const;
     bool is_ll();
+    bool is_global();
 
 private:
     virtual std::string get_group(std::string ins, uint idx) override;

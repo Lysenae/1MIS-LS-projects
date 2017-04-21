@@ -105,6 +105,14 @@ bool IPv6Addr::is_ll()
     return false;
 }
 
+bool IPv6Addr::is_global()
+{
+    std::string fg = addr_grp(IPv6Addr::BLOCKS-1);
+    if(fg[0] == '2' || fg[0] == '3')
+        return true;
+    return false;
+}
+
 std::string IPv6Addr::get_group(std::string ins, uint idx)
 {
     std::string s = "";
