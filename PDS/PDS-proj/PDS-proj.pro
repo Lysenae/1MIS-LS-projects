@@ -19,7 +19,8 @@ SOURCES += \
     hash.cpp \
     icmpv6pkt.cpp \
     pds-spoof.cpp \
-    pds-intercept.cpp
+    pds-intercept.cpp \
+    hostgroup.cpp
 
 HEADERS += \
     arppkt.h \
@@ -32,7 +33,8 @@ HEADERS += \
     netitf.h \
     packet.h \
     hash.h \
-    icmpv6pkt.h
+    icmpv6pkt.h \
+    hostgroup.h
 
 DISTFILES += \
     Makefile

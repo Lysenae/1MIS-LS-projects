@@ -12,6 +12,7 @@ PROG3=pds-intercept
 FILES= \
 	types.o \
 	hash.o \
+	hostgroup.o \
 	macaddr.o \
 	ipaddr.o \
 	ipv4addr.o \
@@ -29,6 +30,9 @@ types.o: types.cpp
 
 hash.o: hash.cpp
 	$(CXX) $(CXXFLAGS) -c hash.cpp
+
+hostgroup.o: hostgroup.cpp
+	$(CXX) $(CXXFLAGS) -c hostgroup.cpp
 
 macaddr.o: macaddr.cpp
 	$(CXX) $(CXXFLAGS) -c macaddr.cpp

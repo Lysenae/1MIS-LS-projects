@@ -2,7 +2,6 @@
 // Autor:   Daniel Klimaj; xklima22@stud.fit.vutbr.cz
 
 #include <csignal>
-#include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 
 #include "types.h"

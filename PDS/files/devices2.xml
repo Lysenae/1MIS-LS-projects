@@ -5,6 +5,9 @@
     <ipv6>FE80:0000:0000:0000:0A00:27FF:FE17:A19F</ipv6>
     <ipv6>2001:067C:1220:C1A0:741C:D41F:51B1:F49D</ipv6>
   </host>
+  <host mac="0800.273E.FFA2">
+    <ipv4>192.168.1.1</ipv4>
+  </host>
   <host mac="0800.2776.DE10"  group="gr1">
     <ipv4>10.190.8.76</ipv4>
     <ipv6>FE80:0000:0000:0000:0A00:27FF:FE76:DE10</ipv6>
