@@ -276,9 +276,12 @@ bool search_ipv6_hosts(IPv6Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts)
             if(rcvd < (int)(Packet::ETH_HDR_LEN + IcmpV6Pkt::IPV6_HDR_LEN))
                 continue; // Nemoze byt IPv6 packet
             pl = (int)buf_v6[19];
-            if(pl == 24 || pl == 32) // Mozno echo reply alebo ns
+            if(pl == IcmpV6Pkt::PING_LEN || pl == IcmpV6Pkt::NS_LEN ||
+            pl == IcmpV6Pkt::NA_LEN)
             {
-                if(buf_v6[54] == 0x81 || buf_v6[54] == 0x87)
+                if(buf_v6[54] == IcmpV6Pkt::PING_RSP_TYPE ||
+                buf_v6[54] == IcmpV6Pkt::NS_TYPE ||
+                buf_v6[54] == IcmpV6Pkt::NA_TYPE)
                 {
                     mac = "";
                     ip6 = "";
@@ -321,6 +324,7 @@ bool search_ipv6_hosts(IPv6Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts)
     delete ping;
     delete dst;
     delete buf_v6;
+    delete adv;
     hosts->print();
     return true;
 }

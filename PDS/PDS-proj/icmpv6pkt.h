@@ -28,14 +28,15 @@ enum class IcmpV6Type
 class IcmpV6Pkt : public Packet
 {
 public:
-    static const uint  IPV6_HDR_LEN     = 40;
-    static const uchar ICMPV6_NS_LEN    = 32;
-    static const uchar ICMPV6_NA_LEN    = 32;
-    static const uchar ICMPV6_TYPE      = 58;
-    static const uchar ICMPV6_NS_TYPE   = 0x87;
-    static const uchar ICMPV6_NA_TYPE   = 0x88;
-    static const uchar ICMPV6_PING_LEN  = 24;
-    static const uchar ICMPV6_PING_TYPE = 0x80;
+    static const uint  IPV6_HDR_LEN  = 40;
+    static const uchar NS_LEN        = 32;
+    static const uchar NA_LEN        = 32;
+    static const uchar TYPE_NR       = 58;
+    static const uchar NS_TYPE       = 0x87;
+    static const uchar NA_TYPE       = 0x88;
+    static const uchar PING_LEN      = 24;
+    static const uchar PING_REQ_TYPE = 0x80;
+    static const uchar PING_RSP_TYPE = 0x81;
 
     IcmpV6Pkt(IcmpV6Type type, IPv6Addr *ip, MACAddr *mac);
     void set_dst_ip_addr(IPv6Addr *ipv6);

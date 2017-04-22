@@ -35,9 +35,9 @@ uint IcmpV6Pkt::payload_length() const
 {
     switch(m_type)
     {
-        case IcmpV6Type::NS:   return ICMPV6_NS_LEN;
-        case IcmpV6Type::NA:   return ICMPV6_NA_LEN;
-        case IcmpV6Type::Ping: return ICMPV6_PING_LEN;
+        case IcmpV6Type::NS:   return NS_LEN;
+        case IcmpV6Type::NA:   return NA_LEN;
+        case IcmpV6Type::Ping: return PING_LEN;
         default:               return 0;
     }
 }
@@ -105,7 +105,7 @@ uchar *IcmpV6Pkt::ipv6_hdr()
     hdr[0] = 0x60;                // Version
     // Traffic Class a Flow label [1-3] v memset
     memcpy(hdr+4, &pl, S_USHORT); // Payload length
-    hdr[6] = ICMPV6_TYPE;         // Next header
+    hdr[6] = TYPE_NR;         // Next header
     hdr[7] = 0xFF;                // Hop limit, pre ND povinne 255
     for(uint i=0; i<IPv6Addr::BYTES; ++i)
     {
@@ -131,7 +131,7 @@ uchar *IcmpV6Pkt::serialize_ns()
     uchar *hdr        = new uchar[payload_length()];
     UchrVect dst_ip_u = m_dst_ip->to_uchar();
     memset(hdr, 0, payload_length());
-    hdr[0] = ICMPV6_NS_TYPE;              // Type 135 (0x87)
+    hdr[0] = NS_TYPE;              // Type 135 (0x87)
     // Code, Checksum, Reserved nastavene v memset, byty 1-7
     for(uint i=0; i<dst_ip_u.size(); ++i) // Target IP addr
         hdr[8+i] = dst_ip_u[i];
@@ -149,7 +149,7 @@ uchar *IcmpV6Pkt::serialize_na()
     uchar *hdr        = new uchar[payload_length()];
     UchrVect src_ip_u = m_src_ip->to_uchar();
     memset(hdr, 0, payload_length());
-    hdr[0] = ICMPV6_NA_TYPE;              // Type 136 (0x88)
+    hdr[0] = NA_TYPE;              // Type 136 (0x88)
     // Code, Checksum nastavene v memset, byty 1-3
     hdr[4] = na_flags();                  // Flags
     // Reserved nastavene v memset, byty 5-7
@@ -169,7 +169,7 @@ uchar *IcmpV6Pkt::serialize_echo()
     uchar *hdr        = new uchar[payload_length()];
     UchrVect src_ip_u = m_src_ip->to_uchar();
     memset(hdr, 0, payload_length());
-    hdr[0] = ICMPV6_PING_TYPE;            // Type 128 (0x80)
+    hdr[0] = PING_REQ_TYPE;            // Type 128 (0x80)
     // Code a checksum [1-3] v memset
     m_echo_id[0] = rand() % 255;          // Identifier
     m_echo_id[1] = rand() % 255;
@@ -208,7 +208,7 @@ uint16_t IcmpV6Pkt::checksum(uchar *icmp)
         sum += tmp16;
     }
     sum += htons(payload_length());
-    sum += htons(ICMPV6_TYPE);
+    sum += htons(TYPE_NR);
 
     // ICMPv6 Body
     for(uint i=0; i<payload_length(); i += 2)
