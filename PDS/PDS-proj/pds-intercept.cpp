@@ -260,9 +260,11 @@ bool intercept(NetItf *itf, HostGroups *hgs)
     s.setopt(SOL_SOCKET, SO_BINDTODEVICE, itf->name(), itf->name().size());
 
     MACAddr *loc_mac = itf->mac();
-    uchar buff[5000];
-    int rcvd;
-    bool for_me = true;
+    uchar    buff[5000];
+    uint16_t tmp16;
+    uchar    tmp8[2];
+    int      rcvd;
+    bool     for_me = true;
 
     while(do_intercept)
     {
@@ -273,7 +275,6 @@ bool intercept(NetItf *itf, HostGroups *hgs)
             cerr << "Failed to receive packet" << endl;
             break;
         }
-        //cout<< "Received: " << rcvd << endl;
         for(uint i=0; i<6; ++i)
         {
             if(buff[i] != loc_mac->octet(i))
@@ -283,12 +284,29 @@ bool intercept(NetItf *itf, HostGroups *hgs)
             }
         }
 
-        if(!for_me)
+        if(!for_me) // Ignoruj vsetko okrem unicastu
+            continue;
+
+        tmp8[0] = buff[12];
+        tmp8[1] = buff[13];
+        memcpy(&tmp16, tmp8, S_USHORT);
+        tmp16 = ntohs(tmp16);
+
+        if(tmp16 == ETH_P_IP)
         {
-            //cout << "Not for me!" << endl;
+            cout << "Intercepted IPv4 packet" << endl;
+        }
+        else if(tmp16 == ETH_P_IPV6)
+        {
+            cout << "Intercepted IPv6 packet" << endl;
+        }
+        else
+        {
+            cout << "Intercepted packet with unknown protocol: " <<
+                str_bytes16(tmp16) << endl;
             continue;
         }
-        cout << "GOT PACKET" << endl;
+
     }
 
     s.close();
