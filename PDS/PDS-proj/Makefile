@@ -1,6 +1,8 @@
 # Projekt: PDS - L2 MitM
 # Autor:   Daniel Klimaj, xklima22@stud.fit.vutbr.cz
 
+AUTHOR=xklima22
+
 CXXFLAGS=-std=c++11 -Wall -Werror -Wextra -pedantic
 CXX=g++
 
@@ -87,13 +89,19 @@ run-spoof6ll: $(PROG2)
 run-spoof6gl: $(PROG2)
 	sudo ./pds-spoof -i eth0 -t 5000 -p ndp -victim1ip 2001:67c:1220:c1a0:ed4e:80b7:d968:27f -victim1mac 0800.2776.DE10 -victim2ip 2001:67c:1220:c1a0:741c:d41f:51b1:f49d -victim2mac 0800.2717.A19F
 
+pack:
+	zip $(AUTHOR).zip dokumentace.pdf *.cpp *.h README.txt Makefile
+
 clean:
 	rm -f *~
 	rm -f *.o
 	rm -f $(PROG1)
+	rm -f $(PROG2)
+	rm -f $(PROG3)
 	rm -f .fuse*
 	rm -f *.cpp.*
 	rm -f *.xml
+	rm -f $(AUTHOR).zip
 
 git: clean
 	git add --all
