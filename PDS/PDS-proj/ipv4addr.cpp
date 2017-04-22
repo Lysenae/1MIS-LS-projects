@@ -10,6 +10,22 @@ IPAddr(IPVer::IPv4, ip, mask)
 {
 }
 
+IPv4Addr *IPv4Addr::from_bytes(UchrVect bytes)
+{
+    std::string a = "";
+    if(bytes.size() == OCTETS)
+    {
+        for(uint i=0; i<OCTETS; ++i)
+        {
+            a += std::to_string((int)bytes[i]);
+            if(i<OCTETS-1)
+                a += ".";
+        }
+    }
+    std::cout << "IPv4 from bytes: " << a << std::endl;
+    return new IPv4Addr(a);
+}
+
 int IPv4Addr::mask_n()
 {
     int mask = 0;
@@ -80,6 +96,16 @@ std::string IPv4Addr::mask_grp(uint idx)
 uchar IPv4Addr::octet(uint idx)
 {
     return str_to_uch(addr_grp(idx));
+}
+
+bool IPv4Addr::operator==(IPv4Addr *other)
+{
+    for(uint i=0; i<OCTETS; ++i)
+    {
+        if(octet(i) != other->octet(i))
+            return false;
+    }
+    return true;
 }
 
 std::string IPv4Addr::get_group(std::string ins, uint idx)

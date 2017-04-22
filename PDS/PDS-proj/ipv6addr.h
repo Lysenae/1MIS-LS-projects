@@ -22,6 +22,7 @@ public:
 
     IPv6Addr(ifaddrs *ifa);
     IPv6Addr(std::string ip, std::string mask = "");
+    static IPv6Addr *from_bytes(UchrVect bytes);
     ~IPv6Addr() {}
     virtual std::string addr_grp(uint idx) override;
     virtual std::string mask_grp(uint idx) override;
@@ -30,6 +31,7 @@ public:
     in6_addr addr_struct() const;
     bool is_ll();
     bool is_global();
+    bool operator==(IPv6Addr *other);
 
 private:
     virtual std::string get_group(std::string ins, uint idx) override;

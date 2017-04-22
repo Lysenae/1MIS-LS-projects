@@ -30,6 +30,9 @@ HostGroups create_groups(vector<StrVect *> *v);
 bool contains(vector<uint> vu, uint v);
 bool intercept(NetItf *itf, HostGroups *hgs);
 
+const uint FIRST  = 1;
+const uint SECOND = 2;
+
 int main(int argc, char **argv)
 {
     int opt;
@@ -250,7 +253,6 @@ bool contains(vector<uint> vu, uint v)
 
 bool intercept(NetItf *itf, HostGroups *hgs)
 {
-    (void) hgs;
     Socket s(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
     if(s.open() != SocketStatus::Opened)
     {
@@ -259,12 +261,22 @@ bool intercept(NetItf *itf, HostGroups *hgs)
     }
     s.setopt(SOL_SOCKET, SO_BINDTODEVICE, itf->name(), itf->name().size());
 
-    MACAddr *loc_mac = itf->mac();
-    uchar    buff[5000];
-    uint16_t tmp16;
-    uchar    tmp8[2];
-    int      rcvd;
-    bool     for_me = true;
+    MACAddr  *loc_mac = itf->mac();
+    uchar     buff[5000];
+    uint16_t  tmp16;
+    uchar     tmp8[2];
+    int       rcvd;
+    bool      for_me = true;
+    MACAddr  *mac_src = nullptr;
+    IPv4Addr *ip4_src = nullptr;
+    IPv4Addr *ip4_dst = nullptr;
+    IPv6Addr *ip6_src = nullptr;
+    IPv6Addr *ip6_dst = nullptr;
+    UchrVect mac_src_o;
+    UchrVect ip_src_b;
+    UchrVect ip_dst_b;
+    IPVer    ipv;
+    uint     member = 0;
 
     while(do_intercept)
     {
@@ -275,7 +287,7 @@ bool intercept(NetItf *itf, HostGroups *hgs)
             cerr << "Failed to receive packet" << endl;
             break;
         }
-        for(uint i=0; i<6; ++i)
+        for(uint i=0; i<MACAddr::OCTETS; ++i)
         {
             if(buff[i] != loc_mac->octet(i))
             {
@@ -295,18 +307,75 @@ bool intercept(NetItf *itf, HostGroups *hgs)
         if(tmp16 == ETH_P_IP)
         {
             cout << "Intercepted IPv4 packet" << endl;
+            ipv = IPVer::IPv4;
         }
         else if(tmp16 == ETH_P_IPV6)
         {
             cout << "Intercepted IPv6 packet" << endl;
+            ipv = IPVer::IPv6;
         }
         else
         {
             cout << "Intercepted packet with unknown protocol: " <<
-                str_bytes16(tmp16) << endl;
+                str_bytes16(tmp16) << " SKIPPING" << endl;
             continue;
         }
 
+        // ! Odtialto nepouzivat continue !
+        for(uint i=0; i<MACAddr::OCTETS; ++i)
+            mac_src_o.push_back(buff[i+6]); // Src MAC v Ethernet hlavicke
+        mac_src = new MACAddr(mac_src_o);
+
+        for(uint i=0; i<hgs->size(); ++i)
+        {
+            HostGroup *hg = hgs->at(i);
+            if(hg->mac1()->eq(mac_src))
+            {
+                member = FIRST;
+                cout << "Paired MAC 1: " << mac_src->to_string() << endl;
+            }
+            else if(hg->mac2() == mac_src)
+            {
+                member = SECOND;
+                cout << "Paired MAC 2: " << mac_src->to_string() << endl;
+            }
+
+            if(ipv == IPVer::IPv4)
+            {
+                for(uint i=0; i<IPv4Addr::OCTETS; ++i)
+                {
+                    ip_src_b.push_back(buff[i+26]); // Src IPa v IPv4 hlavicke
+                    ip_dst_b.push_back(buff[i+30]); // Dst IPa v IPv4 hlavicke
+                }
+                ip4_src = IPv4Addr::from_bytes(ip_src_b);
+                ip4_dst = IPv4Addr::from_bytes(ip_dst_b);
+            }
+            else if(ipv == IPVer::IPv6)
+            {
+                for(uint i=0; i<IPv6Addr::BYTES; ++i)
+                {
+                    ip_src_b.push_back(buff[i+22]); // Src IPa v IPv6 hlavicke
+                    ip_dst_b.push_back(buff[i+38]); // Dst IPa v IPv6 hlavicke
+                }
+                ip6_src = IPv6Addr::from_bytes(ip_src_b);
+                ip6_dst = IPv6Addr::from_bytes(ip_dst_b);
+            }
+        }
+        (void) member;
+
+        if(ip4_src != nullptr) delete ip4_src;
+        if(ip4_dst != nullptr) delete ip4_dst;
+        if(ip6_src != nullptr) delete ip6_src;
+        if(ip6_dst != nullptr) delete ip6_dst;
+        delete mac_src;
+        mac_src = nullptr;
+        ip4_src = nullptr;
+        ip4_dst = nullptr;
+        ip6_src = nullptr;
+        ip6_dst = nullptr;
+        mac_src_o.clear();
+        ip_dst_b.clear();
+        ip_src_b.clear();
     }
 
     s.close();

@@ -16,12 +16,14 @@ public:
 
     IPv4Addr(struct ifaddrs *ifa);
     IPv4Addr(std::string ip, std::string mask = "");
+    static IPv4Addr *from_bytes(UchrVect bytes);
     ~IPv4Addr() {}
     virtual int mask_n() override;
     StrVect net_host_ips();
     virtual std::string addr_grp(uint idx) override;
     virtual std::string mask_grp(uint idx) override;
     uchar octet(uint idx);
+    bool operator==(IPv4Addr *other);
 
 private:
     virtual std::string get_group(std::string ins, uint idx) override;

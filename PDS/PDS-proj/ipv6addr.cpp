@@ -12,6 +12,22 @@ IPAddr(IPVer::IPv6, ip, mask)
         std::cerr << "IPv6Addr Constructor: Invalid subnet mask format\n";
 }
 
+IPv6Addr *IPv6Addr::from_bytes(UchrVect bytes)
+{
+    std::string a = "";
+    if(bytes.size() == BYTES)
+    {
+        for(uint i=0; i<BYTES; ++i)
+        {
+            a += str_bytes8(bytes[i]);
+            if(i < BYTES-1 && i % 2 == 1)
+                a += ":";
+        }
+    }
+    std::cout << "IPv6 from bytes: " << a << std::endl;
+    return new IPv6Addr(a);
+}
+
 std::string IPv6Addr::addr_grp(uint idx)
 {
     return get_group(m_addr, idx);
@@ -111,6 +127,20 @@ bool IPv6Addr::is_global()
     if(fg[0] == '2' || fg[0] == '3')
         return true;
     return false;
+}
+
+bool IPv6Addr::operator==(IPv6Addr *other)
+{
+    UchrVect uc1 = to_uchar();
+    UchrVect uc2 = other->to_uchar();
+    if(uc1.size() != uc2.size())
+        return false;
+    for(uint i=0; i<uc1.size(); ++i)
+    {
+        if(uc1[i] != uc2[i])
+            return false;
+    }
+    return true;
 }
 
 std::string IPv6Addr::get_group(std::string ins, uint idx)
