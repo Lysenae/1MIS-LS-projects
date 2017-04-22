@@ -87,7 +87,7 @@ std::string IPv4Addr::get_group(std::string ins, uint idx)
     std::string s = "";
     if(idx < OCTETS)
     {
-        StrVect grps = split_addr(ins, '.');
+        StrVect grps = split_str(ins, '.');
         s = grps[OCTETS - idx - 1];
     }
     return s;

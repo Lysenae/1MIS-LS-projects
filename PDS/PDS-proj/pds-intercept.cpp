@@ -26,6 +26,8 @@ void print_usage();
 void on_sigint(int signum);
 bool get_groups(std::string fname, HostGroups *hgs);
 void parse_elements(xmlNode * node, vector<StrVect *> *sv);
+HostGroups create_groups(vector<StrVect *> *v);
+bool contains(vector<uint> vu, uint v);
 bool intercept(HostGroups *hgs);
 
 int main(int argc, char **argv)
@@ -60,6 +62,9 @@ int main(int argc, char **argv)
 
     HostGroups hgs;
     all_ok = get_groups(fname, &hgs);
+
+    for(uint i=0; i<hgs.size(); ++i)
+        hgs[i]->print();
 
     if(all_ok)
     {
@@ -120,17 +125,9 @@ bool get_groups(std::string fname, HostGroups *hgs)
     root_element = xmlDocGetRootElement(doc);
     parse_elements(root_element, &v);
 
-    for(StrVect *sv : v)
-    {
-        for(string s : *sv)
-        {
-            cout << s << endl;
-        }
-        cout << endl;
-    }
+    *hgs = create_groups(&v);
 
     xmlFreeDoc(doc);
-
     xmlCleanupParser();
 
     return true;
@@ -167,18 +164,18 @@ void parse_elements(xmlNode * node, vector<StrVect *> *sv)
                     {
                         attr_v = xmlGetProp(cur_node, attr->name);
                         sv->at(sv->size()-1)->push_back(string(string(
-                            (char*)attr->name)) + ":" + string((char*)attr_v));
+                            (char*)attr->name)) + "@" + string((char*)attr_v));
                     }
                 }
             }
             else if(nname == "ipv4")
             {
-                sv->at(sv->size()-1)->push_back(string("ipv4:" +
+                sv->at(sv->size()-1)->push_back(string("ipv4@" +
                     string((char*)cur_node->children->content)));
             }
             else if(nname == "ipv6")
             {
-                sv->at(sv->size()-1)->push_back(string("ipv6:" +
+                sv->at(sv->size()-1)->push_back(string("ipv6@" +
                     string((char*)cur_node->children->content)));
             }
         }
@@ -186,6 +183,62 @@ void parse_elements(xmlNode * node, vector<StrVect *> *sv)
         if(to_add)
             parse_elements(cur_node->children, sv);
     }
+}
+
+HostGroups create_groups(vector<StrVect *> *v)
+{
+    HostGroups hgs;
+    vector<uint> processed;
+    string gr1 = "";
+    string gr2 = "";
+
+    for(uint i=0; i<v->size(); ++i)
+    {
+        if(contains(processed, i))
+            continue;
+        for(string c : *(v->at(i)))
+        {
+            if(c.substr(0, 5) == "group")
+            {
+                gr1 = c;
+                break;
+            }
+        }
+        for(uint j=i+1; j<v->size(); ++j)
+        {
+            if(contains(processed, j))
+                continue;
+            for(string c : *(v->at(j)))
+            {
+                if(c.substr(0, 5) == "group")
+                {
+                    gr2 = c;
+                    break;
+                }
+            }
+            if(!gr1.empty() && gr1 == gr2 && v->at(i)->size() == v->at(j)->size())
+            {
+                processed.push_back(i);
+                processed.push_back(j);
+                gr1 = "";
+                gr2 = "";
+
+                HostGroup *tmp = new HostGroup(gr1, *(v->at(i)), *(v->at(j)));
+                hgs.push_back(tmp);
+            }
+        }
+    }
+    return hgs;
+}
+
+bool contains(vector<uint> vu, uint v)
+{
+    for(uint x : vu)
+    {
+        if(x == v)
+            return true;
+    }
+    return false;
 }
 
 bool intercept(HostGroups *hgs)

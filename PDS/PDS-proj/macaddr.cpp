@@ -30,7 +30,7 @@ MACAddr::MACAddr(std::string mac)
 
     if(mac.find_first_of(':') != std::string::npos)
     {
-        StrVect octs = split_addr(mac, ':');
+        StrVect octs = split_str(mac, ':');
         if(octs.size() == OCTETS)
         {
             for(uint i=0; i<OCTETS; ++i)
@@ -39,7 +39,7 @@ MACAddr::MACAddr(std::string mac)
     }
     else if(mac.find_first_of('.') != std::string::npos)
     {
-        StrVect quads = split_addr(mac, '.');
+        StrVect quads = split_str(mac, '.');
         if(quads.size() == QUADS)
         {
             m_mac[0] = literal_to_uchr(quads[0].substr(0, 2));

@@ -97,9 +97,9 @@ bool IPAddr::empty()
 
 IPVer IPAddr::get_version(std::string addr)
 {
-    if(split_addr(addr, '.').size() == 4)
+    if(split_str(addr, '.').size() == 4)
         return IPVer::IPv4;
-    else if(split_addr(addr, ':').size() >= 3)
+    else if(split_str(addr, ':').size() >= 3)
         return IPVer::IPv6;
 
     return IPVer::Undef;

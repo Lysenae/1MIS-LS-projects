@@ -39,7 +39,7 @@ uchar literal_to_uchr(std::string s)
     return 0x00;
 }
 
-StrVect split_addr(std::string s, char delimiter)
+StrVect split_str(std::string s, char delimiter)
 {
     StrVect v;
     std::string t = "";

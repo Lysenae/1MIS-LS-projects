@@ -48,7 +48,7 @@ UchrVect IPv6Addr::to_uchar()
 {
     UchrVect uc;
     std::string s = "";
-    StrVect grps  = split_addr(m_addr, ':');
+    StrVect grps  = split_str(m_addr, ':');
     uint nonempty = 0;
     int empty     = -1;
     uint diff     = 0;
@@ -118,7 +118,7 @@ std::string IPv6Addr::get_group(std::string ins, uint idx)
     std::string s = "";
     if(idx <= BLOCKS)
     {
-        StrVect grps = split_addr(ins, ':');
+        StrVect grps = split_str(ins, ':');
         uint nonempty = 0;
         int empty     = -1;
         for(uint i=0; i<grps.size(); ++i)
