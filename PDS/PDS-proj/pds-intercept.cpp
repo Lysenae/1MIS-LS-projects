@@ -268,7 +268,12 @@ bool intercept(NetItf *itf, HostGroups *hgs)
     {
         for_me = true;
         rcvd = s.recv_from(buff, 5000, 0);
-        cout<< "Received: " << rcvd << endl;
+        if(rcvd < 0)
+        {
+            cerr << "Failed to receive packet" << endl;
+            break;
+        }
+        //cout<< "Received: " << rcvd << endl;
         for(uint i=0; i<6; ++i)
         {
             if(buff[i] != loc_mac->octet(i))
@@ -280,9 +285,10 @@ bool intercept(NetItf *itf, HostGroups *hgs)
 
         if(!for_me)
         {
-            cout << "Not for me!" << endl;
+            //cout << "Not for me!" << endl;
             continue;
         }
+        cout << "GOT PACKET" << endl;
     }
 
     s.close();
