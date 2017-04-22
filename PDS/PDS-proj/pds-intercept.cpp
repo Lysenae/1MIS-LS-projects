@@ -64,7 +64,11 @@ int main(int argc, char **argv)
     all_ok = get_groups(fname, &hgs);
 
     for(uint i=0; i<hgs.size(); ++i)
+    {
+        cout << i << endl;
         hgs[i]->print();
+        cout << endl;
+    }
 
     if(all_ok)
     {
