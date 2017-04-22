@@ -20,6 +20,7 @@ using namespace std;
 ///
 bool search = true;
 
+void print_usage();
 void on_sigint(int signum);
 bool search_ipv4_hosts(IPv4Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts);
 bool search_ipv6_hosts(IPv6Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts);
@@ -34,9 +35,9 @@ bool writeHosts(Hash *hosts, string fname);
 int main(int argc, char *argv[])
 {
     int opt;
-    std::string fname     = "";
-    std::string interface = "";
-    bool opts_ok          = true;
+    string fname     = "";
+    string interface = "";
+    bool opts_ok     = true;
 
     while ((opt = getopt(argc, argv, "i:f:")) != -1)
     {
@@ -56,13 +57,13 @@ int main(int argc, char *argv[])
 
     if(interface.empty() || fname.empty() || !opts_ok)
     {
-        fprintf(stderr, "Usage: %s -i interface -f file\n", argv[0]);
-        exit(EXIT_FAILURE);
+        print_usage();
+        return OP_FAIL;
     }
 
     signal(SIGINT, on_sigint);
 
-    bool result;
+    bool all_ok;
     Hash hosts;
     NetItf      *netitf      = new NetItf(interface);
     MACAddr     *loc_mac     = netitf->mac();
@@ -80,54 +81,54 @@ int main(int argc, char *argv[])
             loc_ipv6_gl = a;
     }
 
-    if(ifn < 0)
+    if(ifn < OP_SUCC)
     {
         cerr << "Failed to get netinterface ID" << endl;
-        result = false;
+        all_ok = false;
     }
     if(loc_mac == nullptr || loc_mac->empty())
     {
         cerr << "Failed to get local MAC address" << endl;
-        result = false;
+        all_ok = false;
     }
     if(loc_ipv4 == nullptr || loc_ipv4->empty())
     {
         cerr << "Failed to get local IPv4 address" << endl;
-        result = false;
+        all_ok = false;
     }
     if(loc_ipv6_ll == nullptr || loc_ipv6_ll->empty())
     {
         cerr << "Failed to get Link-Local IPv6 address" << endl;
-        result = false;
+        all_ok = false;
     }
     if(loc_ipv6_gl == nullptr || loc_ipv6_gl->empty())
     {
         cerr << "Failed to get global scope IPv6 address" << endl;
-        result = false;
+        all_ok = false;
     }
 
-    if(result && search)
+    if(all_ok && search)
     {
         cout << "Searching for IPv4 hosts" << endl;
-        result = search_ipv4_hosts(loc_ipv4, loc_mac, ifn, &hosts);
+        all_ok = search_ipv4_hosts(loc_ipv4, loc_mac, ifn, &hosts);
         cout << "Searching for IPv4 hosts copmleted" << endl;
     }
 
-    if(result && search)
+    if(all_ok && search)
     {
         cout << "Searching for Link-Local IPv6 hosts" << endl;
-        result = search_ipv6_hosts(loc_ipv6_ll, loc_mac, ifn, &hosts);
+        all_ok = search_ipv6_hosts(loc_ipv6_ll, loc_mac, ifn, &hosts);
         cout << "Searching for Link-Local IPv6 hosts completed" << endl;
     }
 
-    if(result && search)
+    if(all_ok && search)
     {
         cout << "Searching for Global IPv6 hosts" << endl;
-        result = search_ipv6_hosts(loc_ipv6_gl, loc_mac, ifn, &hosts);
+        all_ok = search_ipv6_hosts(loc_ipv6_gl, loc_mac, ifn, &hosts);
         cout << "Searching for Global IPv6 hosts completed" << endl;
     }
 
-    if(result)
+    if(all_ok)
         writeHosts(&hosts, fname);
 
     delete netitf;
@@ -139,7 +140,15 @@ int main(int argc, char *argv[])
         a = nullptr;
     }
     loc_ipv6s.clear();
-    return 0;
+    return all_ok ? OP_SUCC : OP_FAIL;
+}
+
+///
+/// \brief Vypise pouzitie programu
+///
+void print_usage()
+{
+    cout << "Usage: pds-scanner -i interface -f file" << endl;
 }
 
 ///
@@ -335,13 +344,13 @@ bool writeHosts(Hash *hosts, string fname)
         return false;
     }
 
-    if(xmlTextWriterStartDocument(writer, "1.0", "UTF-8", nullptr) < 0)
+    if(xmlTextWriterStartDocument(writer, "1.0", "UTF-8", nullptr) < OP_SUCC)
     {
         cerr << "Failed to start XML document" << endl;
         return false;
     }
 
-    if(xmlTextWriterStartElement(writer, BAD_CAST "devices") < 0)
+    if(xmlTextWriterStartElement(writer, BAD_CAST "devices") < OP_SUCC)
     {
          cerr << "Failed to write XML root element" << endl;
          return false;
@@ -349,13 +358,13 @@ bool writeHosts(Hash *hosts, string fname)
 
     for(string k : keys)
     {
-        if(xmlTextWriterStartElement(writer, BAD_CAST "host") < 0)
+        if(xmlTextWriterStartElement(writer, BAD_CAST "host") < OP_SUCC)
         {
             cerr << "Failed to write XML element 'host'" << endl;
             return false;
         }
         if(xmlTextWriterWriteAttribute(writer, BAD_CAST "mac",
-        BAD_CAST MACAddr::to_xml(k).c_str()) < 0)
+        BAD_CAST MACAddr::to_xml(k).c_str()) < OP_SUCC)
         {
             cerr << "Failed to write device's MAC address" << endl;
             return false;
@@ -367,7 +376,7 @@ bool writeHosts(Hash *hosts, string fname)
             if(v.find_first_of(".") != string::npos) // IPv4
             {
                 if(xmlTextWriterWriteFormatElement(writer, BAD_CAST "ipv4",
-                "%s", v.c_str()) < 0)
+                "%s", v.c_str()) < OP_SUCC)
                 {
                     cerr << "Failed to write IPv4" << endl;
                     return false;
@@ -376,7 +385,7 @@ bool writeHosts(Hash *hosts, string fname)
             else if(v.find_first_of(":") != string::npos) // IPv6
             {
                 if(xmlTextWriterWriteFormatElement(writer, BAD_CAST "ipv6",
-                "%s", v.c_str()) < 0)
+                "%s", v.c_str()) < OP_SUCC)
                 {
                     cerr << "Failed to write IPv6" << endl;
                     return false;
@@ -389,14 +398,14 @@ bool writeHosts(Hash *hosts, string fname)
             }
         } // ipvx
 
-        if(xmlTextWriterEndElement(writer) < 0)
+        if(xmlTextWriterEndElement(writer) < OP_SUCC)
         {
             cerr << "Failed to end XML element 'host'" << endl;
             return false;
         }
     } // host
 
-    if(xmlTextWriterEndElement(writer) < 0)
+    if(xmlTextWriterEndElement(writer) < OP_SUCC)
     {
         cerr << "Failed to end root XML element" << endl;
         return false;

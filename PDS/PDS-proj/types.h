@@ -23,6 +23,7 @@ const uint BITS         = 8;
 const uint B_UCHAR_MIN  = 0;
 const uint B_UCHAR_MAX  = 255;
 const int  OP_FAIL      = -1;
+const int  OP_SUCC      = 0;
 const uint S_UCHAR      = 1;
 const uint S_USHORT     = 2;
 

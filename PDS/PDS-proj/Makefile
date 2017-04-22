@@ -6,6 +6,7 @@ CXX=g++
 
 PROG1=pds-scanner
 PROG2=pds-spoof
+PROG3=pds-intercept
 FILES= \
 	types.o \
 	hash.o \
@@ -19,7 +20,7 @@ FILES= \
 	arppkt.o \
 	icmpv6pkt.o \
 
-all: $(PROG1) $(PROG2)
+all: $(PROG1) $(PROG2) $(PROG3)
 
 types.o: types.cpp
 	$(CXX) $(CXXFLAGS) -c types.cpp
@@ -60,6 +61,9 @@ pds-scanner.o: pds-scanner.cpp
 pds-spoof.o: pds-spoof.cpp
 	$(CXX) $(CXXFLAGS) -c pds-spoof.cpp
 
+pds-intercept.o: pds-intercept.cpp
+	$(CXX) $(CXXFLAGS) -c pds-intercept.cpp -I/usr/include/libxml2/ -lxml2
+
 # --- Binarky ---
 
 $(PROG1): $(FILES) $(PROG1).o
@@ -67,6 +71,9 @@ $(PROG1): $(FILES) $(PROG1).o
 
 $(PROG2): $(FILES) $(PROG2).o
 	$(CXX) $(CXXFLAGS) $(FILES) $(PROG2).o -o $(PROG2)
+
+$(PROG3): $(FILES) $(PROG3).o
+	$(CXX) $(CXXFLAGS) $(FILES) $(PROG3).o -o $(PROG3) -I/usr/include/libxml2/ -lxml2
 
 run-spoof4: $(PROG2)
 	sudo ./pds-spoof -i eth0 -t 5000 -p arp -victim1ip 10.190.8.76 -victim1mac 0800.2776.DE10 -victim2ip 10.190.11.57 -victim2mac 0800.2717.A19F

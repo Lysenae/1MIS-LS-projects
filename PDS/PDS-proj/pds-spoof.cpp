@@ -18,6 +18,8 @@ using namespace std;
 ///
 bool do_spoofing = true;
 
+const uint US2MS = 1000;
+
 void print_usage();
 void on_sigint(int signum);
 bool spoof_arp(NetItf *itf, IPv4Addr *ip1, IPv4Addr *ip2, MACAddr *m1,
@@ -91,7 +93,7 @@ int main(int argc, char **argv)
     }
 
     NetItf *netitf = new NetItf(interface);
-    if(netitf->index() < 0)
+    if(netitf->index() < OP_SUCC)
     {
         cerr << "Failed to find netinterface '" << interface << "'" << endl;
         all_ok = false;
@@ -194,7 +196,7 @@ int main(int argc, char **argv)
     delete v1maca;
     delete v2maca;
     delete netitf;
-    return all_ok ? 0 : OP_FAIL;
+    return all_ok ? OP_SUCC : OP_FAIL;
 }
 
 ///
@@ -202,7 +204,7 @@ int main(int argc, char **argv)
 ///
 void print_usage()
 {
-    cout << "Usage: " << "pds-spoof -i interface -t sec -p protocol " <<
+    cout << "Usage: pds-spoof -i interface -t sec -p protocol " <<
         "-victim1ip ipaddress -victim1mac macaddress -victim2ip " <<
         "ipaddress -victim2mac macaddress" << endl;
 }
@@ -252,7 +254,7 @@ MACAddr *m2, uint interval)
         cout << "Sending ARP packets" << endl;
         s.send(arppkt1, ifn);
         s.send(arppkt2, ifn);
-        usleep(interval * 1000);
+        usleep(interval * US2MS);
     }
 
     arppkt1->set_src_hwa(m2);
@@ -296,12 +298,10 @@ MACAddr *m2, uint interval)
 
     na1->set_dst_hwa(m1);
     na1->set_dst_ip_addr(ip1);
-    //na1->set_na_flag_router();
     na1->set_na_flag_override();
     na1->set_multicast_flag(false);
     na2->set_dst_hwa(m2);
     na2->set_dst_ip_addr(ip2);
-    //na2->set_na_flag_router();
     na2->set_na_flag_override();
     na2->set_multicast_flag(false);
 
@@ -310,7 +310,7 @@ MACAddr *m2, uint interval)
         cout << "Sending NA packets" << endl;
         s.send(na1, ifn);
         s.send(na2, ifn);
-        usleep(interval * 1000);
+        usleep(interval * US2MS);
     }
 
     na1->set_src_hwa(m2);
