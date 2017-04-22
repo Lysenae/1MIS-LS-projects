@@ -261,6 +261,7 @@ bool intercept(NetItf *itf, HostGroups *hgs)
     }
     s.setopt(SOL_SOCKET, SO_BINDTODEVICE, itf->name(), itf->name().size());
 
+
     MACAddr  *loc_mac = itf->mac();
     uchar     buff[5000];
     uint16_t  tmp16;
@@ -276,7 +277,13 @@ bool intercept(NetItf *itf, HostGroups *hgs)
     UchrVect ip_src_b;
     UchrVect ip_dst_b;
     IPVer    ipv;
-    uint     member = 0;
+    uint     member = 0; // Urcuje, ktory clen z paru je odosielatel
+
+    // Len na zostavenie sockaddr_ll, IP adresy su nepodstatne
+    ArpPkt *arp     =
+        new ArpPkt(ArpType::Request, new IPv4Addr("127.0.0.1"), loc_mac);
+    IcmpV6Pkt *icmp =
+        new IcmpV6Pkt(IcmpV6Type::Ping, new IPv6Addr("FF02::1"), loc_mac);
 
     while(do_intercept)
     {
@@ -305,21 +312,11 @@ bool intercept(NetItf *itf, HostGroups *hgs)
         tmp16 = ntohs(tmp16);
 
         if(tmp16 == ETH_P_IP)
-        {
-            cout << "Intercepted IPv4 packet" << endl;
             ipv = IPVer::IPv4;
-        }
         else if(tmp16 == ETH_P_IPV6)
-        {
-            cout << "Intercepted IPv6 packet" << endl;
             ipv = IPVer::IPv6;
-        }
         else
-        {
-            cout << "Intercepted packet with unknown protocol: " <<
-                str_bytes16(tmp16) << " SKIPPING" << endl;
             continue;
-        }
 
         // ! Odtialto nepouzivat continue !
         for(uint i=0; i<MACAddr::OCTETS; ++i)
@@ -330,38 +327,107 @@ bool intercept(NetItf *itf, HostGroups *hgs)
         {
             HostGroup *hg = hgs->at(i);
             if(hg->mac1()->eq(mac_src))
-            {
                 member = FIRST;
-                cout << "Paired MAC 1: " << mac_src->to_string() << endl;
-            }
-            else if(hg->mac2() == mac_src)
-            {
+            else if(hg->mac2()->eq(mac_src))
                 member = SECOND;
-                cout << "Paired MAC 2: " << mac_src->to_string() << endl;
-            }
+            else
+                member = 0;
 
-            if(ipv == IPVer::IPv4)
+            if(member > 0)
             {
-                for(uint i=0; i<IPv4Addr::OCTETS; ++i)
+                if(ipv == IPVer::IPv4)
+                    cout << "Intercepted IPv4 packet" << endl;
+                else
+                    cout << "Intercepted IPv6 packet" << endl;
+
+                bool match_ip = false;
+                if(ipv == IPVer::IPv4) // Kontrola parov IPv4 adries
                 {
-                    ip_src_b.push_back(buff[i+26]); // Src IPa v IPv4 hlavicke
-                    ip_dst_b.push_back(buff[i+30]); // Dst IPa v IPv4 hlavicke
+                    for(uint i=0; i<IPv4Addr::OCTETS; ++i)
+                    {
+                        ip_src_b.push_back(buff[i+26]); // Src IPa v IPv4 hlavicke
+                        ip_dst_b.push_back(buff[i+30]); // Dst IPa v IPv4 hlavicke
+                    }
+                    ip4_src = IPv4Addr::from_bytes(ip_src_b);
+                    ip4_dst = IPv4Addr::from_bytes(ip_dst_b);
+
+                    if(member == FIRST)
+                    {
+                        if(ip4_src->eq(hg->ipv4_1()))
+                            match_ip = true;
+                    }
+                    else if(member == SECOND)
+                    {
+                        if(ip4_src->eq(hg->ipv4_2()))
+                            match_ip = true;
+                    }
                 }
-                ip4_src = IPv4Addr::from_bytes(ip_src_b);
-                ip4_dst = IPv4Addr::from_bytes(ip_dst_b);
-            }
-            else if(ipv == IPVer::IPv6)
-            {
-                for(uint i=0; i<IPv6Addr::BYTES; ++i)
+                else if(ipv == IPVer::IPv6) // Kontrola parov IPv6 adries
                 {
-                    ip_src_b.push_back(buff[i+22]); // Src IPa v IPv6 hlavicke
-                    ip_dst_b.push_back(buff[i+38]); // Dst IPa v IPv6 hlavicke
+                    for(uint i=0; i<IPv6Addr::BYTES; ++i)
+                    {
+                        ip_src_b.push_back(buff[i+22]); // Src IPa v IPv6 hlavicke
+                        ip_dst_b.push_back(buff[i+38]); // Dst IPa v IPv6 hlavicke
+                    }
+                    ip6_src = IPv6Addr::from_bytes(ip_src_b);
+                    ip6_dst = IPv6Addr::from_bytes(ip_dst_b);
+
+                    if(member == FIRST)
+                    {
+                        for(uint i=0; i<hg->ipv6s_cnt(); ++i)
+                        {
+                            if(ip6_src->eq(hg->ipv6_1(i)))
+                            {
+                                match_ip = true;
+                                break;
+                            }
+                        }
+                    }
+                    else if(member == SECOND)
+                    {
+                        for(uint i=0; i<hg->ipv6s_cnt(); ++i)
+                        {
+                            if(ip6_src->eq(hg->ipv6_2(i)))
+                            {
+                                match_ip = true;
+                                break;
+                            }
+                        }
+                    }
                 }
-                ip6_src = IPv6Addr::from_bytes(ip_src_b);
-                ip6_dst = IPv6Addr::from_bytes(ip_dst_b);
+
+                if(match_ip) // IP adresy su v zadanych paroch
+                {
+                    MACAddr *tmp_mac = nullptr;
+                    if(member == FIRST)
+                        tmp_mac = hg->mac2();
+                    else
+                        tmp_mac = hg->mac1();
+
+                    for(uint i=0; i<MACAddr::OCTETS; ++i)
+                    {
+                        buff[i+MACAddr::OCTETS] = loc_mac->octet(i);
+                        buff[i] = tmp_mac->octet(i);
+                    }
+
+                    // Preposli spravu povodnemu adresatovi
+                    if(ipv == IPVer::IPv4)
+                    {
+                        cout << "From: " << ip4_src->addr() << " to " <<
+                            ip4_dst->addr() << endl;
+                        sockaddr_ll sa4 = arp->sock_addr(itf->index());
+                        s.send(buff, rcvd, 0, (sockaddr *)&sa4, sizeof(sa4));
+                    }
+                    else if(ipv == IPVer::IPv6)
+                    {
+                        cout << "From: " << ip6_src->addr() << " to " <<
+                            ip6_dst->addr() << endl;
+                        sockaddr_ll sa6 = icmp->sock_addr(itf->index());
+                        s.send(buff, rcvd, 0, (sockaddr *)&sa6, sizeof(sa6));
+                    }
+                }
             }
         }
-        (void) member;
 
         if(ip4_src != nullptr) delete ip4_src;
         if(ip4_dst != nullptr) delete ip4_dst;

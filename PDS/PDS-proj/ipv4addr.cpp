@@ -22,7 +22,6 @@ IPv4Addr *IPv4Addr::from_bytes(UchrVect bytes)
                 a += ".";
         }
     }
-    std::cout << "IPv4 from bytes: " << a << std::endl;
     return new IPv4Addr(a);
 }
 
@@ -98,7 +97,7 @@ uchar IPv4Addr::octet(uint idx)
     return str_to_uch(addr_grp(idx));
 }
 
-bool IPv4Addr::operator==(IPv4Addr *other)
+bool IPv4Addr::eq(IPv4Addr *other)
 {
     for(uint i=0; i<OCTETS; ++i)
     {

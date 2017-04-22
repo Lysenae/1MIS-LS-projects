@@ -31,7 +31,7 @@ public:
     in6_addr addr_struct() const;
     bool is_ll();
     bool is_global();
-    bool operator==(IPv6Addr *other);
+    bool eq(IPv6Addr *other);
 
 private:
     virtual std::string get_group(std::string ins, uint idx) override;

@@ -23,7 +23,7 @@ public:
     virtual std::string addr_grp(uint idx) override;
     virtual std::string mask_grp(uint idx) override;
     uchar octet(uint idx);
-    bool operator==(IPv4Addr *other);
+    bool eq(IPv4Addr *other);
 
 private:
     virtual std::string get_group(std::string ins, uint idx) override;

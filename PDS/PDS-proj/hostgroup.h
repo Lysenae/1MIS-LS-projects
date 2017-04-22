@@ -17,6 +17,7 @@ public:
     IPv4Addr *ipv4_2();
     IPv6Addr *ipv6_1(uint idx);
     IPv6Addr *ipv6_2(uint idx);
+    uint ipv6s_cnt();
 
     uint size();
     void print();

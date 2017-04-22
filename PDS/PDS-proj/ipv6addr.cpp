@@ -24,7 +24,6 @@ IPv6Addr *IPv6Addr::from_bytes(UchrVect bytes)
                 a += ":";
         }
     }
-    std::cout << "IPv6 from bytes: " << a << std::endl;
     return new IPv6Addr(a);
 }
 
@@ -129,7 +128,7 @@ bool IPv6Addr::is_global()
     return false;
 }
 
-bool IPv6Addr::operator==(IPv6Addr *other)
+bool IPv6Addr::eq(IPv6Addr *other)
 {
     UchrVect uc1 = to_uchar();
     UchrVect uc2 = other->to_uchar();

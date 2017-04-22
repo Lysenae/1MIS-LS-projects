@@ -56,6 +56,11 @@ IPv6Addr *HostGroup::ipv6_2(uint idx)
     return nullptr;
 }
 
+uint HostGroup::ipv6s_cnt()
+{
+    return m_pairs;
+}
+
 void HostGroup::add_ip6_pair(std::string ip1, std::string ip2)
 {
     m_ip6s_1.push_back(new IPv6Addr(ip1));
