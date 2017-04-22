@@ -68,9 +68,19 @@ int Socket::send(Packet *p, int ifn, int flags)
     return OP_FAIL;
 }
 
-int Socket::recv_from(void *buf, size_t len, int flags, sockaddr *src_addr, socklen_t *addrlen)
+int Socket::recv_from(void *buf, size_t len, int flags, sockaddr *src_addr,
+socklen_t *addrlen)
 {
     if(m_status == SocketStatus::Opened)
         return recvfrom(m_fd, buf, len, flags, src_addr, addrlen);
     return OP_FAIL;
+}
+
+void Socket::setopt(int level, int opt_name,  std::string opt_value,
+uint opt_len)
+{
+    if(m_status == SocketStatus::Opened)
+    {
+        setsockopt(m_fd, level, opt_name, opt_value.c_str(), opt_len+1);
+    }
 }

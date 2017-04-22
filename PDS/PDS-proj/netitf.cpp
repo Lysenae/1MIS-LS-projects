@@ -25,6 +25,11 @@ NetItf::~NetItf()
     }
 }
 
+std::string NetItf::name()
+{
+    return m_interface;
+}
+
 IPv4Addr *NetItf::ipv4()
 {
     IPv4Addr *ip = nullptr;

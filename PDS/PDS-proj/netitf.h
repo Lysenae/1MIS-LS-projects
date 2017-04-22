@@ -33,6 +33,7 @@ class NetItf
 public:
     NetItf(std::string interface);
     ~NetItf();
+    std::string name();
     IPv4Addr *ipv4();
     IPv6Vect ipv6();
     MACAddr *mac();

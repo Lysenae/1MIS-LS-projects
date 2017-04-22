@@ -28,7 +28,7 @@ bool get_groups(std::string fname, HostGroups *hgs);
 void parse_elements(xmlNode * node, vector<StrVect *> *sv);
 HostGroups create_groups(vector<StrVect *> *v);
 bool contains(vector<uint> vu, uint v);
-bool intercept(HostGroups *hgs);
+bool intercept(NetItf *itf, HostGroups *hgs);
 
 int main(int argc, char **argv)
 {
@@ -60,26 +60,29 @@ int main(int argc, char **argv)
         return OP_FAIL;
     }
 
+    signal(SIGINT, on_sigint);
+
+    NetItf *itf = new NetItf(interface);
+    if(itf->index() < OP_SUCC)
+    {
+        cerr << "Failed to find netinterface '" << interface  << "'" << endl;
+        all_ok = false;
+    }
+
     HostGroups hgs;
     all_ok = get_groups(fname, &hgs);
 
     for(uint i=0; i<hgs.size(); ++i)
-    {
-        cout << i << endl;
         hgs[i]->print();
-        cout << endl;
-    }
 
     if(all_ok)
     {
-        if(!intercept(&hgs))
+        if(!intercept(itf, &hgs))
         {
             cerr << "Intercept failed" << endl;
             all_ok = false;
         }
     }
-
-    signal(SIGINT, on_sigint);
 
     return all_ok ? OP_SUCC : OP_FAIL;
 }
@@ -227,7 +230,7 @@ HostGroups create_groups(vector<StrVect *> *v)
                 gr1 = "";
                 gr2 = "";
 
-                HostGroup *tmp = new HostGroup(gr1, *(v->at(i)), *(v->at(j)));
+                HostGroup *tmp = new HostGroup(*(v->at(i)), *(v->at(j)));
                 hgs.push_back(tmp);
             }
         }
@@ -245,8 +248,43 @@ bool contains(vector<uint> vu, uint v)
     return false;
 }
 
-bool intercept(HostGroups *hgs)
+bool intercept(NetItf *itf, HostGroups *hgs)
 {
     (void) hgs;
-    return false;
+    Socket s(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+    if(s.open() != SocketStatus::Opened)
+    {
+        cerr << "Failed to open socket" << endl;
+        return false;
+    }
+    s.setopt(SOL_SOCKET, SO_BINDTODEVICE, itf->name(), itf->name().size());
+
+    MACAddr *loc_mac = itf->mac();
+    uchar buff[5000];
+    int rcvd;
+    bool for_me = true;
+
+    while(do_intercept)
+    {
+        for_me = true;
+        rcvd = s.recv_from(buff, 5000, 0);
+        cout<< "Received: " << rcvd << endl;
+        for(uint i=0; i<6; ++i)
+        {
+            if(buff[i] != loc_mac->octet(i))
+            {
+                for_me = false;
+                break;
+            }
+        }
+
+        if(!for_me)
+        {
+            cout << "Not for me!" << endl;
+            continue;
+        }
+    }
+
+    s.close();
+    return true;
 }

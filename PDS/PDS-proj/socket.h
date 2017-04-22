@@ -40,6 +40,8 @@ public:
     int send(Packet *p, int ifn, int flags = 0);
     int recv_from(void *buf, size_t len, int flags,
         struct sockaddr *src_addr = nullptr, socklen_t *addrlen = nullptr);
+    void setopt(int level, int opt_name, std::string opt_value,
+        uint opt_len);
 
 private:
     int m_domain;

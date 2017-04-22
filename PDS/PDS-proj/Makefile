@@ -93,6 +93,9 @@ run-spoof6ll: $(PROG2)
 run-spoof6gl: $(PROG2)
 	sudo ./pds-spoof -i eth0 -t 5000 -p ndp -victim1ip 2001:67c:1220:c1a0:ed4e:80b7:d968:27f -victim1mac 0800.2776.DE10 -victim2ip 2001:67c:1220:c1a0:741c:d41f:51b1:f49d -victim2mac 0800.2717.A19F
 
+run-itc: $(PROG3)
+	sudo ./pds-intercept -i eth0 -f ../files/devices3.xml
+
 pack:
 	zip $(AUTHOR).zip dokumentace.pdf *.cpp *.h README.txt Makefile
 
