@@ -23,7 +23,10 @@ public:
     Packet(MACAddr *src_mac);
     virtual ~Packet() {}
     void set_dst_hwa(MACAddr *dst_mac);
+    void set_src_hwa(MACAddr *src_mac);
     virtual sockaddr_ll sock_addr(int if_idx) = 0;
+    virtual uchar *serialize() = 0;
+    virtual uint pktlen() = 0;
 
 protected:
     static const uchar MAC_BCV4[];

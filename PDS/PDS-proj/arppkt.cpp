@@ -62,12 +62,6 @@ void ArpPkt::set_dst_ip_addr(IPv4Addr *ipv4)
     }
 }
 
-void ArpPkt::set_src_hwa(MACAddr *m)
-{
-    for(uint i=0; i<MACAddr::OCTETS; ++i)
-        m_src_hwa_o[i] = m->octet(i);
-}
-
 sockaddr_ll ArpPkt::sock_addr(int if_idx)
 {
     sockaddr_ll sock_addr;
@@ -109,6 +103,11 @@ uchar *ArpPkt::serialize()
         buff[offs(ArpField::DST_IPA) + i] = m_dst_ip[i];
     }
     return buff;
+}
+
+uint ArpPkt::pktlen()
+{
+    return LEN;
 }
 
 bool ArpPkt::analyze_pkt(uchar *pkt, int len, MACAddr **mac, IPv4Addr **ip)

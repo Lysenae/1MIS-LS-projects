@@ -25,13 +25,23 @@ Packet::Packet(MACAddr *src_mac)
 
 ///
 /// \brief Nastavi cielovu MAC adresu
-/// \param dst_mac
+/// \param dst_mac MACAddr
 ///
 void Packet::set_dst_hwa(MACAddr *dst_mac)
 {
     m_dst_hwa = dst_mac;
     for(uint i=0; i<MACAddr::OCTETS; ++i)
         m_dst_hwa_o[i] = m_dst_hwa->octet(i);
+}
+
+///
+/// \brief Nastavi zdrojovu MAC adresu
+/// \param src_mac MACAddr
+///
+void Packet::set_src_hwa(MACAddr *src_mac)
+{
+    for(uint i=0; i<MACAddr::OCTETS; ++i)
+        m_src_hwa_o[i] = src_mac->octet(i);
 }
 
 ///

@@ -49,17 +49,28 @@ SocketStatus Socket::close()
     return m_status;
 }
 
-int Socket::send_to(const void *buf, size_t len, int flags,
+int Socket::send(const void *buf, size_t len, int flags,
 const sockaddr *dest_addr, socklen_t addrlen)
 {
     if(m_status == SocketStatus::Opened)
         return sendto(m_fd, buf, len, flags, dest_addr, addrlen);
-    return -1;
+    return OP_FAIL;
+}
+
+int Socket::send(Packet *p, int ifn, int flags)
+{
+    if(m_status == SocketStatus::Opened)
+    {
+        sockaddr_ll sa = p->sock_addr(ifn);
+        return sendto(m_fd, p->serialize(), p->pktlen(), flags, (sockaddr*)&sa,
+            sizeof(sa));
+    }
+    return OP_FAIL;
 }
 
 int Socket::recv_from(void *buf, size_t len, int flags, sockaddr *src_addr, socklen_t *addrlen)
 {
     if(m_status == SocketStatus::Opened)
         return recvfrom(m_fd, buf, len, flags, src_addr, addrlen);
-    return -1;
+    return OP_FAIL;
 }

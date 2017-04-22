@@ -12,19 +12,21 @@ Packet(mac)
     m_eth_prot   = htons(ETH_P_IPV6);
     m_echo_id[0] = 0x00;
     m_echo_id[1] = 0x00;
+    m_multicast  = true;
     srand(time(nullptr));
 
     // NA specific
     m_na_flag_override  = false;
     m_na_flag_solicited = false;
+    m_na_flag_router    = false;
 }
 
-void IcmpV6Pkt::set_dst_ip(IPv6Addr *ipv6)
+void IcmpV6Pkt::set_dst_ip_addr(IPv6Addr *ipv6)
 {
     m_dst_ip = ipv6;
 }
 
-uint IcmpV6Pkt::pktlen() const
+uint IcmpV6Pkt::pktlen()
 {
     return ETH_HDR_LEN + IPV6_HDR_LEN + payload_length();
 }
@@ -40,10 +42,10 @@ uint IcmpV6Pkt::payload_length() const
     }
 }
 
-uchar *IcmpV6Pkt::serialize(bool multicast)
+uchar *IcmpV6Pkt::serialize()
 {
     uchar *buff    = new uchar[pktlen()];
-    uchar *ehdr    = eth_header(multicast ? EthDest::MC : EthDest::UC);
+    uchar *ehdr    = eth_header(m_multicast ? EthDest::MC : EthDest::UC);
     uchar *ihdr    = ipv6_hdr();
     uchar *icmphdr = icmp_body();
     memset(buff, 0, pktlen());
@@ -80,6 +82,16 @@ void IcmpV6Pkt::set_na_flag_solicited(bool flag)
 void IcmpV6Pkt::set_na_flag_override(bool flag)
 {
     m_na_flag_override = flag;
+}
+
+void IcmpV6Pkt::set_na_flag_router(bool flag)
+{
+    m_na_flag_router = flag;
+}
+
+void IcmpV6Pkt::set_multicast_flag(bool flag)
+{
+    m_multicast = flag;
 }
 
 uchar *IcmpV6Pkt::ipv6_hdr()
@@ -135,14 +147,14 @@ uchar *IcmpV6Pkt::serialize_ns()
 uchar *IcmpV6Pkt::serialize_na()
 {
     uchar *hdr        = new uchar[payload_length()];
-    UchrVect dst_ip_u = m_dst_ip->to_uchar();
+    UchrVect src_ip_u = m_src_ip->to_uchar();
     memset(hdr, 0, payload_length());
     hdr[0] = ICMPV6_NA_TYPE;              // Type 136 (0x88)
     // Code, Checksum nastavene v memset, byty 1-3
     hdr[4] = na_flags();                  // Flags
     // Reserved nastavene v memset, byty 5-7
-    for(uint i=0; i<dst_ip_u.size(); ++i) // Target IP addr
-        hdr[8+i] = dst_ip_u[i];
+    for(uint i=0; i<src_ip_u.size(); ++i) // Target IP addr
+        hdr[8+i] = src_ip_u[i];
     hdr[24] = 0x02;                       // Opts type
     hdr[25] = 0x01;                       // Opts length
     for(uint i=0; i<MACAddr::OCTETS; ++i) // Source MAC
@@ -213,12 +225,14 @@ uint16_t IcmpV6Pkt::checksum(uchar *icmp)
 
 uchar IcmpV6Pkt::na_flags()
 {
-    // 0 Sol Ovr 0 0 0 0 0
-    if(m_na_flag_solicited && m_na_flag_override)
-        return 0x60;
-    if(m_na_flag_solicited && !m_na_flag_override)
-        return 0x40;
-    if(!m_na_flag_solicited && m_na_flag_override)
-        return 0x20;
-    return 0x00;
+    // 7 6 5 4 3 2 1 0
+    // R S O 0 0 0 0 0
+    uchar rslt = 0x00;
+    if(m_na_flag_router)    // R
+        rslt |= 1 << 7;
+    if(m_na_flag_solicited) // S
+        rslt |= 1 << 6;
+    if(m_na_flag_override)  // O
+        rslt |= 1 << 5;
+    return rslt;
 }

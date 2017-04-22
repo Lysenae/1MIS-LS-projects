@@ -4,13 +4,11 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
-#include <cstdio>
-#include <cerrno>
-
 #include <sys/socket.h>
 #include <unistd.h>
 
 #include "types.h"
+#include "packet.h"
 
 ///
 /// \enum SocketStatus
@@ -37,10 +35,11 @@ public:
     SocketStatus status() const;
     SocketStatus open();
     SocketStatus close();
-    int send_to( const void *buf, size_t len, int flags,
+    int send(const void *buf, size_t len, int flags,
         const struct sockaddr *dest_addr, socklen_t addrlen);
+    int send(Packet *p, int ifn, int flags = 0);
     int recv_from(void *buf, size_t len, int flags,
-        struct sockaddr *src_addr, socklen_t *addrlen);
+        struct sockaddr *src_addr = nullptr, socklen_t *addrlen = nullptr);
 
 private:
     int m_domain;

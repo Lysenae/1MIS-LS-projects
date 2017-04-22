@@ -41,9 +41,9 @@ public:
     void set_dst_ip_addr(uint octet, uchar value);
     void set_dst_ip_addr(uint octet, std::string value);
     void set_dst_ip_addr(IPv4Addr *ipv4);
-    void set_src_hwa(MACAddr *m);
     virtual sockaddr_ll sock_addr(int if_idx) override;
-    uchar *serialize();
+    virtual uchar *serialize() override;
+    virtual uint pktlen() override;
     bool analyze_pkt(uchar *pkt, int len, MACAddr **mac, IPv4Addr **ip);
 
 private:

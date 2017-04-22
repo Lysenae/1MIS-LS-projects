@@ -172,7 +172,6 @@ bool search_ipv4_hosts(IPv4Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts)
     StrVect      v4s       = loc_ip->net_host_ips();
     IPv4Addr    *v4another = nullptr;
     ArpPkt      *apkt      = new ArpPkt(ArpType::Request, loc_ip, loc_mac);
-    sockaddr_ll  saddr_v4  = apkt->sock_addr(ifn);
     MACAddr     *tm        = nullptr;
     IPv4Addr    *ipa       = nullptr;
     uchar        buf[ArpPkt::BUFF_LEN];
@@ -190,9 +189,8 @@ bool search_ipv4_hosts(IPv4Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts)
             memset(buf, 0, ArpPkt::BUFF_LEN);
             v4another = new IPv4Addr(ip, loc_ip->snmask());
             apkt->set_dst_ip_addr(v4another);
-            s4.send_to(apkt->serialize(), ArpPkt::LEN, 0, (sockaddr*)&saddr_v4,
-                sizeof(saddr_v4));
-            rcvd = s4.recv_from(buf, ArpPkt::BUFF_LEN-1, 0, nullptr, nullptr);
+            s4.send(apkt, ifn);
+            rcvd = s4.recv_from(buf, ArpPkt::BUFF_LEN-1, 0);
             if(apkt->analyze_pkt(buf, rcvd, &tm, &ipa))
             {
                 if(!tm->eq(loc_mac) && !tm->empty() && ipa->addr() == ip)
@@ -225,6 +223,7 @@ bool search_ipv4_hosts(IPv4Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts)
 ///
 bool search_ipv6_hosts(IPv6Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts)
 {
+    cout << "Using IPv6 address " << loc_ip->addr() << endl;
     Socket s6(PF_PACKET, SOCK_RAW, htons(ETH_P_IPV6));
     if(s6.open() != SocketStatus::Opened)
     {
@@ -240,11 +239,9 @@ bool search_ipv6_hosts(IPv6Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts)
     }
 
     IcmpV6Pkt *ping  = new IcmpV6Pkt(IcmpV6Type::Ping, loc_ip, loc_mac);
-    IcmpV6Pkt *adv   = new IcmpV6Pkt(IcmpV6Type::NA, loc_ip, loc_mac);
+    IcmpV6Pkt *adv   = new IcmpV6Pkt(IcmpV6Type::NS, loc_ip, loc_mac);
     IPv6Addr *dst    = new IPv6Addr("ff02::1");
-    sockaddr_ll  saddr_v6  = ping->sock_addr(ifn);
-    ping->set_dst_ip(dst);
-    uchar *data      = nullptr;
+    ping->set_dst_ip_addr(dst);
     uchar *buf_v6    = new uchar[500];
     uint cnt         = 0;
     uint keys        = hosts->keys().size();
@@ -253,23 +250,20 @@ bool search_ipv6_hosts(IPv6Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts)
     IPv6Addr *tip6   = nullptr;
     MACAddr *tmac    = nullptr;
 
-    adv->set_na_flag_override(true);
-    adv->set_na_flag_solicited(true);
+    adv->set_multicast_flag(false);
 
     int rcvd;
     for(uint rpt=1; rpt<=2; ++rpt)
     {
-        data = ping->serialize();
         cout << "Cycle: " << rpt << "/2" << endl;
-        s6.send_to(data, ping->pktlen(), 0, (sockaddr*)&saddr_v6,
-            sizeof(saddr_v6));
+        s6.send(ping, ifn);
 
         int pl;
         while(true)
         {
             if(!search || keys == 0 || cnt == 50)
                 break;
-            rcvd = s6.recv_from(buf_v6, 500, 0, nullptr, nullptr);
+            rcvd = s6.recv_from(buf_v6, 500, 0);
             if(rcvd < (int)(Packet::ETH_HDR_LEN + IcmpV6Pkt::IPV6_HDR_LEN))
                 continue; // Nemoze byt IPv6 packet
             pl = (int)buf_v6[19];
@@ -295,11 +289,9 @@ bool search_ipv6_hosts(IPv6Addr *loc_ip, MACAddr *loc_mac, int ifn, Hash *hosts)
                         hosts->add_existing(mac, ip6);
                         tip6 = new IPv6Addr(ip6);
                         tmac = new MACAddr(mac);
-                        adv->set_dst_ip(tip6);
+                        adv->set_dst_ip_addr(tip6);
                         adv->set_dst_hwa(tmac);
-                        data = adv->serialize(false);
-                        s6_adv.send_to(data, adv->pktlen(), 0,
-                            (sockaddr*)&saddr_v6, sizeof(saddr_v6));
+                        s6_adv.send(adv, ifn);
                         delete tip6;
                         delete tmac;
                         tip6 = nullptr;

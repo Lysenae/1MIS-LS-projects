@@ -38,13 +38,15 @@ public:
     static const uchar ICMPV6_PING_TYPE = 0x80;
 
     IcmpV6Pkt(IcmpV6Type type, IPv6Addr *ip, MACAddr *mac);
-    void set_dst_ip(IPv6Addr *ipv6);
-    uint pktlen() const;
+    void set_dst_ip_addr(IPv6Addr *ipv6);
+    virtual uint pktlen();
     uint payload_length() const;
-    uchar *serialize(bool multicast = true);
+    virtual uchar *serialize() override;
     virtual sockaddr_ll sock_addr(int if_idx) override;
-    void set_na_flag_solicited(bool flag);
-    void set_na_flag_override(bool flag);
+    void set_na_flag_solicited(bool flag = true);
+    void set_na_flag_override(bool flag = true);
+    void set_na_flag_router(bool flag = true);
+    void set_multicast_flag(bool flag = true);
 
 private:
     IcmpV6Type  m_type;
@@ -53,6 +55,8 @@ private:
     uchar       m_echo_id[2];
     bool        m_na_flag_solicited;
     bool        m_na_flag_override;
+    bool        m_na_flag_router;
+    bool        m_multicast;
 
     uchar *ipv6_hdr();
     uchar *icmp_body();

@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
+#include <cerrno>
 
 typedef unsigned char  uchar;
 typedef unsigned short ushort;

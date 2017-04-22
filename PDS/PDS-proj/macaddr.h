@@ -11,7 +11,6 @@
 #include <net/if.h>
 
 #include "types.h"
-#include "socket.h"
 
 ///
 /// \brief MAC adresa
