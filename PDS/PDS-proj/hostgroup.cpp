@@ -1,5 +1,13 @@
+// Projekt: PDS - L2 MitM
+// Autor:   Daniel Klimaj; xklima22@stud.fit.vutbr.cz
+
 #include "hostgroup.h"
 
+///
+/// \brief Konstruktor
+/// \param h1
+/// \param h2
+///
 HostGroup::HostGroup(StrVect h1, StrVect h2)
 {
     m_id    = find_prop(h1, "group");
@@ -10,38 +18,61 @@ HostGroup::HostGroup(StrVect h1, StrVect h2)
     StrVect h1_v6 = find_ipv6s(h1);
     StrVect h2_v6 = find_ipv6s(h2);
 
-    if(h1_v6.size() == h2_v6.size())
-    {
-        for(uint i=0; i<h1_v6.size(); ++i)
-            add_ip6_pair(h1_v6[i], h2_v6[i]);
-    }
+    for(std::string ip : h1_v6)
+        m_ip6s_1.push_back(new IPv6Addr(ip));
+    for(std::string ip : h2_v6)
+        m_ip6s_2.push_back(new IPv6Addr(ip));
 }
 
+///
+/// \brief Id skupiny
+/// \return id
+///
 std::string HostGroup::id()
 {
     return m_id;
 }
 
+///
+/// \brief MAC adresa hosta 1
+/// \return MACadresu hosta 1
+///
 MACAddr *HostGroup::mac1()
 {
     return m_mac1;
 }
 
+///
+/// \brief MAC adresa hosta 2
+/// \return MACadresu hosta 2
+///
 MACAddr *HostGroup::mac2()
 {
     return m_mac2;
 }
 
+///
+/// \brief IPv4 adresa hosta 1
+/// \return IPv4 hosta 1
+///
 IPv4Addr *HostGroup::ipv4_1()
 {
     return m_ip4_1;
 }
 
+///
+/// \brief IPv4 adresa hosta 2
+/// \return IPv4 hosta 2
+///
 IPv4Addr *HostGroup::ipv4_2()
 {
     return m_ip4_2;
 }
 
+///
+/// \brief N-ta IPv6 adresa hosta 1
+/// \return IPv6 hosta 1
+///
 IPv6Addr *HostGroup::ipv6_1(uint idx)
 {
     if(idx < m_ip6s_1.size())
@@ -49,6 +80,10 @@ IPv6Addr *HostGroup::ipv6_1(uint idx)
     return nullptr;
 }
 
+///
+/// \brief N-ta IPv6 adresa hosta 2
+/// \return IPv6 hosta 2
+///
 IPv6Addr *HostGroup::ipv6_2(uint idx)
 {
     if(idx < m_ip6s_2.size())
@@ -56,23 +91,27 @@ IPv6Addr *HostGroup::ipv6_2(uint idx)
     return nullptr;
 }
 
-uint HostGroup::ipv6s_cnt()
+///
+/// \brief Pocet IPv6 adries hosta 1
+/// \return pocet IPv6 adries hosta 1
+///
+uint HostGroup::len_ipv6s_2()
 {
-    return m_pairs;
+    return m_ip6s_2.size();
 }
 
-void HostGroup::add_ip6_pair(std::string ip1, std::string ip2)
+///
+/// \brief Pocet IPv6 adries hosta 2
+/// \return pocet IPv6 adries hosta 2
+///
+uint HostGroup::len_ipv6s_1()
 {
-    m_ip6s_1.push_back(new IPv6Addr(ip1));
-    m_ip6s_2.push_back(new IPv6Addr(ip2));
-    m_pairs += 1;
+    return m_ip6s_1.size();
 }
 
-uint HostGroup::size()
-{
-    return m_pairs;
-}
-
+///
+/// \brief Vypise obsah
+///
 void HostGroup::print()
 {
     std::cout << "Group: " << m_id << std::endl;
@@ -87,6 +126,11 @@ void HostGroup::print()
     std::cout << std::endl;
 }
 
+///
+/// \brief Vyhlada IPv6 adresy v zozname
+/// \param inv zoznam
+/// \return zoznam IPv6 adries
+///
 StrVect HostGroup::find_ipv6s(StrVect inv)
 {
     StrVect v6;
@@ -99,6 +143,12 @@ StrVect HostGroup::find_ipv6s(StrVect inv)
     return v6;
 }
 
+///
+/// \brief Najde polozku v zozname
+/// \param inv zoznam
+/// \param what polozka
+/// \return najdenu polozku alebo prazdny retazec
+///
 std::string HostGroup::find_prop(StrVect inv, std::string what)
 {
     std::string p = "";

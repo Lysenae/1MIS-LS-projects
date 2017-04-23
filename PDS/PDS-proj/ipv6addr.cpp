@@ -3,8 +3,17 @@
 
 #include "ipv6addr.h"
 
+///
+/// \brief Konstruktor
+/// \param ifa
+///
 IPv6Addr::IPv6Addr(ifaddrs *ifa) : IPAddr(IPVer::IPv6, ifa) {}
 
+///
+/// \brief Konstruktor
+/// \param ip
+/// \param mask
+///
 IPv6Addr::IPv6Addr(std::string ip, std::string mask) :
 IPAddr(IPVer::IPv6, ip, mask)
 {
@@ -12,6 +21,11 @@ IPAddr(IPVer::IPv6, ip, mask)
         std::cerr << "IPv6Addr Constructor: Invalid subnet mask format\n";
 }
 
+///
+/// \brief IPv6 adresa z prubu bytov
+/// \param bytes
+/// \return IPv6 adresu
+///
 IPv6Addr *IPv6Addr::from_bytes(UchrVect bytes)
 {
     std::string a = "";
@@ -27,16 +41,25 @@ IPv6Addr *IPv6Addr::from_bytes(UchrVect bytes)
     return new IPv6Addr(a);
 }
 
+///
+/// \see IPv4Addr
+///
 std::string IPv6Addr::addr_grp(uint idx)
 {
     return get_group(m_addr, idx);
 }
 
+///
+/// \see IPv4Addr
+///
 std::string IPv6Addr::mask_grp(uint idx)
 {
     return get_group(m_mask, idx);
 }
 
+///
+/// \see IPv4Addr
+///
 int IPv6Addr::mask_n()
 {
     int m = 0;
@@ -59,6 +82,10 @@ int IPv6Addr::mask_n()
     return m;
 }
 
+///
+/// \brief Skonvertuje dvojicu znakov adresy na uchar
+/// \return uchar
+///
 UchrVect IPv6Addr::to_uchar()
 {
     UchrVect uc;
@@ -105,13 +132,10 @@ UchrVect IPv6Addr::to_uchar()
     return uc;
 }
 
-in6_addr IPv6Addr::addr_struct() const
-{
-    sockaddr_in6 sa6;
-    inet_pton(AF_INET6, m_addr.c_str(), &(sa6.sin6_addr));
-    return sa6.sin6_addr;
-}
-
+///
+/// \brief Je link local?
+/// \return bool
+///
 bool IPv6Addr::is_ll()
 {
     std::string fg = addr_grp(IPv6Addr::BLOCKS-1);
@@ -120,6 +144,10 @@ bool IPv6Addr::is_ll()
     return false;
 }
 
+///
+/// \brief Je global?
+/// \return bool
+///
 bool IPv6Addr::is_global()
 {
     std::string fg = addr_grp(IPv6Addr::BLOCKS-1);
@@ -128,6 +156,11 @@ bool IPv6Addr::is_global()
     return false;
 }
 
+///
+/// \brief Porovna 2 IPv6 adresy
+/// \param other
+/// \return true ak su rovnake
+///
 bool IPv6Addr::eq(IPv6Addr *other)
 {
     UchrVect uc1 = to_uchar();
@@ -142,6 +175,9 @@ bool IPv6Addr::eq(IPv6Addr *other)
     return true;
 }
 
+///
+/// \see IPv4Addr
+///
 std::string IPv6Addr::get_group(std::string ins, uint idx)
 {
     std::string s = "";

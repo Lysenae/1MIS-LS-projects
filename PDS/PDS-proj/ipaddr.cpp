@@ -3,6 +3,11 @@
 
 #include "ipaddr.h"
 
+///
+/// \brief Konstruktor
+/// \param v IP verzia
+/// \param ifa
+///
 IPAddr::IPAddr(IPVer v, ifaddrs *ifa)
 {
     sockaddr_in  *in4 = nullptr;
@@ -33,6 +38,12 @@ IPAddr::IPAddr(IPVer v, ifaddrs *ifa)
     m_mask = std::string(mask);
 }
 
+///
+/// \brief Konstruktor
+/// \param v
+/// \param ip
+/// \param mask
+///
 IPAddr::IPAddr(IPVer v, std::string ip, std::string mask)
 {
     sockaddr_in  sa4;
@@ -75,26 +86,47 @@ IPAddr::IPAddr(IPVer v, std::string ip, std::string mask)
     m_itf_name = "";
 }
 
+///
+/// \brief Nazov sietoveho rozhrania
+/// \return nazov sietoveho rozhrania
+///
 std::string IPAddr::interface()
 {
     return m_itf_name;
 }
 
+///
+/// \brief IP adresa
+/// \return IP adresu
+///
 std::string IPAddr::addr()
 {
     return m_addr;
 }
 
+///
+/// \brief Maska podsiete
+/// \return masku podsiete
+///
 std::string IPAddr::snmask()
 {
     return m_mask;
 }
 
+///
+/// \brief Zisti, ci je IP adresa zadana
+/// \return false ak je IP adresa prazdna
+///
 bool IPAddr::empty()
 {
     return m_addr == "";
 }
 
+///
+/// \brief Zisti verziu IP adresy
+/// \param addr
+/// \return IPv4, IPv6 alebo Undef ak nerozpozna typ
+///
 IPVer IPAddr::get_version(std::string addr)
 {
     if(split_str(addr, '.').size() == 4)

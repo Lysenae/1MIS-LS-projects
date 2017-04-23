@@ -3,6 +3,11 @@
 
 #include "types.h"
 
+///
+/// \brief Hexadecimalna hodnota 16b unsigned cisla
+/// \param t
+/// \return string
+///
 std::string str_bytes16(uint16_t t)
 {
     uchar u[2];
@@ -12,6 +17,11 @@ std::string str_bytes16(uint16_t t)
     return std::string(buffer);
 }
 
+///
+/// \brief Uchar zo stringu
+/// \param s
+/// \return uchar
+///
 uchar str_to_uch(std::string s)
 {
     size_t ptr;
@@ -22,6 +32,11 @@ uchar str_to_uch(std::string s)
     return (uchar) 0;
 }
 
+///
+/// \brief Hexadecimalna 8b unsigned cisla
+/// \param t
+/// \return string
+///
 std::string str_bytes8(uchar t)
 {
     char buffer[2];
@@ -29,6 +44,11 @@ std::string str_bytes8(uchar t)
     return std::string(buffer);
 }
 
+///
+/// \brief Uchar zo stringu
+/// \param s
+/// \return uchar
+///
 uchar literal_to_uchr(std::string s)
 {
     if(s.size() <= 2)
@@ -39,6 +59,12 @@ uchar literal_to_uchr(std::string s)
     return 0x00;
 }
 
+///
+/// \brief Rozdeli retazec
+/// \param s
+/// \param delimiter
+/// \return StrVect
+///
 StrVect split_str(std::string s, char delimiter)
 {
     StrVect v;

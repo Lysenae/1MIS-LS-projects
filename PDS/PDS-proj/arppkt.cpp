@@ -3,6 +3,12 @@
 
 #include "arppkt.h"
 
+///
+/// \brief Konstruktor
+/// \param t typ ARP paketu
+/// \param ip IPv4 adresa zdroja
+/// \param mac MAC adresa zdroja
+///
 ArpPkt::ArpPkt(ArpType t, IPv4Addr *ip, MACAddr *mac) : Packet(mac)
 {
     m_type      = t;
@@ -18,17 +24,31 @@ ArpPkt::ArpPkt(ArpType t, IPv4Addr *ip, MACAddr *mac) : Packet(mac)
     set_src_ip_addr(ip);
 }
 
+///
+/// \brief Zmeni oktet IPv4 adresy zdroja
+/// \param octet
+/// \param value
+///
 void ArpPkt::set_src_ip_addr(uint octet, uchar value)
 {
     if(octet < IPv4Addr::OCTETS)
         m_src_ip[IPv4Addr::OCTETS - octet - 1] = value;
 }
 
+///
+/// \brief Zmeni oktet IPv4 adresy zdroja
+/// \param octet
+/// \param value
+///
 void ArpPkt::set_src_ip_addr(uint octet, std::string value)
 {
     set_src_ip_addr(octet, str_to_uch(value));
 }
 
+///
+/// \brief Zmeni IPv4 adresu zdroja
+/// \param ipv4 adresa
+///
 void ArpPkt::set_src_ip_addr(IPv4Addr *ipv4)
 {
     for(uint i=0; i<IPv4Addr::OCTETS; ++i)
@@ -40,17 +60,31 @@ void ArpPkt::set_src_ip_addr(IPv4Addr *ipv4)
     }
 }
 
+///
+/// \brief Zmeni oktet IPv4 adresy ciela
+/// \param octet
+/// \param value
+///
 void ArpPkt::set_dst_ip_addr(uint octet, uchar value)
 {
     if(octet < IPv4Addr::OCTETS)
         m_dst_ip[IPv4Addr::OCTETS - octet - 1] = value;
 }
 
+///
+/// \brief Zmeni oktet IPv4 adresy ciela
+/// \param octet
+/// \param value
+///
 void ArpPkt::set_dst_ip_addr(uint octet, std::string value)
 {
     set_dst_ip_addr(octet, str_to_uch(value));
 }
 
+///
+/// \brief Zmeni IPv4 adresu ciela
+/// \param ipv4
+///
 void ArpPkt::set_dst_ip_addr(IPv4Addr *ipv4)
 {
     for(uint i=0; i<IPv4Addr::OCTETS; ++i)
@@ -62,6 +96,11 @@ void ArpPkt::set_dst_ip_addr(IPv4Addr *ipv4)
     }
 }
 
+///
+/// \brief Vytvori sockaddr_ll pre, potrebne pre odosielanie
+/// \param if_idx cislo sietoveho rozhrania
+/// \return sockaddr_ll
+///
 sockaddr_ll ArpPkt::sock_addr(int if_idx)
 {
     sockaddr_ll sock_addr;
@@ -78,6 +117,10 @@ sockaddr_ll ArpPkt::sock_addr(int if_idx)
     return sock_addr;
 }
 
+///
+/// \brief Vytvori bytovu reprezentaciu paketu
+/// \return pole uchar
+///
 uchar *ArpPkt::serialize()
 {
     uchar *buff = new uchar[BUFF_LEN];
@@ -105,11 +148,23 @@ uchar *ArpPkt::serialize()
     return buff;
 }
 
+///
+/// \brief Dlzka paketu vratane Ethernet hlavicky
+/// \return dlzku paketu
+///
 uint ArpPkt::pktlen()
 {
     return LEN;
 }
 
+///
+/// \brief Ziska z paketu MAC a IP adresu
+/// \param pkt paket
+/// \param len dlzka paketu
+/// \param mac vystupny parameter pre MAC adresu
+/// \param ip vystupny parameter pre IPv4 adresu
+/// \return false pri chybe
+///
 bool ArpPkt::analyze_pkt(uchar *pkt, int len, MACAddr **mac, IPv4Addr **ip)
 {
     if(m_type == ArpType::Response) // Len pre odpovede na requesty
@@ -157,6 +212,11 @@ bool ArpPkt::analyze_pkt(uchar *pkt, int len, MACAddr **mac, IPv4Addr **ip)
     return *mac != nullptr && *ip != nullptr;
 }
 
+///
+/// \brief Vrati polohu polozky v pakete
+/// \param f polozka paketu
+/// \return offset polozky
+///
 uint ArpPkt::offs(ArpField f)
 {
     uint o = 0;

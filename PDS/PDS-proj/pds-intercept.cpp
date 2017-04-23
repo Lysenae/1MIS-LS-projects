@@ -32,6 +32,7 @@ bool intercept(NetItf *itf, HostGroups *hgs);
 
 const uint FIRST  = 1;
 const uint SECOND = 2;
+const uint BLEN   = 65000;
 
 int main(int argc, char **argv)
 {
@@ -261,9 +262,8 @@ bool intercept(NetItf *itf, HostGroups *hgs)
     }
     s.setopt(SOL_SOCKET, SO_BINDTODEVICE, itf->name(), itf->name().size());
 
-
     MACAddr  *loc_mac = itf->mac();
-    uchar     buff[5000];
+    uchar     buff[BLEN];
     uint16_t  tmp16;
     uchar     tmp8[2];
     int       rcvd;
@@ -288,7 +288,7 @@ bool intercept(NetItf *itf, HostGroups *hgs)
     while(do_intercept)
     {
         for_me = true;
-        rcvd = s.recv_from(buff, 5000, 0);
+        rcvd = s.recv_from(buff, BLEN, 0);
         if(rcvd < 0)
         {
             cerr << "Failed to receive packet" << endl;
@@ -374,7 +374,7 @@ bool intercept(NetItf *itf, HostGroups *hgs)
 
                     if(member == FIRST)
                     {
-                        for(uint i=0; i<hg->ipv6s_cnt(); ++i)
+                        for(uint i=0; i<hg->len_ipv6s_1(); ++i)
                         {
                             if(ip6_src->eq(hg->ipv6_1(i)))
                             {
@@ -385,7 +385,7 @@ bool intercept(NetItf *itf, HostGroups *hgs)
                     }
                     else if(member == SECOND)
                     {
-                        for(uint i=0; i<hg->ipv6s_cnt(); ++i)
+                        for(uint i=0; i<hg->len_ipv6s_2(); ++i)
                         {
                             if(ip6_src->eq(hg->ipv6_2(i)))
                             {

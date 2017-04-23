@@ -3,13 +3,27 @@
 
 #include "ipv4addr.h"
 
+////
+/// \brief Konstruktor
+/// \param ifa
+///
 IPv4Addr::IPv4Addr(ifaddrs *ifa) : IPAddr(IPVer::IPv4, ifa) {}
 
+///
+/// \brief Konstruktor
+/// \param ip
+/// \param mask
+///
 IPv4Addr::IPv4Addr(std::string ip, std::string mask) :
 IPAddr(IPVer::IPv4, ip, mask)
 {
 }
 
+///
+/// \brief Zostavi IPv4 adresu z bytov
+/// \param bytes
+/// \return IPv4 adresu
+///
 IPv4Addr *IPv4Addr::from_bytes(UchrVect bytes)
 {
     std::string a = "";
@@ -25,6 +39,10 @@ IPv4Addr *IPv4Addr::from_bytes(UchrVect bytes)
     return new IPv4Addr(a);
 }
 
+///
+/// \brief Maska podsiete ako dekadicke cislo
+/// \return masku podsiete
+///
 int IPv4Addr::mask_n()
 {
     int mask = 0;
@@ -44,6 +62,10 @@ int IPv4Addr::mask_n()
     return mask;
 }
 
+///
+/// \brief Zostavi zoznam vsetkych IPv4 adries podsiete s vynimkou routeru a BC
+/// \return zoznam IPv4 adries podsiete
+///
 StrVect IPv4Addr::net_host_ips()
 {
     StrVect v;
@@ -82,21 +104,41 @@ StrVect IPv4Addr::net_host_ips()
     return v;
 }
 
+///
+/// \brief IPv4Addr::addr_grp
+/// \param idx
+/// \return skupinu (oktet) z IPv4 adresy
+///
 std::string IPv4Addr::addr_grp(uint idx)
 {
     return get_group(m_addr, idx);
 }
 
+///
+/// \brief IPv4Addr::mask_grp
+/// \param idx
+/// \return skupinu (oktet) z masky adresy
+///
 std::string IPv4Addr::mask_grp(uint idx)
 {
     return get_group(m_mask, idx);
 }
 
+///
+/// \brief IPv4Addr::octet
+/// \param idx
+/// \return oktet adresy
+///
 uchar IPv4Addr::octet(uint idx)
 {
     return str_to_uch(addr_grp(idx));
 }
 
+///
+/// \brief Porvona IPv4 adresy
+/// \param other
+/// \return true ak su zhodne
+///
 bool IPv4Addr::eq(IPv4Addr *other)
 {
     for(uint i=0; i<OCTETS; ++i)
@@ -107,6 +149,12 @@ bool IPv4Addr::eq(IPv4Addr *other)
     return true;
 }
 
+///
+/// \brief IPv4Addr::get_group
+/// \param ins
+/// \param idx
+/// \return vrati skupinu (oktet) z IP adresy alebo masky
+///
 std::string IPv4Addr::get_group(std::string ins, uint idx)
 {
     std::string s = "";
@@ -118,6 +166,11 @@ std::string IPv4Addr::get_group(std::string ins, uint idx)
     return s;
 }
 
+///
+/// \brief IPv4Addr::get_addr_n
+/// \param idx
+/// \return ciselu hodnotu oktetu
+///
 int IPv4Addr::get_addr_n(uint idx)
 {
     size_t ptr;
@@ -126,6 +179,11 @@ int IPv4Addr::get_addr_n(uint idx)
     return ptr == grp.size() ? octet : -1;
 }
 
+///
+/// \brief Oktet masky podsiete
+/// \param uc
+/// \return pocet 1 bitov oktetu
+///
 int IPv4Addr::uchb(uchar uc)
 {
     switch(uc)
@@ -143,6 +201,11 @@ int IPv4Addr::uchb(uchar uc)
     }
 }
 
+///
+/// \brief IPv4Addr::maxval
+/// \param bits
+/// \return
+///
 int IPv4Addr::maxval(uint bits)
 {
     switch(bits)
@@ -160,6 +223,11 @@ int IPv4Addr::maxval(uint bits)
     }
 }
 
+///
+/// \brief IPv4Addr::addr_part
+/// \param until_octet
+/// \return cast IP adresy po zadany oktet
+///
 std::string IPv4Addr::addr_part(uint until_octet)
 {
     std::string addr = "";
@@ -171,6 +239,14 @@ std::string IPv4Addr::addr_part(uint until_octet)
     return addr;
 }
 
+///
+/// \brief IPv4Addr::expand_ips
+/// \param ips
+/// \param max
+/// \param base
+/// \param octet
+/// \return rozsiri zoznam IPv4 adries o dalsi oktet
+///
 StrVect IPv4Addr::expand_ips(StrVect ips, int max, int base, int octet)
 {
     if(octet < 0)
@@ -192,6 +268,11 @@ StrVect IPv4Addr::expand_ips(StrVect ips, int max, int base, int octet)
     return expand_ips(v, B_UCHAR_MAX, 0, octet-1);
 }
 
+///
+/// \brief IPv4Addr::remove_bc_net
+/// \param ips
+/// \return odstrani zo zoznamu adresu routera, siete a BC
+///
 StrVect IPv4Addr::remove_bc_net(StrVect ips)
 {
     std::string net = ips[0];

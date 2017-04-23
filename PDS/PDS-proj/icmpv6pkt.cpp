@@ -3,6 +3,12 @@
 
 #include "icmpv6pkt.h"
 
+///
+/// \brief Kontruktor
+/// \param type typ ICMPv6 paketu
+/// \param ip IPv6 adresa zdroja
+/// \param mac MAC adresa zdroja
+///
 IcmpV6Pkt::IcmpV6Pkt(IcmpV6Type type, IPv6Addr *ip, MACAddr *mac) :
 Packet(mac)
 {
@@ -21,16 +27,28 @@ Packet(mac)
     m_na_flag_router    = false;
 }
 
+///
+/// \brief Nastavi IPv6 adresu ciela
+/// \param ipv6 IPv6 adresa
+///
 void IcmpV6Pkt::set_dst_ip_addr(IPv6Addr *ipv6)
 {
     m_dst_ip = ipv6;
 }
 
+///
+/// \brief Dlzka paketu vratane Ethernet hlavicky
+/// \return dlzku paketu
+///
 uint IcmpV6Pkt::pktlen()
 {
     return ETH_HDR_LEN + IPV6_HDR_LEN + payload_length();
 }
 
+///
+/// \brief Velkost ICMPv6 hlavicky
+/// \return velkoct ICMPv6 hlavicky
+///
 uint IcmpV6Pkt::payload_length() const
 {
     switch(m_type)
@@ -42,6 +60,10 @@ uint IcmpV6Pkt::payload_length() const
     }
 }
 
+///
+/// \brief Vytvori prud bytov
+/// \return pole uchar
+///
 uchar *IcmpV6Pkt::serialize()
 {
     uchar *buff    = new uchar[pktlen()];
@@ -58,6 +80,11 @@ uchar *IcmpV6Pkt::serialize()
     return buff;
 }
 
+///
+/// \brief Vrati sockaddr_ll pre socket
+/// \param if_idx cislo sietoveho rozhrania
+/// \return sockaddr_ll
+///
 sockaddr_ll IcmpV6Pkt::sock_addr(int if_idx)
 {
     sockaddr_ll sock_addr;
@@ -74,26 +101,46 @@ sockaddr_ll IcmpV6Pkt::sock_addr(int if_idx)
     return sock_addr;
 }
 
+///
+/// \brief Nastavi S flag v NA
+/// \param flag
+///
 void IcmpV6Pkt::set_na_flag_solicited(bool flag)
 {
     m_na_flag_solicited = flag;
 }
 
+///
+/// \brief Nastavi O flag v NA
+/// \param flag
+///
 void IcmpV6Pkt::set_na_flag_override(bool flag)
 {
     m_na_flag_override = flag;
 }
 
+///
+/// \brief Nastavi R flag v NA
+/// \param flag
+///
 void IcmpV6Pkt::set_na_flag_router(bool flag)
 {
     m_na_flag_router = flag;
 }
 
+///
+/// \brief Nastavi priznak, ci sa bude posielat multicast alebo unicast
+/// \param flag
+///
 void IcmpV6Pkt::set_multicast_flag(bool flag)
 {
     m_multicast = flag;
 }
 
+///
+/// \brief Vytvori IPv6 hlavicku
+/// \return IPv6 hlavicku
+///
 uchar *IcmpV6Pkt::ipv6_hdr()
 {
     uchar *hdr        = new uchar[IPV6_HDR_LEN];
@@ -115,6 +162,10 @@ uchar *IcmpV6Pkt::ipv6_hdr()
     return hdr;
 }
 
+///
+/// \brief Vytbori ICMPv6 hlavicku
+/// \return ICMPv6 hlavicku
+///
 uchar *IcmpV6Pkt::icmp_body()
 {
     switch(m_type)
@@ -126,6 +177,10 @@ uchar *IcmpV6Pkt::icmp_body()
     }
 }
 
+///
+/// \brief Vytvori NS hlavicku
+/// \return NS hlavicku
+///
 uchar *IcmpV6Pkt::serialize_ns()
 {
     uchar *hdr        = new uchar[payload_length()];
@@ -144,6 +199,10 @@ uchar *IcmpV6Pkt::serialize_ns()
     return hdr;
 }
 
+///
+/// \brief Vytvori NA hlavicku
+/// \return NA hlavicku
+///
 uchar *IcmpV6Pkt::serialize_na()
 {
     uchar *hdr        = new uchar[payload_length()];
@@ -164,6 +223,10 @@ uchar *IcmpV6Pkt::serialize_na()
     return hdr;
 }
 
+///
+/// \brief Vytvori Echo Ping hlavicku
+/// \return Echo Ping hlavicku
+///
 uchar *IcmpV6Pkt::serialize_echo()
 {
     uchar *hdr        = new uchar[payload_length()];
@@ -183,6 +246,11 @@ uchar *IcmpV6Pkt::serialize_echo()
     return hdr;
 }
 
+///
+/// \brief Vypocita kontrolny sucet ICMPv6 hlavicky
+/// \param icmp ICMPv6 hlavicka
+/// \return checksum
+///
 uint16_t IcmpV6Pkt::checksum(uchar *icmp)
 {
     uint16_t tmp16;
@@ -223,6 +291,10 @@ uint16_t IcmpV6Pkt::checksum(uchar *icmp)
     return (uint16_t)~sum;
 }
 
+///
+/// \brief Spocita flags byte pre NA
+/// \return flags byte
+///
 uchar IcmpV6Pkt::na_flags()
 {
     // 7 6 5 4 3 2 1 0

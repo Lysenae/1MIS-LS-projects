@@ -3,6 +3,10 @@
 
 #include "netitf.h"
 
+///
+/// \brief Konstruktor
+/// \param interface nazov
+///
 NetItf::NetItf(std::string interface)
 {
     m_interface = interface;
@@ -13,6 +17,9 @@ NetItf::NetItf(std::string interface)
     m_sock      = new Socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 }
 
+///
+/// \brief Destruktor
+///
 NetItf::~NetItf()
 {
     free_ifaddr();
@@ -25,11 +32,19 @@ NetItf::~NetItf()
     }
 }
 
+///
+/// \brief Nazov
+/// \return string
+///
 std::string NetItf::name()
 {
     return m_interface;
 }
 
+///
+/// \brief Lokalna IPv4 adresa
+/// \return lokalnu IPv4 adresu
+///
 IPv4Addr *NetItf::ipv4()
 {
     IPv4Addr *ip = nullptr;
@@ -51,6 +66,10 @@ IPv4Addr *NetItf::ipv4()
     return ip;
 }
 
+///
+/// \brief Lokalne IPv6 adresy
+/// \return lokalne IPv6 adresy
+///
 IPv6Vect NetItf::ipv6()
 {
     IPv6Vect v;
@@ -71,6 +90,10 @@ IPv6Vect NetItf::ipv6()
 }
 
 // Ciastocne prebrane z http://stackoverflow.com/a/16712726
+///
+/// \brief Lokalna MAC adresa
+/// \return lokalnu MAC adresu
+///
 MACAddr *NetItf::mac()
 {
     if(m_sock->open() != SocketStatus::Opened)
@@ -84,6 +107,10 @@ MACAddr *NetItf::mac()
 }
 
 // Ciastocne prebrane z http://stackoverflow.com/a/16712726
+///
+/// \brief Index rozhrania
+/// \return index
+///
 int NetItf::index()
 {
     int idx = OP_FAIL;
@@ -98,12 +125,18 @@ int NetItf::index()
     return idx;
 }
 
+///
+/// \brief Inicializuje ifreq
+///
 void NetItf::init_ifr()
 {
     m_ifr = new ifreq;
     strncpy(m_ifr->ifr_name, m_interface.c_str(), IFNAMSIZ);
 }
 
+///
+/// \brief Uvolni ifreq
+///
 void NetItf::free_ifr()
 {
     if(m_ifr != nullptr)
@@ -113,6 +146,9 @@ void NetItf::free_ifr()
     }
 }
 
+///
+/// \brief Uvolni ifaddr
+///
 void NetItf::free_ifaddr()
 {
     if(m_ifaddrs != nullptr)

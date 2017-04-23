@@ -28,7 +28,6 @@ public:
     virtual std::string mask_grp(uint idx) override;
     virtual int mask_n() override;
     UchrVect to_uchar();
-    in6_addr addr_struct() const;
     bool is_ll();
     bool is_global();
     bool eq(IPv6Addr *other);

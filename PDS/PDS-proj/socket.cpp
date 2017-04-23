@@ -3,6 +3,12 @@
 
 #include "socket.h"
 
+///
+/// \brief Kontruktor
+/// \param domain
+/// \param type
+/// \param protocol
+///
 Socket::Socket(int domain, int type, int protocol)
 {
     m_domain   = domain;
@@ -12,16 +18,28 @@ Socket::Socket(int domain, int type, int protocol)
     m_status   = SocketStatus::New;
 }
 
+///
+/// \brief Deskriptor
+/// \return deskriptor
+///
 int Socket::fd() const
 {
     return m_fd;
 }
 
+///
+/// \brief Stav
+/// \return stav
+///
 SocketStatus Socket::status() const
 {
     return m_status;
 }
 
+///
+/// \brief Otvori socket
+/// \return aktualny stav, pri spravnom otvoreni SocketStatus::Opened
+///
 SocketStatus Socket::open()
 {
     if(m_status != SocketStatus::Opened)
@@ -35,6 +53,10 @@ SocketStatus Socket::open()
     return m_status;
 }
 
+///
+/// \brief Zatvori socket
+/// \return aktualny stav, pri spravnom zatvoreni SocketStatus::Closed
+///
 SocketStatus Socket::close()
 {
     int r = OP_FAIL;
@@ -49,6 +71,9 @@ SocketStatus Socket::close()
     return m_status;
 }
 
+///
+/// \see sendto
+///
 int Socket::send(const void *buf, size_t len, int flags,
 const sockaddr *dest_addr, socklen_t addrlen)
 {
@@ -57,6 +82,13 @@ const sockaddr *dest_addr, socklen_t addrlen)
     return OP_FAIL;
 }
 
+///
+/// \brief Odosle data
+/// \param p Packet
+/// \param ifn cislo rozhrania
+/// \param flags
+/// \return mnozstvo odoslanych dat, OP_FAIL pri chybe
+///
 int Socket::send(Packet *p, int ifn, int flags)
 {
     if(m_status == SocketStatus::Opened)
@@ -68,6 +100,9 @@ int Socket::send(Packet *p, int ifn, int flags)
     return OP_FAIL;
 }
 
+///
+/// \see recvfrom
+///
 int Socket::recv_from(void *buf, size_t len, int flags, sockaddr *src_addr,
 socklen_t *addrlen)
 {
@@ -76,6 +111,9 @@ socklen_t *addrlen)
     return OP_FAIL;
 }
 
+///
+/// \see setsockopt
+//
 void Socket::setopt(int level, int opt_name,  std::string opt_value,
 uint opt_len)
 {

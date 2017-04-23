@@ -1,3 +1,6 @@
+// Projekt: PDS - L2 MitM
+// Autor:   Daniel Klimaj; xklima22@stud.fit.vutbr.cz
+
 #ifndef HOSTGROUP_H
 #define HOSTGROUP_H
 
@@ -6,6 +9,9 @@
 #include "ipv4addr.h"
 #include "ipv6addr.h"
 
+///
+/// \brief Skupina hostov
+///
 class HostGroup
 {
 public:
@@ -17,14 +23,14 @@ public:
     IPv4Addr *ipv4_2();
     IPv6Addr *ipv6_1(uint idx);
     IPv6Addr *ipv6_2(uint idx);
-    uint ipv6s_cnt();
+    uint len_ipv6s_1();
+    uint len_ipv6s_2();
 
     uint size();
     void print();
 
 private:
     std::string  m_id;
-    uint         m_pairs;
     IPv4Addr    *m_ip4_1;
     IPv4Addr    *m_ip4_2;
     IPv6Vect     m_ip6s_1;

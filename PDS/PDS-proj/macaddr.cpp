@@ -3,12 +3,20 @@
 
 #include "macaddr.h"
 
+///
+/// \brief Konstruktor
+/// \param ifr
+///
 MACAddr::MACAddr(ifreq *ifr)
 {
     for (uint i=0; i < OCTETS; ++i)
         m_mac[i] = ifr->ifr_hwaddr.sa_data[i];
 }
 
+///
+/// \brief Konstruktor
+/// \param oct
+///
 MACAddr::MACAddr(UchrVect oct)
 {
     if(oct.size() == OCTETS)
@@ -23,6 +31,10 @@ MACAddr::MACAddr(UchrVect oct)
     }
 }
 
+///
+/// \brief Konstruktor
+/// \param mac
+///
 MACAddr::MACAddr(std::string mac)
 {
     for(uint i=0; i<OCTETS; ++i)
@@ -52,6 +64,10 @@ MACAddr::MACAddr(std::string mac)
     }
 }
 
+///
+/// \brief Citatelna podoba
+/// \return string
+///
 std::string MACAddr::to_string() const
 {
     char buffer[20];
@@ -60,6 +76,11 @@ std::string MACAddr::to_string() const
     return std::string(buffer);
 }
 
+///
+/// \brief Oktet
+/// \param idx
+/// \return oktet na indexe
+///
 uchar MACAddr::octet(uint idx)
 {
     if(idx < OCTETS)
@@ -67,6 +88,11 @@ uchar MACAddr::octet(uint idx)
     return (uchar) 0;
 }
 
+///
+/// \brief Porovna 2 MAC adresy
+/// \param other
+/// \return true ak su rovnake
+///
 bool MACAddr::eq(MACAddr *other)
 {
     for(uint i=0; i<OCTETS; ++i)
@@ -77,6 +103,10 @@ bool MACAddr::eq(MACAddr *other)
     return true;
 }
 
+///
+/// \brief Prazdna
+/// \return true ak kazdy oktet je 0
+///
 bool MACAddr::empty() const
 {
     for(uint i=0; i<OCTETS; ++i)
@@ -87,6 +117,11 @@ bool MACAddr::empty() const
     return true;
 }
 
+///
+/// \brief Prevod do formatu xxxx.xxxx.xxxx
+/// \param mac
+/// \return string
+///
 std::string MACAddr::to_xml(std::string mac)
 {
     MACAddr *tmp = new MACAddr(mac);
