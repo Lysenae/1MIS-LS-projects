@@ -215,6 +215,7 @@ Priepustnosť siete bola testovaná pomocou utility ping s paketmi o veľkosti 5
 \end{center}
 \ \\
 Z tabuľky možno vyvodiť, že pri zachytávaní komunikácie medzi obeťami dochádza k výraznému spomaleniu ich vzájomnej komunikácie.
+
 \newpage
 \bibliographystyle{czechiso}
 \def\refname{Literatúra}
