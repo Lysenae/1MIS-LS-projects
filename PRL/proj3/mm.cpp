@@ -14,8 +14,10 @@
 
 using namespace std;
 
-const int MTX_A  = 2;
-const int MTX_B  = 3;
+const int MTX_R = 1;
+const int MTX_C = 2;
+const int MTX_A = 3;
+const int MTX_B = 4;
 
 const bool GET_TIME = false;
 
@@ -67,6 +69,7 @@ private:
   bool m_valid;
 };
 
+// Create new matrix from file
 Matrix::Matrix(string fname, MtxDim dim)
 {
   vector<int> vcols;
@@ -185,40 +188,70 @@ void Matrix::print()
   }
 }
 
+// DATA:
+//  0: value (A[i,j])
+//  1: i index
+//  2: j index
+const int DATA_SIZE = 3;
+
 int main(int argc, char **argv)
 {
   int p_count;
   int p_id;
-  int nums;
-  int data[2];
+  int data[DATA_SIZE];
   int rslt;
 
   MPI::Init(argc, argv);
   p_count = MPI::COMM_WORLD.Get_size();
   p_id    = MPI::COMM_WORLD.Get_rank();
 
-  Processor proc(p_id, 3, 4);
-
   if(p_id == 0)
   {
-    cout << "Count:     " << p_count << endl;
-    cout << "CPU left:  " << proc.cpu_left() << endl;
-    cout << "CPU right: " << proc.cpu_right() << endl;
-    cout << "CPU below: " << proc.cpu_below() << endl;
-    cout << "CPU above: " << proc.cpu_above() << endl;
-    cout << "Has right: " << (proc.has_right_ngb() ? "true" : "false") << endl;
-    cout << "Has below: " << (proc.has_below_ngb() ? "true" : "false") << endl;
     Matrix A("mat1", MtxDim::Row);
     Matrix B("mat2", MtxDim::Col);
-    cout << "A valid: " << (A.is_valid() ? "true" : "false") << endl;
-    cout << "A rows: " << A.rows() << endl;
-    cout << "A cols: " << A.cols() << endl;
-    A.print();
-    cout << "B valid: " << (B.is_valid() ? "true" : "false") << endl;
-    cout << "B rows: " << B.rows() << endl;
-    cout << "B cols: " << B.cols() << endl;
-    B.print();
+    if(!A.is_valid() || !B.is_valid())
+    {
+      cerr << "Invalid matrix" << endl;
+      MPI::COMM_WORLD.Abort(-1);
+    }
+
+    int r = A.rows();
+    int c = B.cols();
+
+    for(int i=0; i<p_count; ++i)
+    {
+      MPI::COMM_WORLD.Send(&r, 1, MPI::INT, i, MTX_R);
+      MPI::COMM_WORLD.Send(&c, 1, MPI::INT, i, MTX_C);
+    }
+
+    /*for(int i=1; i<=A.rows(); ++i)
+    {
+      for(int j=1; j<=A.cols(); ++j)
+      {
+        data[0] = A.cell(i, j);
+        data[1] = i;
+        data[2] = j;
+        MPI::COMM_WORLD.Send(&data, DATA_SIZE, MPI::INT, i, MTX_A);
+      }
+    }
+
+    for(int i=0; i<B.cols(); ++i)
+    {
+      for(int j=1; j<=B.rows(); ++j)
+      {
+        data[0] = A.cell(i, j);
+        data[1] = i;
+        data[2] = j;
+        MPI::COMM_WORLD.Send(&data, DATA_SIZE, MPI::INT, i, MTX_A);
+      }
+    }*/
   }
+
+  int r,c;
+  MPI::COMM_WORLD.Recv(&r, 1, MPI::INT, 0, MTX_R);
+  MPI::COMM_WORLD.Recv(&c, 1, MPI::INT, 0, MTX_C);
+
+  Processor proc(p_id, r, c);
 
   MPI::Finalize();
   return 0;
