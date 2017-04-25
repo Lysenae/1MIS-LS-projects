@@ -94,8 +94,3 @@ clean:
 	rm -f *.cpp.*
 	rm -f *.xml
 	rm -f $(AUTHOR).zip
-
-git: clean
-	git add --all
-	git commit
-	git push -u origin master
