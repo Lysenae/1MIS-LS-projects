@@ -7,6 +7,8 @@
 main :-
   parse_stdin(Conf),
   print_config(Conf),
+  pos(Conf, Pos),
+  writeln(Pos),
   halt.
 
 % Spracovanie nacitanych udajov - zostavenie pasky a pravidiel TS
@@ -49,6 +51,23 @@ print_config(Conf) :-
   atomic_list_concat(Conf, '', S),
   atom_string(S, R),
   writeln(R).
+
+% Najde aktualnu poziciu hlavy TS
+pos(Conf, Pos) :-
+  length(Conf, Len),
+  L is Len - 1,
+  pos2(Conf, L, P),
+  Pos is P.
+
+% Vyhlada velke pismenu, ktore znaci poziciu hlavy, ak ho najde ulozi jeho
+% poziciu do OutPos.
+pos2(Conf, CurPos, OutPos) :-
+  nth0(CurPos, Conf, N),
+  ( (char_type(N, upper), OutPos is CurPos);
+    ( NewPos is CurPos - 1,
+      pos2(Conf, NewPos, OutPos)
+    )
+  ).
 
 % ##############################################################################
 % Tato cast je prebrana z input2.pl
