@@ -5,20 +5,23 @@
 
 % Vstupny bod programu
 main :-
-  parse_stdin(Conf),
-  print_config(Conf),
-  pos(Conf, Pos),
-  writeln(Pos),
+  parse_stdin(Config),
+  print_config(Config),
+  config_props(Config, S, L, R, N),
+  write("Position: "),writeln(N),
+  write("L: "),writeln(L),
+  write("R: "),writeln(R),
+  write("State: "),writeln(S),
   halt.
 
 % Spracovanie nacitanych udajov - zostavenie pasky a pravidiel TS
-parse_stdin(Conf) :-
+parse_stdin(Config) :-
   prompt(_, ''),
   read_lines(Lines),
   maplist(remove_spaces, Lines, CleanLines),
   get_config(Lines, C),
   create_rules(CleanLines),
-  Conf = C.
+  Config = C.
 
 % Odstrani medzery zo zoznamu
 remove_spaces([], []).
@@ -27,9 +30,9 @@ remove_spaces([HL|TL], R) :-
   (HL \== ' ', remove_spaces(TL, Rs), R = [HL|Rs]).
 
 % Ziska pociatocnu konfiguraciu TS
-get_config(In, Conf) :-
+get_config(In, Config) :-
   last(In, C),
-  Conf = ['S'|C]. % Nastavi pociatocny stav
+  Config = ['S'|C]. % Nastavi pociatocny stav
 
 % Zostavi pravidla
 create_rules(In) :-
@@ -47,27 +50,45 @@ create_rules2([H|T]) :-
   create_rules2(T).
 
 % Vypise aktualnu konfiguraciu
-print_config(Conf) :-
-  atomic_list_concat(Conf, '', S),
+print_config(Config) :-
+  atomic_list_concat(Config, '', S),
   atom_string(S, R),
   writeln(R).
 
 % Najde aktualnu poziciu hlavy TS
-pos(Conf, Pos) :-
-  length(Conf, Len),
+pos(Config, Pos) :-
+  length(Config, Len),
   L is Len - 1,
-  pos2(Conf, L, P),
+  pos2(Config, L, P),
   Pos is P.
 
 % Vyhlada velke pismenu, ktore znaci poziciu hlavy, ak ho najde ulozi jeho
 % poziciu do OutPos.
-pos2(Conf, CurPos, OutPos) :-
-  nth0(CurPos, Conf, N),
+pos2(Config, CurPos, OutPos) :-
+  nth0(CurPos, Config, N),
   ( (char_type(N, upper), OutPos is CurPos);
     ( NewPos is CurPos - 1,
-      pos2(Conf, NewPos, OutPos)
+      pos2(Config, NewPos, OutPos)
     )
   ).
+
+state(Config, State) :-
+  pos(Config, Pos),
+  nth0(Pos, Config, State).
+
+% Ziska retazec pred (L) a za (R) hlavou TS
+split_config([],[],[]).
+split_config([H|T],L,R) :- char_type(H, upper),R = T, L = [].
+split_config([H|T],L,R) :-
+  \+ char_type(H, upper),
+  split_config(T,X,R),
+  append([H],X,L).
+
+% Ziska vlastnosti konfiguracie - stav, retazec pred a za hlavou, poziciu
+config_props(Config, State, Left, Right, N) :-
+  pos(Config, N),
+  state(Config, State),
+  split_config(Config, Left, Right).
 
 % ##############################################################################
 % Tato cast je prebrana z input2.pl
