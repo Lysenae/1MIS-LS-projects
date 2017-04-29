@@ -5,19 +5,18 @@
 
 % Vstupny bod programu
 main :-
-  parse_stdin(Tape),
-  write("Tape: "),
-  writeln(Tape),
+  parse_stdin(Conf),
+  print_config(Conf),
   halt.
 
 % Spracovanie nacitanych udajov - zostavenie pasky a pravidiel TS
-parse_stdin(Tape) :-
+parse_stdin(Conf) :-
   prompt(_, ''),
   read_lines(Lines),
   maplist(remove_spaces, Lines, CleanLines),
-  get_tape(CleanLines, Tp),
+  get_config(CleanLines, C),
   create_rules(CleanLines),
-  Tape = Tp.
+  Conf = C.
 
 % Odstrani medzery zo zoznamu
 remove_spaces([], []).
@@ -25,10 +24,10 @@ remove_spaces([HL|TL], R) :-
   (HL == ' ', remove_spaces(TL, R));
   (HL \== ' ', remove_spaces(TL, Rs), R = [HL|Rs]).
 
-% Ziska pasku
-get_tape(In, Tape) :-
-  last(In, Tp),
-  Tape = Tp.
+% Ziska pociatocnu konfiguraciu TS
+get_config(In, Conf) :-
+  last(In, C),
+  Conf = ['S'|C]. % Nastavi pociatocny stav
 
 % Zostavi pravidla
 create_rules(In) :-
@@ -38,14 +37,18 @@ create_rules(In) :-
 
 create_rules2([]).
 create_rules2([H|T]) :-
-  write("Creating rule for: "),
-  writeln(H),
   nth0(0, H, SttP), % StatePresent  - sucasny stav
   nth0(1, H, SymP), % SymbolPresent - sucasny synbol
   nth0(2, H, SttN), % StateNew      - novy stav
   nth0(3, H, SymN), % SymbolNew     - novy symbol, resp. posun
   assert(rule(SttP, SymP, SttN, SymN)),
   create_rules2(T).
+
+% Vypise aktualnu konfiguraciu
+print_config(Conf) :-
+  atomic_list_concat(Conf, '', S),
+  atom_string(S, R),
+  writeln(R).
 
 % ##############################################################################
 % Tato cast je prebrana z input2.pl
