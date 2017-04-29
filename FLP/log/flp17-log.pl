@@ -12,7 +12,10 @@ main :-
   write("L: "),writeln(L),
   write("R: "),writeln(R),
   write("State: "),writeln(S),
-  tm_perform(Config),
+  !,
+  %tm_perform(Config),
+  tm_action(e, 'A', [a,b,c,d,'B'], Out),
+  print_config(Out),
   halt.
 
 % Spracovanie nacitanych udajov - zostavenie pasky a pravidiel TS.
@@ -140,16 +143,19 @@ delete_nth2([HI|TI], N, CN, TmpList, OutList) :-
 % Odstrani posledny prvok zoznamu.
 % InList  - vstupny zoznam
 % OutList - vystupny zoznam
+delete_last([], []).
 delete_last(InList, OutList) :-
-  \+ is_empty(InList),
   length(InList, Len),
   L is Len-1,
   delete_nth(InList, L, OutList).
 
 % Vid. delete_last.
-delete_first(InList, OutList) :-
-  \+ is_empty(InList),
-  delete_nth(InList, 0, OutList).
+delete_first([], []).
+delete_first(InList, OutList) :- delete_nth(InList, 0, OutList).
+
+% Ziska prvy prvok zoznamu alebo vrati medzeru (blank symbol).
+first([], ' ').
+first([H|_], C) :- C = H.
 
 tm_perform(Config) :-
   tm_step(Config, OutConfig),
@@ -158,12 +164,37 @@ tm_perform(Config) :-
 tm_step(InConfig, OutConfig) :-
   OutConfig = InConfig.
 
-%tm_action('L', InConfig, OutConfig) :-
-%  split_config(InConfig, LC, RC),
-%  \+ is_empty(LC).
+% Posun hlavy TS alebo zapis znaku na poziciu hlavy.
+% Sym       - operacia (L,R) alebo symbol
+% State     - novy stav
+% Inconfig  - vstupna konfiguracia
+% OutConfig - vystupna konfiguracia
+tm_action('L', State, InConfig, OutConfig) :- % Posun hlavy dolava
+  print_config(InConfig),
+  split_config(InConfig, L, R),
+  \+ is_empty(L),                             % Chyba pri zapise za lavy okraj
+  last(L, LLast),
+  delete_last(L, LNew),
+  append(LNew, [State], Tmp1),
+  append(Tmp1, [LLast], Tmp2),
+  append(Tmp2, R, OutConfig).
 
-%tm_action('R', InConfig, OutConfig) :-
-%tm_action(Sym, InConfig, OutConfig) :-
+tm_action('R', State, InConfig, OutConfig) :- % Posun hlavy doprava
+  print_config(InConfig),
+  split_config(InConfig, L, R),
+  first(R, RFirst),                           % Bud ziska znak alebo blank
+  delete_first(R, RNew),
+  append(L, [RFirst], Tmp1),
+  append(Tmp1, [State], Tmp2),
+  append(Tmp2, RNew, OutConfig).
+
+tm_action(Sym, State, InConfig, OutConfig) :- % Zapis symbolu
+  print_config(InConfig),
+  split_config(InConfig, L, R),
+  delete_first(R, RNew),
+  append(L, [State], Tmp1),
+  append(Tmp1, [Sym], Tmp2),
+  append(Tmp2, RNew, OutConfig).
 
 % ##############################################################################
 % Tato cast je prebrana z input2.pl
