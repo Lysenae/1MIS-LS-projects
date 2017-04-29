@@ -12,6 +12,7 @@ main :-
   write("L: "),writeln(L),
   write("R: "),writeln(R),
   write("State: "),writeln(S),
+  tm_perform(Config),
   halt.
 
 % Spracovanie nacitanych udajov - zostavenie pasky a pravidiel TS.
@@ -110,6 +111,13 @@ config(Config, State, Left, Right, N) :-
   pos(Config, N),
   state(Config, State),
   split_config(Config, Left, Right).
+
+tm_perform(Config) :-
+  tm_step(Config, OutConfig),
+  print_config(OutConfig).
+
+tm_step(InConfig, OutConfig) :-
+  OutConfig = InConfig.
 
 % ##############################################################################
 % Tato cast je prebrana z input2.pl
