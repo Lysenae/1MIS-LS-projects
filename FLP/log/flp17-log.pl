@@ -16,7 +16,7 @@ parse_stdin(Conf) :-
   prompt(_, ''),
   read_lines(Lines),
   maplist(remove_spaces, Lines, CleanLines),
-  get_config(CleanLines, C),
+  get_config(Lines, C),
   create_rules(CleanLines),
   Conf = C.
 
