@@ -7,7 +7,7 @@ FILE = flp17-log
 PACK = flp-log-xklima22.zip
 
 all:
-	swipl --goal=main -o $(FILE) -c $(FILE).pl
+	swipl -q --goal=main -o $(FILE) -c $(FILE).pl
 
 clean:
 	rm -f $(FILE)
