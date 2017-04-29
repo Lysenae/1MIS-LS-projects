@@ -3,12 +3,14 @@
 
 :- dynamic rule/4.
 
+% Vstupny bod programu
 main :-
   parse_stdin(Tape),
   write("Tape: "),
   writeln(Tape),
   halt.
 
+% Spracovanie nacitanych udajov - zostavenie pasky a pravidiel TS
 parse_stdin(Tape) :-
   prompt(_, ''),
   read_lines(Lines),
@@ -17,18 +19,21 @@ parse_stdin(Tape) :-
   create_rules(CleanLines),
   Tape = Tp.
 
+% Odstrani medzery zo zoznamu
 remove_spaces([], []).
 remove_spaces([HL|TL], R) :-
   (HL == ' ', remove_spaces(TL, R));
   (HL \== ' ', remove_spaces(TL, Rs), R = [HL|Rs]).
 
+% Ziska pasku
 get_tape(In, Tape) :-
   last(In, Tp),
   Tape = Tp.
 
+% Zostavi pravidla
 create_rules(In) :-
-  last(In, Last),         % Odstran pasku
-  delete(In, Last, In2),
+  last(In, Last),
+  delete(In, Last, In2), % Odstran pasku
   create_rules2(In2).
 
 create_rules2([]).
