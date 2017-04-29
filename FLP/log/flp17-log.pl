@@ -112,12 +112,58 @@ config(Config, State, Left, Right, N) :-
   state(Config, State),
   split_config(Config, Left, Right).
 
+% Zisti, ci je zoznam prazdny.
+% L - zoznam
+is_empty(L) :-
+  length(L, Len),
+  Len == 0.
+
+% Odstrani N-ty prvok zoznamu
+% InList  - vstupny zoznam
+% N       - pozicia odstranovaneho prvku
+% OutList - vystupny parameter pre vystupny zoznam
+delete_nth(InList, N, OutList) :- delete_nth2(InList, N, 0, [], OutList).
+
+% Vid. delete_nth.
+% CN      - aktualny prvok
+% TmpList - docasny zoznam
+delete_nth2([HI|TI], N, CN, TmpList, OutList) :-
+  ( N == CN,
+    append(TmpList, TI, OutList)
+  );
+  ( N \== CN,
+    CNx is CN + 1,
+    append(TmpList, [HI], TL),
+    delete_nth2(TI, N, CNx, TL, OutList)
+  ).
+
+% Odstrani posledny prvok zoznamu.
+% InList  - vstupny zoznam
+% OutList - vystupny zoznam
+delete_last(InList, OutList) :-
+  \+ is_empty(InList),
+  length(InList, Len),
+  L is Len-1,
+  delete_nth(InList, L, OutList).
+
+% Vid. delete_last.
+delete_first(InList, OutList) :-
+  \+ is_empty(InList),
+  delete_nth(InList, 0, OutList).
+
 tm_perform(Config) :-
   tm_step(Config, OutConfig),
   print_config(OutConfig).
 
 tm_step(InConfig, OutConfig) :-
   OutConfig = InConfig.
+
+%tm_action('L', InConfig, OutConfig) :-
+%  split_config(InConfig, LC, RC),
+%  \+ is_empty(LC).
+
+%tm_action('R', InConfig, OutConfig) :-
+%tm_action(Sym, InConfig, OutConfig) :-
 
 % ##############################################################################
 % Tato cast je prebrana z input2.pl
