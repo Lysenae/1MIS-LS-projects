@@ -7,15 +7,13 @@
 main :-
   parse_stdin(Config),
   print_config(Config),
-  config(Config, S, L, R, N),
-  write("Position: "),writeln(N),
+  config(Config, S, L, R, C),
   write("L: "),writeln(L),
   write("R: "),writeln(R),
   write("State: "),writeln(S),
+  write("Symbol: "), writeln(C),
   !,
-  %tm_perform(Config),
-  tm_action(e, 'A', [a,b,c,d,'B'], Out),
-  print_config(Out),
+  tm_perform(Config, true),
   halt.
 
 % Spracovanie nacitanych udajov - zostavenie pasky a pravidiel TS.
@@ -104,16 +102,23 @@ split_config([H|T],L,R) :-
   split_config(T,X,R),
   append([H],X,L).
 
+% Ziska symbol pod hlavou TS.
+% Config - konfiguracia TS
+% Sym    - vystupny parameter pre symbol pod hlavou TS
+symbol(Config, Sym) :-
+  split_config(Config, _, R),
+  first(R, Sym).
+
 % Ziska vlastnosti konfiguracie - stav, retazec pred a za hlavou, poziciu.
 % Config - konfiguracia TS
 % State  - vystupny parameter pre stav TS
 % Left   - vystupny parameter pre retazec za (nalavo) hlavou
 % Right  - vystupny parameter pre retazec pred (napravo) hlavou
-% N      - vystupny parameter pre poziciu hlavy na paske
-config(Config, State, Left, Right, N) :-
-  pos(Config, N),
+% Symbol - vystupny parameter pre symbol pod hlavou TS
+config(Config, State, Left, Right, Symbol) :-
   state(Config, State),
-  split_config(Config, Left, Right).
+  split_config(Config, Left, Right),
+  symbol(Config, Symbol).
 
 % Zisti, ci je zoznam prazdny.
 % L - zoznam
@@ -157,12 +162,26 @@ delete_first(InList, OutList) :- delete_nth(InList, 0, OutList).
 first([], ' ').
 first([H|_], C) :- C = H.
 
-tm_perform(Config) :-
-  tm_step(Config, OutConfig),
-  print_config(OutConfig).
+tm_perform(Config, Continue) :-
+  tm_step(Config, OutConfig, Continue),
+  print_config(OutConfig),
+  ( 
+    ( Continue == true, tm_perform(OutConfig, Continue));
+    true
+  ).
 
-tm_step(InConfig, OutConfig) :-
-  OutConfig = InConfig.
+tm_step(InConfig, OutConfig, Continue) :-
+  ( state(InConfig, State),                  % Dosiahnuty koncovy stav
+    State == 'F',
+    OutConfig = InConfig,
+    Continue = false
+  );
+  (
+    config(InConfig, State, _, _, Symbol),
+    once(rule(State, Symbol, NewState, Action)),
+    write("State: "), write(NewState), write(" , Action: "), writeln(Action),
+    tm_action(Action, NewState, InConfig, OutConfig)
+  ).
 
 % Posun hlavy TS alebo zapis znaku na poziciu hlavy.
 % Sym       - operacia (L,R) alebo symbol
@@ -170,29 +189,29 @@ tm_step(InConfig, OutConfig) :-
 % Inconfig  - vstupna konfiguracia
 % OutConfig - vystupna konfiguracia
 tm_action('L', State, InConfig, OutConfig) :- % Posun hlavy dolava
-  print_config(InConfig),
+  %print_config(InConfig),
   split_config(InConfig, L, R),
   \+ is_empty(L),                             % Chyba pri zapise za lavy okraj
   last(L, LLast),
   delete_last(L, LNew),
-  append(LNew, [State], Tmp1),
+  append(LNew, [State], Tmp1),                % Skladanie novej konfiguracie
   append(Tmp1, [LLast], Tmp2),
   append(Tmp2, R, OutConfig).
 
 tm_action('R', State, InConfig, OutConfig) :- % Posun hlavy doprava
-  print_config(InConfig),
+  %print_config(InConfig),
   split_config(InConfig, L, R),
   first(R, RFirst),                           % Bud ziska znak alebo blank
   delete_first(R, RNew),
-  append(L, [RFirst], Tmp1),
+  append(L, [RFirst], Tmp1),                  % Skladanie novej konfiguracie
   append(Tmp1, [State], Tmp2),
   append(Tmp2, RNew, OutConfig).
 
 tm_action(Sym, State, InConfig, OutConfig) :- % Zapis symbolu
-  print_config(InConfig),
+  %print_config(InConfig),
   split_config(InConfig, L, R),
   delete_first(R, RNew),
-  append(L, [State], Tmp1),
+  append(L, [State], Tmp1),                   % Skladanie novej konfiguracie
   append(Tmp1, [Sym], Tmp2),
   append(Tmp2, RNew, OutConfig).
 
