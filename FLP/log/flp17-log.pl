@@ -157,20 +157,25 @@ first([H|_], C) :- C = H.
 
 tm_perform(Config) :-
   config(Config, State, _, _, Symbol),
-  tm_step(State, Symbol, Config, _).
+  ( tm_step(State, Symbol, Config, _);
+    false                                  % Abnormalne zastavenie
+  ).
 
+% Krok vypoctu TS
+% State      - aktualny stav TS
+% Symbol     - symbol pod hlavou TS
+% InConfig   - vstupna konfiguracia TS
+% OutConfigs - zoznam vystupnych konfiguracii
 tm_step('F', _, InConfig, OutConfigs) :-
   print_configs(OutConfigs),
   print_config(InConfig),
   !.
 
 tm_step(State, Symbol, InConfig, OutConfigs) :-
-    %write("InConfig: "), print_config(InConfig),
     append(OutConfigs, [InConfig], OCs),
+    !,
     rule(State, Symbol, NewState, Action),
-    %write("State: "), write(NewState), write(" , Action: "), writeln(Action),
     tm_action(Action, NewState, InConfig, OC),
-    %write("OC: "), print_config(OC),
     config(OC, NStt, _, _, NSym),
     tm_step(NStt, NSym, OC, OCs).
 
