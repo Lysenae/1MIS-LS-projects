@@ -19,6 +19,3 @@ pack: clean
 
 test: all
 	bash test.sh
-
-pack: clean
-	zip -r $(PACK) .
