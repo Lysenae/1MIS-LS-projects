@@ -167,22 +167,22 @@ tm_step('F', _, InConfig, OutConfigs) :-
   !.
 
 tm_step(State, Symbol, InConfig, OutConfigs) :-
-    append(OutConfigs, [InConfig], OCs),
-    rule(State, Symbol, NewState, Action),
-    ( % Ak sa dookola opakuje ta ista akcia, skus nahodne vybrat inu
-      ( State == NewState,
-        (Symbol == Action; Action == 'R'; Action == 'L'),
-        tm_choose_rule(State, Symbol, NS, NA),
-        tm_action(NA, NS, InConfig, OC),
-        config(OC, NStt, _, _, NSym),
-        tm_step(NStt, NSym, OC, OCs)
-      );
-      (
-        tm_action(Action, NewState, InConfig, OC),
-        config(OC, NStt, _, _, NSym),
-        tm_step(NStt, NSym, OC, OCs)
-      )
-    ).
+  append(OutConfigs, [InConfig], OCs),
+  rule(State, Symbol, NewState, Action),
+  ( % Ak sa dookola opakuje ta ista akcia, skus nahodne vybrat inu
+    ( State == NewState,
+      (Symbol == Action; Action == 'R'; Action == 'L'),
+      tm_choose_rule(State, Symbol, NS, NA),
+      tm_action(NA, NS, InConfig, OC),
+      config(OC, NStt, _, _, NSym),
+      tm_step(NStt, NSym, OC, OCs)
+    );
+    (
+      tm_action(Action, NewState, InConfig, OC),
+      config(OC, NStt, _, _, NSym),
+      tm_step(NStt, NSym, OC, OCs)
+    )
+  ).
 
 % Vyberie pravidlo lisiace sa od predosleho pouziteho, ak existuje take pravidlo.
 % State     - aktualy stav TS
