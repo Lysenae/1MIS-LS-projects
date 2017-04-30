@@ -4,17 +4,7 @@
 :- dynamic rule/4.
 
 % Vstupny bod programu
-main :-
-  parse_stdin(Config),
-  print_config(Config),
-  config(Config, S, L, R, C),
-  write("L: "),writeln(L),
-  write("R: "),writeln(R),
-  write("State: "),writeln(S),
-  write("Symbol: "), writeln(C),
-  !,
-  tm_perform(Config, true),
-  halt.
+main :- parse_stdin(Config), !, tm_perform(Config), halt.
 
 % Spracovanie nacitanych udajov - zostavenie pasky a pravidiel TS.
 % Config - vystpuny parameter pre konfiguraciu TS
@@ -62,6 +52,9 @@ print_config(Config) :-
   atomic_list_concat(Config, '', S),
   atom_string(S, R),
   writeln(R).
+
+print_configs([]).
+print_configs([H|T]) :- print_config(H), print_configs(T).
 
 % Najde aktualnu poziciu hlavy TS.
 % Config - konfiguracia TS
@@ -162,26 +155,24 @@ delete_first(InList, OutList) :- delete_nth(InList, 0, OutList).
 first([], ' ').
 first([H|_], C) :- C = H.
 
-tm_perform(Config, Continue) :-
-  tm_step(Config, OutConfig, Continue),
-  print_config(OutConfig),
-  ( 
-    ( Continue == true, tm_perform(OutConfig, Continue));
-    true
-  ).
+tm_perform(Config) :-
+  config(Config, State, _, _, Symbol),
+  tm_step(State, Symbol, Config, _).
 
-tm_step(InConfig, OutConfig, Continue) :-
-  ( state(InConfig, State),                  % Dosiahnuty koncovy stav
-    State == 'F',
-    OutConfig = InConfig,
-    Continue = false
-  );
-  (
-    config(InConfig, State, _, _, Symbol),
-    once(rule(State, Symbol, NewState, Action)),
-    write("State: "), write(NewState), write(" , Action: "), writeln(Action),
-    tm_action(Action, NewState, InConfig, OutConfig)
-  ).
+tm_step('F', _, InConfig, OutConfigs) :-
+  print_configs(OutConfigs),
+  print_config(InConfig),
+  !.
+
+tm_step(State, Symbol, InConfig, OutConfigs) :-
+    %write("InConfig: "), print_config(InConfig),
+    append(OutConfigs, [InConfig], OCs),
+    rule(State, Symbol, NewState, Action),
+    %write("State: "), write(NewState), write(" , Action: "), writeln(Action),
+    tm_action(Action, NewState, InConfig, OC),
+    %write("OC: "), print_config(OC),
+    config(OC, NStt, _, _, NSym),
+    tm_step(NStt, NSym, OC, OCs).
 
 % Posun hlavy TS alebo zapis znaku na poziciu hlavy.
 % Sym       - operacia (L,R) alebo symbol
@@ -209,6 +200,7 @@ tm_action('R', State, InConfig, OutConfig) :- % Posun hlavy doprava
 
 tm_action(Sym, State, InConfig, OutConfig) :- % Zapis symbolu
   %print_config(InConfig),
+  char_type(Sym, lower),                      % Kontrola, ci je to symbol
   split_config(InConfig, L, R),
   delete_first(R, RNew),
   append(L, [State], Tmp1),                   % Skladanie novej konfiguracie
