@@ -184,6 +184,11 @@ tm_step(State, Symbol, InConfig, OutConfigs) :-
       )
     ).
 
+% Nahodne vyberie pravidlo.
+% State     - aktualy stav TS
+% Symbol    - symbol pod hlavou TS
+% NewState  - vystupny parameter pre novy symbol
+% NewSymbol - vystupny parameter pre symbol alebo posun
 tm_choose_rule(State, Symbol, NewState, NewSymbol) :-
   findall([State, Symbol, NS, A], rule(State, Symbol, NS, A), Rules),
   length(Rules, Len),
@@ -203,7 +208,6 @@ tm_choose_rule(State, Symbol, NewState, NewSymbol) :-
 % Inconfig  - vstupna konfiguracia
 % OutConfig - vystupna konfiguracia
 tm_action('L', State, InConfig, OutConfig) :- % Posun hlavy dolava
-  %print_config(InConfig),
   split_config(InConfig, L, R),
   \+ is_empty(L),                             % Chyba pri zapise za lavy okraj
   last(L, LLast),
@@ -213,7 +217,6 @@ tm_action('L', State, InConfig, OutConfig) :- % Posun hlavy dolava
   append(Tmp2, R, OutConfig).
 
 tm_action('R', State, InConfig, OutConfig) :- % Posun hlavy doprava
-  %print_config(InConfig),
   split_config(InConfig, L, R),
   first(R, RFirst),                           % Bud ziska znak alebo blank
   delete_first(R, RNew),
@@ -222,7 +225,6 @@ tm_action('R', State, InConfig, OutConfig) :- % Posun hlavy doprava
   append(Tmp2, RNew, OutConfig).
 
 tm_action(Sym, State, InConfig, OutConfig) :- % Zapis symbolu
-  %print_config(InConfig),
   char_type(Sym, lower),                      % Kontrola, ci je to symbol
   split_config(InConfig, L, R),
   delete_first(R, RNew),
