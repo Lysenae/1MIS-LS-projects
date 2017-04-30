@@ -184,7 +184,7 @@ tm_step(State, Symbol, InConfig, OutConfigs) :-
       )
     ).
 
-% Nahodne vyberie pravidlo.
+% Vyberie pravidlo lisiace sa od predosleho pouziteho, ak existuje take pravidlo.
 % State     - aktualy stav TS
 % Symbol    - symbol pod hlavou TS
 % NewState  - vystupny parameter pre novy symbol
