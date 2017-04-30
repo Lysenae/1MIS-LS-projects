@@ -53,6 +53,8 @@ print_config(Config) :-
   atom_string(S, R),
   writeln(R).
 
+% Vypise zoznam konfiguracii, kazdu na novy riadok.
+% Configs - zoznam konfiguracii
 print_configs([]).
 print_configs([H|T]) :- print_config(H), print_configs(T).
 
@@ -119,7 +121,7 @@ is_empty(L) :-
   length(L, Len),
   Len == 0.
 
-% Odstrani N-ty prvok zoznamu
+% Odstrani N-ty prvok zoznamu.
 % InList  - vstupny zoznam
 % N       - pozicia odstranovaneho prvku
 % OutList - vystupny parameter pre vystupny zoznam
@@ -155,13 +157,15 @@ delete_first(InList, OutList) :- delete_nth(InList, 0, OutList).
 first([], ' ').
 first([H|_], C) :- C = H.
 
+% Vypocet TS.
+% Config - vstupna konfiguracia
 tm_perform(Config) :-
   config(Config, State, _, _, Symbol),
   ( tm_step(State, Symbol, Config, _);
     false                                  % Abnormalne zastavenie
   ).
 
-% Krok vypoctu TS
+% Krok vypoctu TS.
 % State      - aktualny stav TS
 % Symbol     - symbol pod hlavou TS
 % InConfig   - vstupna konfiguracia TS
