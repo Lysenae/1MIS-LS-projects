@@ -198,7 +198,7 @@ tm_choose_rule(State, Symbol, NewState, NewSymbol) :-
     nth0(2, Rule, NewState),
     nth0(3, Rule, NewSymbol)
   );
-  (
+  ( % Ziadne odpovedajuce pravidlo nebolo najdene
     false
   ).
 
