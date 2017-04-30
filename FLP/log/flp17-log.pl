@@ -151,8 +151,8 @@ first([H|_], C) :- C = H.
 % Vypocet TS.
 % Config - vstupna konfiguracia
 tm_perform(Config) :-
-  config(Config, State, _, _, Symbol),
-  ( tm_step(State, Symbol, Config, _);
+  config(Config, State, _, _, Symbol), !,
+  ( tm_step(State, Symbol, Config, []);
     false                                  % Abnormalne zastavenie
   ).
 
@@ -167,13 +167,35 @@ tm_step('F', _, InConfig, OutConfigs) :-
   !.
 
 tm_step(State, Symbol, InConfig, OutConfigs) :-
-    write("InConfig"), writeln(InConfig),
     append(OutConfigs, [InConfig], OCs),
-    !,
     rule(State, Symbol, NewState, Action),
-    tm_action(Action, NewState, InConfig, OC),
-    config(OC, NStt, _, _, NSym),
-    tm_step(NStt, NSym, OC, OCs).
+    ( % Ak sa dookola opakuje ta ista akcia, skus nahodne vybrat inu
+      ( State == NewState,
+        (Symbol == Action; Action == 'R'; Action == 'L'),
+        tm_choose_rule(State, Symbol, NS, NA),
+        tm_action(NA, NS, InConfig, OC),
+        config(OC, NStt, _, _, NSym),
+        tm_step(NStt, NSym, OC, OCs)
+      );
+      (
+        tm_action(Action, NewState, InConfig, OC),
+        config(OC, NStt, _, _, NSym),
+        tm_step(NStt, NSym, OC, OCs)
+      )
+    ).
+
+tm_choose_rule(State, Symbol, NewState, NewSymbol) :-
+  findall([State, Symbol, NS, A], rule(State, Symbol, NS, A), Rules),
+  length(Rules, Len),
+  ( Len > 0,
+    random(0, Len, Rnd),
+    nth0(Rnd, Rules, Rule),
+    nth0(2, Rule, NewState),
+    nth0(3, Rule, NewSymbol)
+  );
+  (
+    false
+  ).
 
 % Posun hlavy TS alebo zapis znaku na poziciu hlavy.
 % Sym       - operacia (L,R) alebo symbol
