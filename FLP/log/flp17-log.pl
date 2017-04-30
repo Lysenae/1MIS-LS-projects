@@ -190,16 +190,33 @@ tm_step(State, Symbol, InConfig, OutConfigs) :-
 % NewState  - vystupny parameter pre novy symbol
 % NewSymbol - vystupny parameter pre symbol alebo posun
 tm_choose_rule(State, Symbol, NewState, NewSymbol) :-
-  findall([State, Symbol, NS, A], rule(State, Symbol, NS, A), Rules),
+  findall([NS, A], rule(State, Symbol, NS, A), Rules),
   length(Rules, Len),
-  ( Len > 0,
-    random(0, Len, Rnd),
-    nth0(Rnd, Rules, Rule),
-    nth0(2, Rule, NewState),
-    nth0(3, Rule, NewSymbol)
-  );
-  ( % Ziadne odpovedajuce pravidlo nebolo najdene
-    false
+  (
+    ( Len > 1,
+      tm_choose_rule2(Rules, State, Symbol, NewState, NewSymbol)
+    );
+    ( Len == 1,
+      nth0(0, Rules, Rule),
+      nth0(0, Rule, NewState),
+      nth0(1, Rule, NewSymbol)
+    );
+    ( % Ziadne odpovedajuce pravidlo nebolo najdene
+      false
+    )
+  ).
+
+tm_choose_rule2([], _, _, _, _) :- false.
+tm_choose_rule2([H|T], State, Symbol, NewState, NewSymbol) :-
+  nth0(0, H, Stt),
+  nth0(1, H, Sym),
+  (
+    ( Stt \== State,
+      Sym \== Symbol,
+      NewState = Stt,
+      NewSymbol = Sym
+    );
+    tm_choose_rule2(T, State, Symbol, NewState, NewSymbol)
   ).
 
 % Posun hlavy TS alebo zapis znaku na poziciu hlavy.
