@@ -30,3 +30,6 @@ K programu je priložená testovacia sada tvorená 9 testami:
  9 - Nekonečný posuv, ukončí sa na nedostatok pamäti
 
 Všetky testy s výnimkou testu 9 by mali skončiť v priebehu sekundy.
+
+Spustenie testov:
+make test
