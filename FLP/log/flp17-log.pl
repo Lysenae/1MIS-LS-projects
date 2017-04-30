@@ -11,17 +11,8 @@ main :- parse_stdin(Config), !, tm_perform(Config), halt.
 parse_stdin(Config) :-
   prompt(_, ''),
   read_lines(Lines),
-  maplist(remove_spaces, Lines, CleanLines),
   get_config(Lines, Config),
-  create_rules(CleanLines).
-
-% Odstrani medzery zo zoznamu.
-% L - zoznam
-% R - vysupny parameter pre vystupny zoznam
-remove_spaces([], []).
-remove_spaces([HL|TL], R) :-
-  (HL == ' ', remove_spaces(TL, R));
-  (HL \== ' ', remove_spaces(TL, Rs), R = [HL|Rs]).
+  create_rules(Lines).
 
 % Ziska pociatocnu konfiguraciu TS.
 % In     - zoznam
@@ -40,9 +31,9 @@ create_rules(In) :-
 create_rules2([]).
 create_rules2([H|T]) :-
   nth0(0, H, SttP), % StatePresent  - sucasny stav
-  nth0(1, H, SymP), % SymbolPresent - sucasny synbol
-  nth0(2, H, SttN), % StateNew      - novy stav
-  nth0(3, H, SymN), % SymbolNew     - novy symbol, resp. posun
+  nth0(2, H, SymP), % SymbolPresent - sucasny synbol
+  nth0(4, H, SttN), % StateNew      - novy stav
+  nth0(6, H, SymN), % SymbolNew     - novy symbol, resp. posun
   assert(rule(SttP, SymP, SttN, SymN)),
   create_rules2(T).
 
@@ -176,6 +167,7 @@ tm_step('F', _, InConfig, OutConfigs) :-
   !.
 
 tm_step(State, Symbol, InConfig, OutConfigs) :-
+    write("InConfig"), writeln(InConfig),
     append(OutConfigs, [InConfig], OCs),
     !,
     rule(State, Symbol, NewState, Action),
